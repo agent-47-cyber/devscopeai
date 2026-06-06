@@ -1,0 +1,465 @@
+{
+  "users": [
+    {
+      "id": "6a2298ae0ee45fd068b00bae",
+      "username": "khand",
+      "email": "khand@test.com",
+      "password": "$2a$10$Y1zLQmx4Rn.iKNGT2d.pjObOafpYiKyWYjUNN65QK9AuyarV2gVbu"
+    },
+    {
+      "id": "6a229c36da304e5155a74745",
+      "username": "cutieaishu",
+      "email": "aishucutie@gmail.com",
+      "password": "$2a$10$w3wTtGQounGjLfFPvIT8ieQ/J4s7f2X5zTZ7jfNWHOJXi.AScs3Fa"
+    },
+    {
+      "id": "6a229cbbda304e5155a74746",
+      "username": "agent47",
+      "email": "agent47@gmail.com",
+      "password": "$2a$10$zIYTOCMFHJc8jePC55NQjO.Fjb6mByPtHdDpqrW/ftOGsa3aON1bK"
+    },
+    {
+      "id": "6a22a104f2d0428187920759",
+      "username": "tnmy",
+      "email": "tnmybthm@gmail.com",
+      "password": "$2a$10$ZrXR1WjaZHQ9fx9LZ9txbeMuO7cQjlHdpNspJXtqBx3AJLUeVzJie"
+    },
+    {
+      "id": "6a22a32df2d042818792075a",
+      "username": "aishhh",
+      "email": "aishhwarya@gmail.com",
+      "password": "$2a$10$8IOQeSMICx4EM.R3zoYZLeUSwbYVSd8h1YpwO6nHmTYf1mqmE5nna"
+    },
+    {
+      "id": "6a22aea5f2d042818792075b",
+      "username": "devtest",
+      "email": "devtest@test.com",
+      "password": "$2a$10$ofFUbhSo9tQVVJnwDKTCYusHNCs5sk.vkKeOS50sxHc31ZjMUxkdS"
+    }
+  ],
+  "analyses": [
+    {
+      "userId": "6a2298ae0ee45fd068b00bae",
+      "resumeData": {
+        "atsScore": 67,
+        "foundKeywords": [
+          "React",
+          "Node.js",
+          "JavaScript",
+          "Git"
+        ],
+        "missingKeywords": [
+          "Vue",
+          "Angular",
+          "Express",
+          "TypeScript",
+          "Python",
+          "AWS",
+          "Docker",
+          "Kubernetes"
+        ],
+        "suggestions": [
+          "Quantify your achievements: Add percentages, revenue numbers, or time saved (e.g., \"improved loading speed by 40%\").",
+          "Include cloud technologies (AWS/GCP) and CI/CD pipelines to match senior profiles.",
+          "Format resume into a single-column layout to prevent ATS layout parsing glitches."
+        ]
+      },
+      "scores": {
+        "github": 76,
+        "careerReady": 95,
+        "portfolio": null
+      },
+      "createdAt": "2026-06-05T11:06:59.614Z",
+      "githubUsername": "khandelwalyatin2",
+      "githubData": {
+        "username": "khandelwalyatin2",
+        "name": "Khandelwalyatin2",
+        "avatarUrl": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
+        "bio": "Full-Stack Developer focused on modern web architectures & scalable API designs.",
+        "publicRepos": 14,
+        "followers": 8,
+        "following": 12,
+        "languages": [
+          {
+            "name": "JavaScript",
+            "percentage": 60
+          },
+          {
+            "name": "TypeScript",
+            "percentage": 25
+          },
+          {
+            "name": "HTML/CSS",
+            "percentage": 15
+          }
+        ],
+        "score": 76,
+        "docScore": 71,
+        "flaggedRepos": [
+          "portfolio-website",
+          "express-api-boilerplate"
+        ],
+        "topRepos": [
+          {
+            "name": "portfolio-website",
+            "stars": 4,
+            "forks": 1,
+            "language": "JavaScript",
+            "url": "#"
+          },
+          {
+            "name": "express-api-boilerplate",
+            "stars": 2,
+            "forks": 0,
+            "language": "JavaScript",
+            "url": "#"
+          },
+          {
+            "name": "ai-profile-analyzer",
+            "stars": 8,
+            "forks": 2,
+            "language": "TypeScript",
+            "url": "#"
+          }
+        ]
+      },
+      "targetRole": "frontend",
+      "linkedinUrl": "https://linkedin.com/in/khand",
+      "linkedinData": {
+        "score": 95,
+        "checklist": {
+          "customUrl": true,
+          "profilePhoto": true,
+          "headlineKeywords": false,
+          "experienceDetails": true
+        },
+        "isDefaultUrl": false,
+        "suggestedHeadline": "Frontend Engineer | React | TypeScript | Next.js | Building Scalable Web UIs",
+        "profileHandle": "khand"
+      }
+    },
+    {
+      "userId": "6a229c36da304e5155a74745",
+      "resumeData": {
+        "atsScore": 78,
+        "foundKeywords": [
+          "React",
+          "Node.js",
+          "Express",
+          "TypeScript",
+          "JavaScript",
+          "AWS",
+          "Docker",
+          "CI/CD",
+          "Git",
+          "SQL",
+          "MongoDB"
+        ],
+        "missingKeywords": [
+          "Vue",
+          "Angular",
+          "Python",
+          "Kubernetes",
+          "PostgreSQL",
+          "GraphQL",
+          "REST",
+          "Tailwind"
+        ],
+        "suggestions": [
+          "Quantify your achievements: Add percentages, revenue numbers, or time saved (e.g., \"improved loading speed by 40%\").",
+          "Include cloud technologies (AWS/GCP) and CI/CD pipelines to match senior profiles.",
+          "Format resume into a single-column layout to prevent ATS layout parsing glitches."
+        ]
+      },
+      "scores": {
+        "github": 78,
+        "ats": 78,
+        "careerReady": 85,
+        "portfolio": 80
+      },
+      "createdAt": "2026-06-05T09:52:13.242Z"
+    },
+    {
+      "userId": "6a229cbbda304e5155a74746",
+      "resumeData": {
+        "atsScore": 69,
+        "foundKeywords": [
+          "React",
+          "Node.js",
+          "JavaScript",
+          "Git",
+          "SQL"
+        ],
+        "missingKeywords": [
+          "Vue",
+          "Angular",
+          "Express",
+          "TypeScript",
+          "Python",
+          "AWS",
+          "Docker",
+          "Kubernetes"
+        ],
+        "suggestions": [
+          "Quantify your achievements: Add percentages, revenue numbers, or time saved (e.g., \"improved loading speed by 40%\").",
+          "Include cloud technologies (AWS/GCP) and CI/CD pipelines to match senior profiles.",
+          "Format resume into a single-column layout to prevent ATS layout parsing glitches."
+        ]
+      },
+      "scores": {
+        "github": 78,
+        "ats": 69,
+        "careerReady": 85,
+        "portfolio": 77
+      },
+      "createdAt": "2026-06-05T09:55:29.738Z"
+    },
+    {
+      "userId": "6a22a104f2d0428187920759",
+      "githubUsername": "khand",
+      "githubData": {
+        "username": "khand",
+        "name": "khand",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/1668237?v=4",
+        "bio": "Full-Stack Developer focused on modern web architectures & scalable API designs.",
+        "publicRepos": 0,
+        "followers": 0,
+        "following": 0,
+        "languages": [
+          {
+            "name": "JavaScript",
+            "percentage": 70
+          },
+          {
+            "name": "HTML/CSS",
+            "percentage": 30
+          }
+        ],
+        "score": 50,
+        "docScore": 100,
+        "flaggedRepos": [],
+        "topRepos": []
+      },
+      "targetRole": "frontend",
+      "scores": {
+        "github": 50,
+        "careerReady": 95,
+        "portfolio": null
+      },
+      "createdAt": "2026-06-05T10:12:54.389Z",
+      "resumeData": {
+        "atsScore": 53,
+        "foundKeywords": [
+          "React",
+          "Node.js",
+          "Express",
+          "TypeScript",
+          "JavaScript",
+          "AWS",
+          "Docker",
+          "CI/CD",
+          "Git",
+          "SQL",
+          "MongoDB"
+        ],
+        "missingKeywords": [
+          "Vue",
+          "Angular",
+          "Python",
+          "Kubernetes",
+          "PostgreSQL",
+          "GraphQL",
+          "REST",
+          "Tailwind"
+        ],
+        "suggestions": [
+          "Action Verbs Count (2/8): Add more strong action verbs (e.g., Engineered, Spearheaded, Optimized) instead of passive phrasing.",
+          "Structure checklist: Missing explicit \"Projects\" section to highlight technical works.",
+          "Metrics: We didn't detect quantified achievements. Add numbers (e.g., \"reduced latency by 35%\")."
+        ],
+        "sectionsChecklist": {
+          "experience": true,
+          "projects": false,
+          "skills": true,
+          "education": false
+        },
+        "actionVerbCount": 2
+      },
+      "linkedinUrl": "https://linkedin.com/in/developer",
+      "linkedinData": {
+        "score": 95,
+        "checklist": {
+          "customUrl": true,
+          "profilePhoto": true,
+          "headlineKeywords": false,
+          "experienceDetails": true
+        },
+        "isDefaultUrl": false,
+        "suggestedHeadline": "Frontend Engineer | React | TypeScript | Next.js | Building Scalable Web UIs",
+        "profileHandle": "developer"
+      }
+    },
+    {
+      "userId": "6a22a32df2d042818792075a",
+      "githubUsername": "khand",
+      "githubData": {
+        "username": "khand",
+        "name": "khand",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/1668237?v=4",
+        "bio": "Full-Stack Developer focused on modern web architectures & scalable API designs.",
+        "publicRepos": 0,
+        "followers": 0,
+        "following": 0,
+        "languages": [
+          {
+            "name": "JavaScript",
+            "percentage": 70
+          },
+          {
+            "name": "HTML/CSS",
+            "percentage": 30
+          }
+        ],
+        "score": 50,
+        "docScore": 100,
+        "flaggedRepos": [],
+        "topRepos": []
+      },
+      "targetRole": "frontend",
+      "scores": {
+        "github": 50,
+        "careerReady": 95,
+        "portfolio": null
+      },
+      "createdAt": "2026-06-05T10:22:27.710Z",
+      "resumeData": {
+        "atsScore": 53,
+        "foundKeywords": [
+          "React",
+          "Node.js",
+          "Express",
+          "TypeScript",
+          "JavaScript",
+          "AWS",
+          "Docker",
+          "CI/CD",
+          "Git",
+          "SQL",
+          "MongoDB"
+        ],
+        "missingKeywords": [
+          "Vue",
+          "Angular",
+          "Python",
+          "Kubernetes",
+          "PostgreSQL",
+          "GraphQL",
+          "REST",
+          "Tailwind"
+        ],
+        "suggestions": [
+          "Action Verbs Count (2/8): Add more strong action verbs (e.g., Engineered, Spearheaded, Optimized) instead of passive phrasing.",
+          "Structure checklist: Missing explicit \"Projects\" section to highlight technical works.",
+          "Metrics: We didn't detect quantified achievements. Add numbers (e.g., \"reduced latency by 35%\")."
+        ],
+        "sectionsChecklist": {
+          "experience": true,
+          "projects": false,
+          "skills": true,
+          "education": false
+        },
+        "actionVerbCount": 2
+      },
+      "linkedinUrl": "https://linkedin.com/in/developer",
+      "linkedinData": {
+        "score": 95,
+        "checklist": {
+          "customUrl": true,
+          "profilePhoto": true,
+          "headlineKeywords": false,
+          "experienceDetails": true
+        },
+        "isDefaultUrl": false,
+        "suggestedHeadline": "Frontend Engineer | React | TypeScript | Next.js | Building Scalable Web UIs",
+        "profileHandle": "developer"
+      }
+    },
+    {
+      "userId": "6a22aea5f2d042818792075b",
+      "resumeData": {
+        "atsScore": 50,
+        "foundKeywords": [
+          "React",
+          "Node.js",
+          "Express",
+          "TypeScript",
+          "JavaScript",
+          "AWS",
+          "Docker",
+          "CI/CD",
+          "Git",
+          "SQL",
+          "MongoDB"
+        ],
+        "missingKeywords": [
+          "Vue",
+          "Angular",
+          "Python",
+          "Kubernetes",
+          "PostgreSQL",
+          "GraphQL",
+          "REST",
+          "Tailwind"
+        ],
+        "suggestions": [
+          "Action Verbs Count (1/8): Add more strong action verbs (e.g., Engineered, Spearheaded, Optimized) instead of passive phrasing.",
+          "Structure checklist: Missing explicit \"Projects\" section to highlight technical works.",
+          "Metrics: We didn't detect quantified achievements. Add numbers (e.g., \"reduced latency by 35%\")."
+        ],
+        "sectionsChecklist": {
+          "experience": true,
+          "projects": false,
+          "skills": true,
+          "education": false
+        },
+        "actionVerbCount": 1
+      },
+      "scores": {
+        "github": 76,
+        "careerReady": 80,
+        "portfolio": null
+      },
+      "createdAt": "2026-06-05T11:13:04.126Z",
+      "linkedinUrl": "https://www.linkedin.com/in/aishwarya-maheshwari-44ba33336/",
+      "linkedinData": {
+        "score": 80,
+        "checklist": {
+          "customUrl": false,
+          "profilePhoto": true,
+          "headlineKeywords": false,
+          "experienceDetails": true
+        },
+        "isDefaultUrl": true,
+        "suggestedHeadline": "Frontend Engineer | React | TypeScript | Next.js | Building Scalable Web UIs",
+        "profileHandle": "aishwarya-maheshwari-44ba33336"
+      }
+    }
+  ],
+  "chatHistories": [
+    {
+      "userId": "6a22a32df2d042818792075a",
+      "messages": [
+        {
+          "role": "user",
+          "content": "what should i do for applying a position of senior develoer in google",
+          "timestamp": "2026-06-05T10:23:53.594Z"
+        },
+        {
+          "role": "assistant",
+          "content": "I'm your AI Career Coach. I've scanned your developer details. Let me know if you would like me to audit your GitHub profile, test your resume keywords, or do a simulated mock interview!",
+          "timestamp": "2026-06-05T10:23:53.594Z"
+        }
+      ]
+    }
+  ]
+}

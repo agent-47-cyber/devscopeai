@@ -1,0 +1,121 @@
+/* Auth Modal Styling */
+
+.auth-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(3, 4, 8, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Auth card neon glow background spot */
+.auth-card::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.auth-card::after {
+  content: "";
+  position: absolute;
+  bottom: -60px;
+  left: -60px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.auth-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-close:hover {
+  color: #ffffff;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-header h3 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.auth-header p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.auth-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.auth-toggle-link {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  margin-left: 6px;
+}
+
+.auth-toggle-link:hover {
+  text-decoration: underline;
+}
