@@ -19,6 +19,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || process.env.CLIENT_URL || '';
 const allowedOrigins = [
   FRONTEND_URL,
   'http://localhost:5173',
+  'http://localhost:5174',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
@@ -26,13 +27,20 @@ const allowedOrigins = [
 
 app.use(cors({
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    // Allow any Vercel preview/production deployment
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    // Allow explicitly whitelisted origins
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+// Handle preflight requests explicitly
+app.options('*', cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -46,8 +54,17 @@ let isDbConnected = false;
 let pool = null;
 const LOCAL_DB_PATH = path.resolve('devscope_db.json');
 
-if (!fs.existsSync(LOCAL_DB_PATH)) {
-  fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify({ users: [], analyses: [], chatHistories: [] }, null, 2));
+// In-memory fallback for read-only environments (e.g. Render free tier)
+let inMemoryDb = { users: [], analyses: [], chatHistories: [] };
+let useInMemoryFallback = false;
+
+try {
+  if (!fs.existsSync(LOCAL_DB_PATH)) {
+    fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify({ users: [], analyses: [], chatHistories: [] }, null, 2));
+  }
+} catch (err) {
+  console.warn('Filesystem is read-only, using in-memory fallback DB:', err.message);
+  useInMemoryFallback = true;
 }
 
 const usePostgresSsl = DATABASE_URL && !DATABASE_URL.includes('localhost') && !DATABASE_URL.includes('127.0.0.1');
@@ -122,6 +139,7 @@ const initializeDatabase = async () => {
 initializeDatabase();
 
 const readLocalDb = () => {
+  if (useInMemoryFallback) return inMemoryDb;
   try {
     return JSON.parse(fs.readFileSync(LOCAL_DB_PATH, 'utf-8'));
   } catch (err) {
@@ -130,7 +148,17 @@ const readLocalDb = () => {
 };
 
 const writeLocalDb = (data) => {
-  fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(data, null, 2));
+  if (useInMemoryFallback) {
+    inMemoryDb = data;
+    return;
+  }
+  try {
+    fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.warn('Could not write to local DB file, storing in-memory:', err.message);
+    useInMemoryFallback = true;
+    inMemoryDb = data;
+  }
 };
 
 // ==========================================
@@ -197,7 +225,8 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(201).json({ token, user: { id: newId, username, email } });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Server error during registration.' });
+    console.error('[register] Error:', error.message, error.stack);
+    res.status(500).json({ error: 'Server error during registration.', detail: error.message });
   }
 });
 
