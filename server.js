@@ -1,76 +1,125 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
+import pg from 'pg';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import path from 'path';
+import { randomUUID } from 'crypto';
+
+const { Pool } = pg;
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'devscope_secret_key_12345';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/devscope';
+const DATABASE_URL = process.env.DATABASE_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || process.env.CLIENT_URL || '';
 
-app.use(cors());
+const allowedOrigins = [
+  FRONTEND_URL,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+].filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true
+}));
 app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.json({ message: 'DevScope AI API Server is running.', status: 'healthy' });
+});
 
 // ==========================================
 // DATABASE SETUP & FALLBACK MECHANISM
 // ==========================================
 let isDbConnected = false;
+let pool = null;
 const LOCAL_DB_PATH = path.resolve('devscope_db.json');
 
 if (!fs.existsSync(LOCAL_DB_PATH)) {
   fs.writeFileSync(LOCAL_DB_PATH, JSON.stringify({ users: [], analyses: [], chatHistories: [] }, null, 2));
 }
 
-mongoose.connect(MONGODB_URI)
-  .then(() => {
-    console.log('Successfully connected to MongoDB.');
-    isDbConnected = true;
-  })
-  .catch((err) => {
-    console.warn(`MongoDB Connection failed: ${err.message}. Running in JSON File Fallback Mode.`);
-    isDbConnected = false;
+const usePostgresSsl = DATABASE_URL && !DATABASE_URL.includes('localhost') && !DATABASE_URL.includes('127.0.0.1');
+
+if (DATABASE_URL) {
+  pool = new Pool({
+    connectionString: DATABASE_URL,
+    ssl: usePostgresSsl ? { rejectUnauthorized: false } : false
   });
+}
 
-const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
-});
+const mapAnalysisRow = (row) => row ? ({
+  userId: row.userId,
+  githubUsername: row.githubUsername,
+  scores: row.scores,
+  githubData: row.githubData,
+  resumeData: row.resumeData,
+  linkedinData: row.linkedinData,
+  linkedinUrl: row.linkedinUrl,
+  targetRole: row.targetRole,
+  createdAt: row.createdAt,
+  updatedAt: row.updatedAt
+}) : null;
 
-const AnalysisSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  githubUsername: String,
-  scores: {
-    portfolio: Number,
-    ats: Number,
-    github: Number,
-    careerReady: Number
-  },
-  githubData: mongoose.Schema.Types.Mixed,
-  resumeData: mongoose.Schema.Types.Mixed,
-  linkedinData: mongoose.Schema.Types.Mixed,
-  linkedinUrl: String,
-  targetRole: String,
-  createdAt: { type: Date, default: Date.now }
-});
+const initializeDatabase = async () => {
+  if (!pool) {
+    console.warn('DATABASE_URL is not set. Running in JSON File Fallback Mode.');
+    return;
+  }
 
-const ChatHistorySchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
-  messages: [{
-    role: String,
-    content: String,
-    timestamp: { type: Date, default: Date.now }
-  }]
-});
+  try {
+    const connected = await pool.query('SELECT NOW()');
+    console.log('PostgreSQL connected:', connected.rows[0]);
 
-const User = mongoose.model('User', UserSchema);
-const Analysis = mongoose.model('Analysis', AnalysisSchema);
-const ChatHistory = mongoose.model('ChatHistory', ChatHistorySchema);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        username TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS analyses (
+        user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        github_username TEXT,
+        scores JSONB,
+        github_data JSONB,
+        resume_data JSONB,
+        linkedin_data JSONB,
+        linkedin_url TEXT,
+        target_role TEXT,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS chat_histories (
+        user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        messages JSONB NOT NULL DEFAULT '[]'::jsonb,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+    `);
+
+    isDbConnected = true;
+  } catch (err) {
+    console.warn(`PostgreSQL connection failed: ${err.message}. Running in JSON File Fallback Mode.`);
+    isDbConnected = false;
+  }
+};
+
+initializeDatabase();
 
 const readLocalDb = () => {
   try {
@@ -114,15 +163,24 @@ app.post('/api/auth/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     if (isDbConnected) {
-      const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-      if (existingUser) {
+      const existingUser = await pool.query(
+        'SELECT id FROM users WHERE username = $1 OR email = $2 LIMIT 1',
+        [username, email]
+      );
+      if (existingUser.rows.length > 0) {
         return res.status(400).json({ error: 'Username or Email already exists.' });
       }
-      const newUser = new User({ username, email, password: hashedPassword });
-      await newUser.save();
+      const newId = randomUUID();
+      const created = await pool.query(
+        `INSERT INTO users (id, username, email, password)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, username, email`,
+        [newId, username, email, hashedPassword]
+      );
+      const newUser = created.rows[0];
       
-      const token = jwt.sign({ id: newUser._id, username: newUser.username }, JWT_SECRET, { expiresIn: '7d' });
-      return res.status(201).json({ token, user: { id: newUser._id, username: newUser.username, email: newUser.email } });
+      const token = jwt.sign({ id: newUser.id, username: newUser.username }, JWT_SECRET, { expiresIn: '7d' });
+      return res.status(201).json({ token, user: { id: newUser.id, username: newUser.username, email: newUser.email } });
     } else {
       const db = readLocalDb();
       const existing = db.users.find(u => u.username === username || u.email === email);
@@ -130,7 +188,7 @@ app.post('/api/auth/register', async (req, res) => {
         return res.status(400).json({ error: 'Username or Email already exists.' });
       }
       
-      const newId = new mongoose.Types.ObjectId().toString();
+      const newId = randomUUID();
       const newUser = { id: newId, username, email, password: hashedPassword };
       db.users.push(newUser);
       writeLocalDb(db);
@@ -151,14 +209,18 @@ app.post('/api/auth/login', async (req, res) => {
 
   try {
     if (isDbConnected) {
-      const user = await User.findOne({ email });
+      const userResult = await pool.query(
+        'SELECT id, username, email, password FROM users WHERE email = $1 LIMIT 1',
+        [email]
+      );
+      const user = userResult.rows[0];
       if (!user) return res.status(400).json({ error: 'Invalid email or password.' });
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) return res.status(400).json({ error: 'Invalid email or password.' });
 
-      const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET, { expiresIn: '7d' });
-      return res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
+      const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '7d' });
+      return res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
     } else {
       const db = readLocalDb();
       const user = db.users.find(u => u.email === email);
@@ -178,7 +240,14 @@ app.post('/api/auth/login', async (req, res) => {
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
   try {
     if (isDbConnected) {
-      const user = await User.findById(req.user.id).select('-password');
+      const userResult = await pool.query(
+        `SELECT id, username, email, created_at AS "createdAt"
+         FROM users
+         WHERE id = $1
+         LIMIT 1`,
+        [req.user.id]
+      );
+      const user = userResult.rows[0];
       if (!user) return res.status(404).json({ error: 'User not found.' });
       return res.json(user);
     } else {
@@ -371,7 +440,24 @@ async function saveOrUpdateAnalysis(userId, data) {
   if (userId) {
     let existing = null;
     if (isDbConnected) {
-      existing = await Analysis.findOne({ userId });
+      const existingResult = await pool.query(
+        `SELECT
+          user_id AS "userId",
+          github_username AS "githubUsername",
+          scores,
+          github_data AS "githubData",
+          resume_data AS "resumeData",
+          linkedin_data AS "linkedinData",
+          linkedin_url AS "linkedinUrl",
+          target_role AS "targetRole",
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+        FROM analyses
+        WHERE user_id = $1
+        LIMIT 1`,
+        [userId]
+      );
+      existing = mapAnalysisRow(existingResult.rows[0]);
     } else {
       const db = readLocalDb();
       existing = db.analyses.find(a => a.userId === userId);
@@ -423,11 +509,37 @@ async function saveOrUpdateAnalysis(userId, data) {
   }
 
   if (isDbConnected) {
-    const updateObj = { ...data, scores: scoresObj, userId };
-    await Analysis.findOneAndUpdate(
-      { userId },
-      { $set: updateObj },
-      { upsert: true, new: true }
+    await pool.query(
+      `INSERT INTO analyses (
+        user_id,
+        github_username,
+        scores,
+        github_data,
+        resume_data,
+        linkedin_data,
+        linkedin_url,
+        target_role
+      )
+      VALUES ($1, $2, $3::jsonb, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8)
+      ON CONFLICT (user_id) DO UPDATE SET
+        github_username = COALESCE(EXCLUDED.github_username, analyses.github_username),
+        scores = EXCLUDED.scores,
+        github_data = COALESCE(EXCLUDED.github_data, analyses.github_data),
+        resume_data = COALESCE(EXCLUDED.resume_data, analyses.resume_data),
+        linkedin_data = COALESCE(EXCLUDED.linkedin_data, analyses.linkedin_data),
+        linkedin_url = COALESCE(EXCLUDED.linkedin_url, analyses.linkedin_url),
+        target_role = COALESCE(EXCLUDED.target_role, analyses.target_role),
+        updated_at = NOW()`,
+      [
+        userId,
+        data.githubUsername || null,
+        JSON.stringify(scoresObj),
+        data.githubData ? JSON.stringify(data.githubData) : null,
+        data.resumeData ? JSON.stringify(data.resumeData) : null,
+        data.linkedinData ? JSON.stringify(data.linkedinData) : null,
+        data.linkedinUrl || null,
+        data.targetRole || null
+      ]
     );
   } else {
     const db = readLocalDb();
@@ -598,8 +710,24 @@ app.post('/api/analyze/linkedin', async (req, res) => {
 app.get('/api/history', authenticateToken, async (req, res) => {
   try {
     if (isDbConnected) {
-      const analysis = await Analysis.findOne({ userId: req.user.id });
-      return res.json(analysis || null);
+      const analysisResult = await pool.query(
+        `SELECT
+          user_id AS "userId",
+          github_username AS "githubUsername",
+          scores,
+          github_data AS "githubData",
+          resume_data AS "resumeData",
+          linkedin_data AS "linkedinData",
+          linkedin_url AS "linkedinUrl",
+          target_role AS "targetRole",
+          created_at AS "createdAt",
+          updated_at AS "updatedAt"
+        FROM analyses
+        WHERE user_id = $1
+        LIMIT 1`,
+        [req.user.id]
+      );
+      return res.json(mapAnalysisRow(analysisResult.rows[0]));
     } else {
       const db = readLocalDb();
       const analysis = db.analyses.find(a => a.userId === req.user.id);
@@ -629,7 +757,16 @@ app.get('/api/roadmap', async (req, res) => {
 
   if (userId) {
     if (isDbConnected) {
-      const analysis = await Analysis.findOne({ userId });
+      const analysisResult = await pool.query(
+        `SELECT
+          github_data AS "githubData",
+          resume_data AS "resumeData"
+        FROM analyses
+        WHERE user_id = $1
+        LIMIT 1`,
+        [userId]
+      );
+      const analysis = analysisResult.rows[0];
       if (analysis) {
         activeGithub = analysis.githubData;
         activeResume = analysis.resumeData;
@@ -714,10 +851,13 @@ app.post('/api/chat', async (req, res) => {
   if (userId) {
     const userMsg = { role: 'user', content: messages[messages.length - 1].content, timestamp: new Date() };
     if (isDbConnected) {
-      await ChatHistory.findOneAndUpdate(
-        { userId },
-        { $push: { messages: { $each: [userMsg, assistantMsg] } } },
-        { upsert: true }
+      await pool.query(
+        `INSERT INTO chat_histories (user_id, messages)
+         VALUES ($1, $2::jsonb)
+         ON CONFLICT (user_id) DO UPDATE SET
+           messages = chat_histories.messages || EXCLUDED.messages,
+           updated_at = NOW()`,
+        [userId, JSON.stringify([userMsg, assistantMsg])]
       );
     } else {
       const db = readLocalDb();
@@ -739,8 +879,11 @@ app.post('/api/chat', async (req, res) => {
 app.get('/api/chat/history', authenticateToken, async (req, res) => {
   try {
     if (isDbConnected) {
-      const history = await ChatHistory.findOne({ userId: req.user.id });
-      return res.json(history ? history.messages : []);
+      const historyResult = await pool.query(
+        'SELECT messages FROM chat_histories WHERE user_id = $1 LIMIT 1',
+        [req.user.id]
+      );
+      return res.json(historyResult.rows[0] ? historyResult.rows[0].messages : []);
     } else {
       const db = readLocalDb();
       const history = db.chatHistories.find(c => c.userId === req.user.id);
@@ -752,9 +895,13 @@ app.get('/api/chat/history', authenticateToken, async (req, res) => {
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'healthy', database: isDbConnected ? 'MongoDB' : 'JSON File Fallback' });
+  res.json({
+    status: 'healthy',
+    database: isDbConnected ? 'PostgreSQL' : 'JSON File Fallback',
+    allowedOrigins
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
