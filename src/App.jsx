@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from './config.js';
 import LandingPage from './components/LandingPage.jsx';
 import InputForm from './components/InputForm.jsx';
 import Dashboard from './components/Dashboard.jsx';
@@ -43,7 +44,7 @@ function App() {
 
   const loadUserHistory = async (authToken) => {
     try {
-      const response = await fetch('/api/history', {
+      const response = await fetch(`${API_BASE_URL}/api/history`, {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       if (response.ok) {
@@ -94,7 +95,7 @@ function App() {
 
       // 1. Analyze GitHub
       if (formData.githubUsername) {
-        const ghResponse = await fetch('/api/analyze/github', {
+        const ghResponse = await fetch(`${API_BASE_URL}/api/analyze/github`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -111,7 +112,7 @@ function App() {
 
       // 2. Analyze Resume
       if (formData.resumeText) {
-        const resumeResponse = await fetch('/api/analyze/resume', {
+        const resumeResponse = await fetch(`${API_BASE_URL}/api/analyze/resume`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -127,7 +128,7 @@ function App() {
 
       // 3. Analyze LinkedIn
       if (formData.linkedinUrl) {
-        const liResponse = await fetch('/api/analyze/linkedin', {
+        const liResponse = await fetch(`${API_BASE_URL}/api/analyze/linkedin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 

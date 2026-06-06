@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { API_BASE_URL } from '../config.js';
 import { 
   Home, 
   Github, 
@@ -102,7 +103,7 @@ function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeA
     const fetchRoadmap = async () => {
       try {
         const token = localStorage.getItem('devscope_token');
-        const res = await fetch(`/api/roadmap?role=${selectedRole}&token=${token || ''}`);
+        const res = await fetch(`${API_BASE_URL}/api/roadmap?role=${selectedRole}&token=${token || ''}`);
         if (res.ok) {
           const data = await res.json();
           setRoadmap(data);
@@ -122,7 +123,7 @@ function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeA
       const savedToken = localStorage.getItem('devscope_token');
       if (savedToken) {
         try {
-          const res = await fetch('/api/chat/history', {
+          const res = await fetch(`${API_BASE_URL}/api/chat/history`, {
             headers: { 'Authorization': `Bearer ${savedToken}` }
           });
           if (res.ok) {
@@ -163,7 +164,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     setIsAnalyzingGithub(true);
     try {
       const token = localStorage.getItem('devscope_token');
-      const response = await fetch('/api/analyze/github', {
+      const response = await fetch(`${API_BASE_URL}/api/analyze/github`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -211,7 +212,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     setIsAnalyzingResume(true);
     try {
       const token = localStorage.getItem('devscope_token');
-      const response = await fetch('/api/analyze/resume', {
+      const response = await fetch(`${API_BASE_URL}/api/analyze/resume`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -258,7 +259,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     setIsAnalyzingLinkedin(true);
     try {
       const token = localStorage.getItem('devscope_token');
-      const response = await fetch('/api/analyze/linkedin', {
+      const response = await fetch(`${API_BASE_URL}/api/analyze/linkedin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -409,7 +410,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
 
     try {
       const savedToken = localStorage.getItem('devscope_token');
-      const response = await fetch('/api/chat', {
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

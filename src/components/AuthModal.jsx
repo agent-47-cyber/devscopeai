@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from '../config.js';
 import { X, AlertCircle } from 'lucide-react';
 import './AuthModal.css';
 
@@ -15,7 +16,7 @@ function AuthModal({ onClose, onAuthSuccess }) {
     setError('');
     setLoading(true);
 
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const endpoint = isLogin ? `${API_BASE_URL}/api/auth/login` : `${API_BASE_URL}/api/auth/register`;
     const payload = isLogin 
       ? { email, password } 
       : { username, email, password };
