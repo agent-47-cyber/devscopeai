@@ -8,12 +8,10 @@ import fs from 'fs';
 import path from 'path';
 import { randomUUID } from 'crypto';
 import multer from 'multer';
-import { createRequire } from 'module';
+import pdfParseModule from 'pdf-parse';
+import mammothModule from 'mammoth';
 
-const require = createRequire(import.meta.url);
-const pdfParseModule = require('pdf-parse');
-const { PDFParse } = pdfParseModule;
-const mammothModule = require('mammoth');
+const PDFParse = pdfParseModule.PDFParse || pdfParseModule;
 const mammoth = mammothModule.default || mammothModule;
 
 const { Pool } = pg;
