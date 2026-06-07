@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev:frontend": "vite",
-    "dev:backend": "node server.js",
+    "dev:backend": "node local.js",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node server.js"
+    "start:local": "node local.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

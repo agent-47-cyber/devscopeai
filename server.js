@@ -1493,10 +1493,5 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', database: isDbConnected ? 'PostgreSQL' : 'JSON File Fallback', allowedOrigins });
 });
 
-if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`DevScope AI Server running on port ${PORT}`);
-  });
-}
-
 export default app;
+
