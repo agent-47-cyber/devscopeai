@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { API_BASE_URL, API_UPLOAD_URL } from '../config.js';
 import {
   Home,
@@ -187,6 +188,27 @@ What aspect of your portfolio or profile would you like to improve today? You ca
   }, [user]);
 
   // Local Connect Actions
+  const updateChannelScore = (channel, value) => {
+    setScores(prev => {
+      const newScores = { ...prev, [channel]: value };
+      const activeScores = [];
+      if (newScores.github !== null) activeScores.push(newScores.github);
+      if (newScores.ats !== null) activeScores.push(newScores.ats);
+      if (newScores.careerReady !== null) activeScores.push(newScores.careerReady);
+
+      newScores.portfolio = activeScores.length > 0
+        ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length)
+        : null;
+
+      return newScores;
+    });
+  };
+
+  const showAlertAfterClearing = (message, clearState) => {
+    flushSync(clearState);
+    alert(message);
+  };
+
   const handleLinkGithub = async (username) => {
     let gh = username.trim();
     if (gh) {
@@ -229,11 +251,24 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           return newScores;
         });
       } else {
-        alert(result.error || "Failed to analyze GitHub username. Please verify the profile exists and try again.");
+        showAlertAfterClearing(
+          result.error || "Failed to analyze GitHub username. Please verify the profile exists and try again.",
+          () => {
+            setGithub(null);
+            updateChannelScore('github', null);
+            setIsAnalyzingGithub(false);
+          }
+        );
+        return;
       }
     } catch (err) {
       console.error(err);
-      alert("Error reaching the analysis server: " + err.message);
+      showAlertAfterClearing("Error reaching the analysis server: " + err.message, () => {
+        setGithub(null);
+        updateChannelScore('github', null);
+        setIsAnalyzingGithub(false);
+      });
+      return;
     } finally {
       setIsAnalyzingGithub(false);
     }
@@ -246,7 +281,11 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       return;
     }
     if (!looksLikeResume(text)) {
-      alert(RESUME_REJECTION_MESSAGE);
+      showAlertAfterClearing(RESUME_REJECTION_MESSAGE, () => {
+        setResume(null);
+        updateChannelScore('ats', null);
+        setIsAnalyzingResume(false);
+      });
       return;
     }
     setIsAnalyzingResume(true);
@@ -279,11 +318,21 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           return newScores;
         });
       } else {
-        alert(result.error || "Failed to analyze resume details. Please try again.");
+        showAlertAfterClearing(result.error || "Failed to analyze resume details. Please try again.", () => {
+          setResume(null);
+          updateChannelScore('ats', null);
+          setIsAnalyzingResume(false);
+        });
+        return;
       }
     } catch (err) {
       console.error(err);
-      alert("Error reaching the analysis server: " + err.message);
+      showAlertAfterClearing("Error reaching the analysis server: " + err.message, () => {
+        setResume(null);
+        updateChannelScore('ats', null);
+        setIsAnalyzingResume(false);
+      });
+      return;
     } finally {
       setIsAnalyzingResume(false);
     }
@@ -378,7 +427,11 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     }
     cleanVal = parseLinkedInProfileInput(cleanVal);
     if (!cleanVal) {
-      alert(LINKEDIN_REJECTION_MESSAGE);
+      showAlertAfterClearing(LINKEDIN_REJECTION_MESSAGE, () => {
+        setLinkedin(null);
+        updateChannelScore('careerReady', null);
+        setIsAnalyzingLinkedin(false);
+      });
       return;
     }
     setLiInput(cleanVal);
@@ -414,11 +467,24 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           return newScores;
         });
       } else {
-        alert(result.error || "Failed to analyze LinkedIn profile. Please verify the URL and try again.");
+        showAlertAfterClearing(
+          result.error || "Failed to analyze LinkedIn profile. Please verify the URL and try again.",
+          () => {
+            setLinkedin(null);
+            updateChannelScore('careerReady', null);
+            setIsAnalyzingLinkedin(false);
+          }
+        );
+        return;
       }
     } catch (err) {
       console.error(err);
-      alert("Error reaching the analysis server: " + err.message);
+      showAlertAfterClearing("Error reaching the analysis server: " + err.message, () => {
+        setLinkedin(null);
+        updateChannelScore('careerReady', null);
+        setIsAnalyzingLinkedin(false);
+      });
+      return;
     } finally {
       setIsAnalyzingLinkedin(false);
     }
@@ -461,11 +527,14 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       reader.onload = (e) => {
         const content = e.target.result || '';
         if (!looksLikeResume(content)) {
-          setResumeFileName(file.name);
-          setResumeTextInput('');
-          setResumeFileParseStatus('error');
-          setResumeFileParseError(RESUME_REJECTION_MESSAGE);
-          alert(RESUME_REJECTION_MESSAGE);
+          showAlertAfterClearing(RESUME_REJECTION_MESSAGE, () => {
+            setResumeFileName(file.name);
+            setResumeTextInput('');
+            setResumeFileParseStatus('error');
+            setResumeFileParseError(RESUME_REJECTION_MESSAGE);
+            setResume(null);
+            updateChannelScore('ats', null);
+          });
           return;
         }
         setResumeFileName(file.name);
@@ -496,20 +565,26 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       });
       const data = await response.json();
       if (!response.ok || !data.text || data.text.trim().length < 20) {
-        setResumeFileParseStatus('error');
         const message = data.error || 'Could not extract text from this file. Please paste your resume text instead.';
-        setResumeFileParseError(message);
-        alert(message);
+        showAlertAfterClearing(message, () => {
+          setResumeFileParseStatus('error');
+          setResumeFileParseError(message);
+          setResume(null);
+          updateChannelScore('ats', null);
+        });
         return;
       }
       setResumeTextInput(data.text);
       setResumeFileParseStatus('success');
       setResumeFileParseError('');
     } catch (err) {
-      setResumeFileParseStatus('error');
       const message = 'Network error while parsing file. Please paste your resume text instead.';
-      setResumeFileParseError(message);
-      alert(message);
+      showAlertAfterClearing(message, () => {
+        setResumeFileParseStatus('error');
+        setResumeFileParseError(message);
+        setResume(null);
+        updateChannelScore('ats', null);
+      });
     }
   };
 

@@ -111,6 +111,7 @@ function App() {
           setGithubAnalysis(ghResult);
         } else {
           const errorResult = await getResponseJson(ghResponse);
+          setGithubAnalysis(null);
           alert(errorResult.error || 'Failed to analyze GitHub username. Please verify the profile exists and try again.');
         }
       }
@@ -131,6 +132,7 @@ function App() {
           setResumeAnalysis(resumeResult);
         } else {
           const errorResult = await getResponseJson(resumeResponse);
+          setResumeAnalysis(null);
           alert(errorResult.error || 'This file is not a resume. Please upload a resume file or paste your resume text.');
         }
       }
@@ -151,6 +153,7 @@ function App() {
           setLinkedinAnalysis(liResult);
         } else {
           const errorResult = await getResponseJson(liResponse);
+          setLinkedinAnalysis(null);
           alert(errorResult.error || 'This is not a LinkedIn URL or username.');
         }
       }
