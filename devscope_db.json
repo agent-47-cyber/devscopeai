@@ -35,6 +35,18 @@
       "username": "devtest",
       "email": "devtest@test.com",
       "password": "$2a$10$ofFUbhSo9tQVVJnwDKTCYusHNCs5sk.vkKeOS50sxHc31ZjMUxkdS"
+    },
+    {
+      "id": "6a23f0e374fc1951f9700ebb",
+      "username": "ashitvijay",
+      "email": "ashitvijay@123",
+      "password": "$2a$10$..IIehlJtMySp1gLGj6/cun1f3nz6UrV3qz9rzZs5CHcT.gThItaK"
+    },
+    {
+      "id": "6a25397258f0ab1f721baea1",
+      "username": "123",
+      "email": "123@gmail.com",
+      "password": "$2a$10$M0BZuHPIC4KQFN.tFhfrBuky.53NGGtKQSu83FwzLUsb2zLGHHDUS"
     }
   ],
   "analyses": [
@@ -443,6 +455,137 @@
         "suggestedHeadline": "Frontend Engineer | React | TypeScript | Next.js | Building Scalable Web UIs",
         "profileHandle": "aishwarya-maheshwari-44ba33336"
       }
+    },
+    {
+      "githubUsername": "darkmoon564",
+      "githubData": {
+        "username": "darkmoon564",
+        "name": "Ashit Vijay",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/131967993?v=4",
+        "bio": "Full-Stack Developer focused on modern web architectures & scalable API designs.",
+        "publicRepos": 27,
+        "followers": 0,
+        "following": 1,
+        "languages": [
+          {
+            "name": "Jupyter Notebook",
+            "percentage": 42
+          },
+          {
+            "name": "Python",
+            "percentage": 35
+          },
+          {
+            "name": "TypeScript",
+            "percentage": 19
+          },
+          {
+            "name": "Dockerfile",
+            "percentage": 4
+          }
+        ],
+        "score": 48,
+        "docScore": 7,
+        "flaggedRepos": [
+          "lifepilot",
+          "aethera",
+          "ashitvijay_portfolio"
+        ],
+        "topRepos": [
+          {
+            "name": "lifepilot",
+            "stars": 0,
+            "forks": 0,
+            "language": "TypeScript",
+            "url": "https://github.com/darkmoon564/lifepilot"
+          },
+          {
+            "name": "aethera",
+            "stars": 0,
+            "forks": 0,
+            "language": "TypeScript",
+            "url": "https://github.com/darkmoon564/aethera"
+          },
+          {
+            "name": "ashitvijay_portfolio",
+            "stars": 0,
+            "forks": 0,
+            "language": "TypeScript",
+            "url": "https://github.com/darkmoon564/ashitvijay_portfolio"
+          },
+          {
+            "name": "algorizz",
+            "stars": 0,
+            "forks": 0,
+            "language": "Python",
+            "url": "https://github.com/darkmoon564/algorizz"
+          },
+          {
+            "name": "SHL",
+            "stars": 0,
+            "forks": 0,
+            "language": "Python",
+            "url": "https://github.com/darkmoon564/SHL"
+          }
+        ]
+      },
+      "targetRole": "ml-engineer",
+      "scores": {
+        "github": 48,
+        "ats": null,
+        "careerReady": null,
+        "portfolio": 48
+      },
+      "userId": "6a23f0e374fc1951f9700ebb",
+      "createdAt": "2026-06-06T10:05:52.473Z"
+    },
+    {
+      "resumeData": {
+        "atsScore": 53,
+        "foundKeywords": [
+          "React",
+          "Node.js",
+          "Express",
+          "TypeScript",
+          "JavaScript",
+          "AWS",
+          "Docker",
+          "CI/CD",
+          "Git",
+          "SQL",
+          "MongoDB"
+        ],
+        "missingKeywords": [
+          "Vue",
+          "Angular",
+          "Python",
+          "Kubernetes",
+          "PostgreSQL",
+          "GraphQL",
+          "REST",
+          "Tailwind"
+        ],
+        "suggestions": [
+          "Action Verbs Count (2/8): Add more strong action verbs (e.g., Engineered, Spearheaded, Optimized) instead of passive phrasing.",
+          "Structure checklist: Missing explicit \"Projects\" section to highlight technical works.",
+          "Metrics: We didn't detect quantified achievements. Add numbers (e.g., \"reduced latency by 35%\")."
+        ],
+        "sectionsChecklist": {
+          "experience": true,
+          "projects": false,
+          "skills": true,
+          "education": false
+        },
+        "actionVerbCount": 2
+      },
+      "scores": {
+        "github": null,
+        "ats": 53,
+        "careerReady": null,
+        "portfolio": 53
+      },
+      "userId": "6a25397258f0ab1f721baea1",
+      "createdAt": "2026-06-07T09:27:29.401Z"
     }
   ],
   "chatHistories": [

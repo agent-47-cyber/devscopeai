@@ -8,9 +8,15 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://127.0.0.1:5000',
         changeOrigin: true,
         secure: false,
+        // Required for multipart/form-data file uploads
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.log('[vite-proxy] error', err);
+          });
+        }
       }
     }
   }

@@ -5,6 +5,8 @@ import InputForm from './components/InputForm.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import AuthModal from './components/AuthModal.jsx';
 
+const getResponseJson = async (response) => response.json().catch(() => ({}));
+
 function App() {
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'input', 'dashboard'
   const [user, setUser] = useState(null);
@@ -14,7 +16,7 @@ function App() {
   const [profileData, setProfileData] = useState({
     githubUsername: '',
     resumeText: '',
-    linkedinUrl: '',
+    linkedinUsername: '',
     targetRole: 'frontend'
   });
 
@@ -53,7 +55,7 @@ function App() {
           setProfileData({
             githubUsername: data.githubUsername || '',
             resumeText: data.resumeData ? 'Uploaded Resume Details' : '',
-            linkedinUrl: data.linkedinUrl || '',
+            linkedinUsername: data.linkedinUsername || '',
             targetRole: data.targetRole || 'frontend'
           });
           setScores(data.scores);
@@ -105,8 +107,11 @@ function App() {
           })
         });
         if (ghResponse.ok) {
-          ghResult = await ghResponse.json();
+          ghResult = await getResponseJson(ghResponse);
           setGithubAnalysis(ghResult);
+        } else {
+          const errorResult = await getResponseJson(ghResponse);
+          alert(errorResult.error || 'Failed to analyze GitHub username. Please verify the profile exists and try again.');
         }
       }
 
@@ -117,29 +122,36 @@ function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             resumeText: formData.resumeText,
+            targetRole: formData.targetRole,
             token: token
           })
         });
         if (resumeResponse.ok) {
-          resumeResult = await resumeResponse.json();
+          resumeResult = await getResponseJson(resumeResponse);
           setResumeAnalysis(resumeResult);
+        } else {
+          const errorResult = await getResponseJson(resumeResponse);
+          alert(errorResult.error || 'This file is not a resume. Please upload a resume file or paste your resume text.');
         }
       }
 
       // 3. Analyze LinkedIn
-      if (formData.linkedinUrl) {
+      if (formData.linkedinUsername) {
         const liResponse = await fetch(`${API_BASE_URL}/api/analyze/linkedin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            linkedinUrl: formData.linkedinUrl,
+            username: formData.linkedinUsername,
             targetRole: formData.targetRole,
             token: token
           })
         });
         if (liResponse.ok) {
-          liResult = await liResponse.json();
+          liResult = await getResponseJson(liResponse);
           setLinkedinAnalysis(liResult);
+        } else {
+          const errorResult = await getResponseJson(liResponse);
+          alert(errorResult.error || 'This is not a LinkedIn URL or username.');
         }
       }
 
@@ -158,6 +170,11 @@ function App() {
       newScores.portfolio = activeScores.length > 0 
         ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length)
         : null;
+
+      if (activeScores.length === 0) {
+        setCurrentView('input');
+        return;
+      }
       
       setScores(newScores);
       setCurrentView('dashboard');
@@ -174,7 +191,7 @@ function App() {
     setProfileData({
       githubUsername: '',
       resumeText: '',
-      linkedinUrl: '',
+      linkedinUsername: '',
       targetRole: 'frontend'
     });
     setGithubAnalysis(null);
