@@ -40,10 +40,10 @@ const looksLikeResume = (text = '') => {
   if (wordCount < 30) return false;
 
   const sectionPatterns = [
-    /\b(experience|work history|employment|professional experience|internship|intern)\b/i,
-    /\b(projects?|portfolio|open source|built|developed)\b/i,
-    /\b(skills?|technical skills|technologies|tools|frameworks|languages)\b/i,
-    /\b(education|degree|bachelor|master|phd|university|college|b\.?tech|b\.?e|b\.?sc|mca|bca)\b/i
+    /\b(experience|work history|employment|professional experience|work experience|career history)\b/i,
+    /\b(projects?|personal projects?|academic projects?)\b/i,
+    /\b(skills?|technical skills|core competencies|technical proficiency|tech stack)\b/i,
+    /\b(education|academic background|qualifications|bachelor|master|phd|university|college|b\.?tech|b\.?e|b\.?sc|mca|bca)\b/i
   ];
   const sectionCount = sectionPatterns.filter((pattern) => pattern.test(normalized)).length;
   const indicators = [
@@ -656,9 +656,11 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       .filter((score) => score !== null && score !== undefined);
     if (availableScores.length === 0) return null;
     const average = Math.round(availableScores.reduce((sum, score) => sum + score, 0) / availableScores.length);
-    const gapPenalty = Math.min(signals.missingSkills.length * 2, 14);
-    const evidenceBonus = [github, resume, linkedin].filter(Boolean).length * 3;
-    return Math.max(10, Math.min(97, average - gapPenalty + evidenceBonus));
+    // Penalty for skill gaps: more missing skills = bigger deduction
+    const gapPenalty = Math.min(signals.missingSkills.length * 3, 20);
+    // Penalty for missing channels (not providing data = lower confidence)
+    const channelPenalty = (3 - [github, resume, linkedin].filter(Boolean).length) * 4;
+    return Math.max(5, Math.min(97, average - gapPenalty - channelPenalty));
   };
 
   const getRecruiterSummary = (signals = getProfileSignals()) => {
@@ -1815,6 +1817,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                           <div className="lang-bar-bg">
                             <div className="lang-bar-fg" style={{ width: `${(item.value / item.max) * 100}%`, background: item.value >= item.max * 0.7 ? 'var(--color-tertiary)' : item.value > 0 ? 'var(--color-warning)' : '#ef4444' }}></div>
                           </div>
+
                         </div>
                       ))}
                     </div>
