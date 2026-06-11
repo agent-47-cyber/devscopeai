@@ -15,6 +15,7 @@ import reportRoutes from './server/routes/reportRoutes.js';
 import resumeRoutes from './server/routes/resumeRoutes.js';
 import githubRoutes from './server/routes/githubRoutes.js';
 import linkedinRoutes from './server/routes/linkedinRoutes.js';
+import { testGeminiConnection } from './server/services/geminiService.js';
 
 const require = createRequire(import.meta.url);
 const pdfParse = require('pdf-parse');
@@ -920,7 +921,7 @@ app.get('/api/health', async (req, res) => {
   if (geminiConfigured) {
     try {
       const testRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -970,7 +971,7 @@ app.get('/api/ai-status', async (req, res) => {
   try {
     console.log('[DEBUG /api/ai-status] Running Gemini test request...');
     const testRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1023,7 +1024,7 @@ app.get('/api/ai-status', async (req, res) => {
       return res.json({
         configured: false,
         connected: false,
-        model: "gemini-2.5-flash",
+        model: "gemini-2.0-flash",
         quotaAvailable: false,
         lastError: "API Key missing or invalid",
         rawResponse: null
@@ -1032,7 +1033,7 @@ app.get('/api/ai-status', async (req, res) => {
 
     try {
       const testRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1047,7 +1048,7 @@ app.get('/api/ai-status', async (req, res) => {
         return res.json({
           configured: true,
           connected: true,
-          model: "gemini-2.5-flash",
+          model: "gemini-2.0-flash",
           quotaAvailable: false,
           lastError: "Quota Exceeded (429)",
           rawResponse: null
@@ -1059,7 +1060,7 @@ app.get('/api/ai-status', async (req, res) => {
         return res.json({
           configured: true,
           connected: false,
-          model: "gemini-2.5-flash",
+          model: "gemini-2.0-flash",
           quotaAvailable: false,
           lastError: `HTTP ${testRes.status}: ${errText.substring(0, 100)}`,
           rawResponse: null
@@ -1072,7 +1073,7 @@ app.get('/api/ai-status', async (req, res) => {
       return res.json({
         configured: true,
         connected: true,
-        model: "gemini-2.5-flash",
+        model: "gemini-2.0-flash",
         quotaAvailable: true,
         lastError: null,
         rawResponse: rawResponse.trim()
@@ -1082,7 +1083,7 @@ app.get('/api/ai-status', async (req, res) => {
       return res.json({
         configured: true,
         connected: false,
-        model: "gemini-2.5-flash",
+        model: "gemini-2.0-flash",
         quotaAvailable: false,
         lastError: e.message,
         rawResponse: null
@@ -1090,4 +1091,28 @@ app.get('/api/ai-status', async (req, res) => {
     }
   });
 
+// /api/debug/gemini — Full Gemini telemetry for production debugging
+app.get('/api/debug/gemini', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  try {
+    console.log('[/api/debug/gemini] Running Gemini connection test...');
+    const result = await testGeminiConnection();
+    console.log('[/api/debug/gemini] Result:', JSON.stringify(result));
+    res.json(result);
+  } catch (e) {
+    console.error('[/api/debug/gemini] Unexpected error:', e.message);
+    res.json({
+      envDetected: !!process.env.GEMINI_API_KEY,
+      geminiInitialized: false,
+      testCallSucceeded: false,
+      model: 'gemini-2.0-flash',
+      error: e.message,
+      fallbackReason: 'Unexpected server error',
+      rawResponse: null
+    });
+  }
+});
+
 export default app;
+

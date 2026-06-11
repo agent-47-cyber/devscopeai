@@ -1,28 +1,33 @@
-import 'dotenv/config';
+// ============================================================
+// geminiService.js — DevScope AI
+// DO NOT freeze GEMINI_API_KEY at module load time.
+// Always read from process.env at call time so Vercel
+// serverless can inject env vars before the first request.
+// ============================================================
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-// Working model: gemini-2.5-flash on v1beta
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+// Working model: gemini-2.5-flash-lite has confirmed working quota on the free tier.
+// gemini-2.0-flash and gemini-2.5-flash are rate-limited when quota is exhausted.
+const GEMINI_API_URL_PRIMARY = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+const GEMINI_API_URL_FALLBACK = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent';
 
 // In-memory cache for Gemini requests to prevent redundant calls
 const geminiCache = new Map();
 
 /**
  * Validate whether the API key looks like a valid Gemini API key.
- * Gemini API keys start with "AIza" and are typically 39 characters.
  */
 function isValidGeminiKey(key) {
   if (!key || typeof key !== 'string') return false;
-  if (key.includes('your_')) return false;
-  return true;
+  if (key.includes('your_') || key.trim() === '') return false;
+  // Must be at least 20 chars
+  return key.length > 20;
 }
 
 /**
  * Extract JSON from a Gemini response that may contain markdown fences
  */
 function extractJson(text) {
-  // Remove markdown code fences (```json ... ``` or ``` ... ```)
+  // Remove markdown code fences
   let cleaned = text
     .replace(/^```json\s*/i, '')
     .replace(/^```\s*/i, '')
@@ -47,6 +52,9 @@ function extractJson(text) {
 
 /**
  * Helper to interact with Google Gemini API
+ * KEY FIX: Reads GEMINI_API_KEY at CALL TIME, not module load time.
+ * This ensures Vercel serverless env injection works correctly.
+ *
  * @param {string} prompt - The prompt to send to Gemini
  * @param {object} options - Optional settings (systemInstruction, parseJson, useCache)
  * @returns {Promise<any>}
@@ -54,16 +62,22 @@ function extractJson(text) {
 export async function generateWithGemini(prompt, options = {}) {
   const { systemInstruction = null, parseJson = true, useCache = true } = options;
 
+  // === READ KEY AT CALL TIME (not module load time) ===
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+  console.log('[geminiService] GEMINI ENV DETECTED:', !!GEMINI_API_KEY, 'Key prefix:', GEMINI_API_KEY ? GEMINI_API_KEY.substring(0, 8) : 'NONE');
+
   if (!GEMINI_API_KEY) {
+    console.error('[geminiService] GEMINI_API_KEY is missing from process.env');
     throw new Error('GEMINI_API_KEY is not configured in the environment.');
   }
 
   if (!isValidGeminiKey(GEMINI_API_KEY)) {
-    throw new Error(
-      `GEMINI_API_KEY appears invalid (starts with "${GEMINI_API_KEY.substring(0, 6)}"...). ` +
-      `Gemini API keys should start with "AIza". Please update your .env file with a valid key from https://aistudio.google.com/`
-    );
+    console.error('[geminiService] GEMINI_API_KEY appears invalid. Length:', GEMINI_API_KEY.length);
+    throw new Error(`GEMINI_API_KEY appears invalid. Check your Vercel env vars.`);
   }
+
+  console.log('[geminiService] GEMINI CLIENT INITIALIZED — key length:', GEMINI_API_KEY.length);
 
   const cacheKey = Buffer.from(`${prompt.substring(0, 500)}_${systemInstruction || ''}`).toString('base64');
 
@@ -83,7 +97,7 @@ export async function generateWithGemini(prompt, options = {}) {
       temperature: 0.4,
       topK: 40,
       topP: 0.95,
-      maxOutputTokens: 8192,
+      maxOutputTokens: 4096, // Capped to reduce response time on Vercel
     }
   };
 
@@ -93,78 +107,186 @@ export async function generateWithGemini(prompt, options = {}) {
     };
   }
 
-  // Retry with exponential backoff for 429/503 temporary errors
-  const maxRetries = Number(process.env.GEMINI_MAX_RETRIES || 3);
+  // Vercel serverless has a 10s timeout — use 1 retry with 0 delay
+  // Local dev can use 3 retries with backoff
+  const isVercel = !!process.env.VERCEL || process.env.NODE_ENV === 'production';
+  const maxRetries = isVercel ? 1 : 3;
+
   let lastError = null;
 
-  for (let attempt = 0; attempt < maxRetries; attempt++) {
-    if (attempt > 0) {
-      let waitMs = 0;
-      const retryMatch = lastError?.message?.match(/retry in ([\d\.]+)s/i);
-      if (retryMatch) {
-        waitMs = Math.ceil(parseFloat(retryMatch[1]) * 1000) + 500;
-      } else {
-        const baseMs = lastError?.message?.includes('503') ? 5000 : 4000;
-        waitMs = baseMs * Math.pow(2, attempt - 1);
-      }
-      console.log(`[geminiService] Retry attempt ${attempt}/${maxRetries - 1} after ${waitMs}ms...`);
-      await new Promise(r => setTimeout(r, waitMs));
-    }
-
-    try {
-      console.log(`[geminiService] Gemini Request Started [Attempt ${attempt + 1}/${maxRetries}]`);
-      const startTime = Date.now();
-      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.status === 429 || response.status === 503) {
-        const errBody = await response.json().catch(() => ({}));
-        const exactMsg = errBody.error?.message || 'temporary issue';
-        lastError = new Error(response.status === 429 ? `Quota Exceeded: ${exactMsg}` : `Service Unavailable: ${exactMsg}`);
-        console.warn(`[geminiService] Gemini Error ${response.status}, will retry:`, lastError.message);
-        continue;
+  // Try primary model first (gemini-2.0-flash), then fallback model
+  for (const apiUrl of [GEMINI_API_URL_PRIMARY, GEMINI_API_URL_FALLBACK]) {
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      if (attempt > 0 && !isVercel) {
+        const waitMs = 3000 * Math.pow(2, attempt - 1);
+        console.log(`[geminiService] Retry attempt ${attempt}/${maxRetries - 1} after ${waitMs}ms...`);
+        await new Promise(r => setTimeout(r, waitMs));
       }
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[geminiService] Gemini Error ${response.status}:`, errorText.substring(0, 300));
-        if (response.status === 401 || response.status === 403) {
-          throw new Error('Invalid API Key or unauthorized access.');
+      try {
+        const modelName = apiUrl.includes('gemini-2.0-flash-exp') ? 'gemini-2.0-flash-exp' : 'gemini-2.0-flash';
+        console.log(`[geminiService] GEMINI REQUEST STARTED — model: ${modelName}, attempt: ${attempt + 1}/${maxRetries}`);
+        const startTime = Date.now();
+
+        const response = await fetch(`${apiUrl}?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const duration = Date.now() - startTime;
+
+        if (response.status === 429) {
+          const errBody = await response.json().catch(() => ({}));
+          const exactMsg = errBody.error?.message || 'Rate limit exceeded';
+          lastError = new Error(`Quota Exceeded (429) on ${modelName}: ${exactMsg}`);
+          console.warn(`[geminiService] GEMINI ERROR 429 on ${modelName}:`, lastError.message);
+          break; // Try next model
         }
-        throw new Error(`Gemini API Error ${response.status}: ${errorText.substring(0, 200)}`);
+
+        if (response.status === 503) {
+          const errBody = await response.json().catch(() => ({}));
+          lastError = new Error(`Service Unavailable (503): ${errBody.error?.message || 'Try again later'}`);
+          console.warn(`[geminiService] GEMINI ERROR 503:`, lastError.message);
+          continue; // Retry same model
+        }
+
+        if (response.status === 401 || response.status === 403) {
+          const errBody = await response.json().catch(() => ({}));
+          const msg = errBody.error?.message || 'Unauthorized';
+          console.error(`[geminiService] GEMINI ERROR ${response.status} — Invalid API Key or unauthorized:`, msg);
+          throw new Error(`Invalid API Key or unauthorized access (${response.status}): ${msg}`);
+        }
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`[geminiService] GEMINI ERROR ${response.status}:`, errorText.substring(0, 300));
+          throw new Error(`Gemini API Error ${response.status}: ${errorText.substring(0, 200)}`);
+        }
+
+        console.log(`[geminiService] GEMINI RESPONSE RECEIVED in ${duration}ms`);
+
+        const data = await response.json();
+        const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        if (!responseText) {
+          const finishReason = data.candidates?.[0]?.finishReason;
+          throw new Error(`Gemini returned empty response. Finish reason: ${finishReason || 'unknown'}`);
+        }
+
+        if (parseJson) {
+          const parsedData = extractJson(responseText);
+          if (useCache) geminiCache.set(cacheKey, parsedData);
+          return parsedData;
+        }
+
+        if (useCache) geminiCache.set(cacheKey, responseText);
+        return responseText;
+
+      } catch (err) {
+        if (err.message?.includes('Quota Exceeded') || err.message?.includes('429')) {
+          lastError = err;
+          break; // Try next model
+        }
+        console.error('[geminiService] GEMINI REQUEST FAILED:', err.message);
+        lastError = err;
+        if (!err.message?.includes('503')) {
+          throw err; // Don't retry on non-transient errors
+        }
       }
-
-      const duration = Date.now() - startTime;
-      console.log(`[geminiService] Gemini Response Received in ${duration}ms`);
-
-      const data = await response.json();
-      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-      if (!responseText) {
-        const finishReason = data.candidates?.[0]?.finishReason;
-        throw new Error(`Gemini returned empty response. Finish reason: ${finishReason || 'unknown'}`);
-      }
-
-      if (parseJson) {
-        const parsedData = extractJson(responseText);
-        if (useCache) geminiCache.set(cacheKey, parsedData);
-        return parsedData;
-      }
-
-      if (useCache) geminiCache.set(cacheKey, responseText);
-      return responseText;
-
-    } catch (err) {
-      console.error('[geminiService] Gemini Error during fetch:', err.message);
-      lastError = err;
     }
   }
 
-  console.error('[geminiService] Gemini Request Failed after all retries:', lastError?.message);
-  throw lastError || new Error('Gemini generation failed.');
+  console.error('[geminiService] FALLBACK ACTIVATED — all Gemini models exhausted. Last error:', lastError?.message);
+  throw lastError || new Error('All Gemini models returned quota errors. Analysis running on fallback engine.');
 }
 
-export default { generateWithGemini };
+/**
+ * Dedicated test function to verify Gemini connectivity.
+ * Returns structured result for the debug endpoint.
+ */
+export async function testGeminiConnection() {
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  const envDetected = !!GEMINI_API_KEY;
+  const geminiInitialized = envDetected && isValidGeminiKey(GEMINI_API_KEY);
+
+  if (!geminiInitialized) {
+    return {
+      envDetected,
+      geminiInitialized: false,
+      testCallSucceeded: false,
+      model: 'gemini-2.0-flash',
+      error: envDetected ? 'API key failed validation check' : 'GEMINI_API_KEY missing from environment',
+      fallbackReason: envDetected ? 'Invalid key format' : 'No API key',
+      rawResponse: null
+    };
+  }
+
+  for (const [model, url] of [
+    ['gemini-2.5-flash-lite', GEMINI_API_URL_PRIMARY],
+    ['gemini-2.0-flash-lite', GEMINI_API_URL_FALLBACK],
+  ]) {
+    try {
+      const res = await fetch(`${url}?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'Reply only with:\nDEVSCOPE_GEMINI_OK' }] }],
+          generationConfig: { maxOutputTokens: 10 }
+        })
+      });
+
+      if (res.status === 429) {
+        const errBody = await res.json().catch(() => ({}));
+        return {
+          envDetected: true,
+          geminiInitialized: true,
+          testCallSucceeded: false,
+          model,
+          error: `Quota Exceeded (429): ${errBody.error?.message || 'Free tier rate limit hit'}`,
+          fallbackReason: 'Rate limit / Quota Exceeded — upgrade to pay-as-you-go billing to remove limits',
+          rawResponse: null
+        };
+      }
+
+      if (!res.ok) {
+        const errText = await res.text();
+        return {
+          envDetected: true,
+          geminiInitialized: true,
+          testCallSucceeded: false,
+          model,
+          error: `HTTP ${res.status}: ${errText.substring(0, 150)}`,
+          fallbackReason: `API returned error ${res.status}`,
+          rawResponse: null
+        };
+      }
+
+      const data = await res.json();
+      const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+
+      return {
+        envDetected: true,
+        geminiInitialized: true,
+        testCallSucceeded: true,
+        model,
+        error: null,
+        fallbackReason: null,
+        rawResponse
+      };
+
+    } catch (e) {
+      return {
+        envDetected: true,
+        geminiInitialized: true,
+        testCallSucceeded: false,
+        model,
+        error: e.message,
+        fallbackReason: 'Network error reaching Gemini API',
+        rawResponse: null
+      };
+    }
+  }
+}
+
+export default { generateWithGemini, testGeminiConnection };

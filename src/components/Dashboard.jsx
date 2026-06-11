@@ -1795,7 +1795,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         btn.disabled = true;
                         resPre.textContent = 'Awaiting response from Gemini...';
                         try {
-                          const res = await fetch('http://localhost:5000/api/ai/status');
+                          const res = await fetch(`/api/debug/gemini`);
                           const data = await res.json();
                           resPre.textContent = JSON.stringify(data, null, 2);
                         } catch (e) {
