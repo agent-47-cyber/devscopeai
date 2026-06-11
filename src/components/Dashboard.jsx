@@ -1303,7 +1303,6 @@ What aspect of your portfolio or profile would you like to improve today? You ca
             <AlertCircle className="text-warning shrink-0 mt-0.5" size={18} />
             <div>
               <h4 className="font-title-sm text-warning mb-1">Intelligence Engine Running on Fallback</h4>
-              <p className="font-body-md text-on-surface-variant text-[13px]">{aiStatus.message}</p>
             </div>
           </div>
         )}
