@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import ScoreExplainability from './ScoreExplainability.jsx';
 
 export default function CandidateReport({
   candidateReport,
@@ -9,17 +10,85 @@ export default function CandidateReport({
   linkedin,
   scores,
   onExport,
-  exportState = { status: 'idle', message: '' }
+  exportState = { status: 'idle', message: '' },
+  needsRefresh
 }) {
+  const [history, setHistory] = useState([]);
+  const [selectedHistoryId, setSelectedHistoryId] = useState('');
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await fetch('/api/reports/history', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          setHistory(data.data);
+        }
+      } catch (e) {
+        console.error('Failed to fetch history', e);
+      }
+    };
+    fetchHistory();
+  }, []);
+
   const canAnalyze = resume || github || linkedin;
 
-  if (!candidateReport) {
+  // If a historical report is selected, use it instead of the current one
+  const activeReport = selectedHistoryId 
+    ? history.find(h => h.id.toString() === selectedHistoryId)?.report_data 
+    : candidateReport;
+
+  if (!activeReport) {
     return (
       <div>
-        <div className="mb-10">
-          <span className="font-label-caps text-label-caps text-primary bg-primary/10 px-2 py-0.5 border border-primary/20 mb-2 inline-block">MODULE: CND_REPORT_V2</span>
-          <h2 className="font-display-lg text-display-lg text-primary tracking-tight">Candidate Intelligence Dossier</h2>
-          <p className="text-on-surface-variant mt-2">Generate a recruiter-grade intelligence report aggregating cross-channel evidence.</p>
+        {needsRefresh && (
+          <div className="bg-surface-container-low border border-tertiary/50 p-4 mb-8 flex justify-between items-center rounded text-tertiary">
+            <span>
+              <span className="material-symbols-outlined mr-2 align-middle">warning</span>
+              Candidate data has changed. The intelligence report needs to be refreshed.
+            </span>
+          </div>
+        )}
+        <div className="space-y-8">
+          <section className="flex flex-col md:flex-row md:items-end justify-between border-b border-outline-variant pb-6 gap-4">
+            <div>
+              <h2 className="font-display-lg text-display-lg text-on-surface">Candidate Intelligence Report</h2>
+              <div className="flex items-center gap-4 mt-2">
+                <span className="font-label-caps text-label-caps text-primary bg-primary/10 px-2 py-1">DOSSIER ID: DS-{Math.floor(Math.random() * 10000)}-A</span>
+                <span className="font-label-caps text-label-caps text-on-surface-variant">LAST UPDATED: {new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC</span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 items-end">
+              {history.length > 0 && (
+                <select 
+                  className="bg-surface-container border border-outline-variant text-on-surface text-[11px] p-2 rounded uppercase tracking-widest font-label-caps w-64"
+                  value={selectedHistoryId}
+                  onChange={(e) => setSelectedHistoryId(e.target.value)}
+                >
+                  <option value="">Current Report (Latest)</option>
+                  {history.map(h => (
+                    <option key={h.id} value={h.id}>
+                      History: {new Date(h.created_at).toLocaleString()}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleGenerateReport}
+                  disabled={isGeneratingReport || !canAnalyze}
+                  className="px-6 py-2 border border-primary text-primary hover:bg-primary/10 font-label-caps text-label-caps uppercase tracking-widest transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  <span className={`material-symbols-outlined text-[16px] ${isGeneratingReport ? 'animate-spin' : ''}`}>sync</span>
+                  {isGeneratingReport ? 'Re-analyzing...' : 'Refresh Report'}
+                </button>
+              </div>
+            </div>
+          </section>
         </div>
         <div className="bg-surface-container-low border border-outline-variant p-8 rim-light-amber max-w-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -71,7 +140,7 @@ export default function CandidateReport({
     hiringReadinessDetails = {},
     recommendedProjectsDetailed = [],
     actionPlanTimeline = {}
-  } = candidateReport;
+  } = activeReport;
 
   // Render a competency meter
   const renderMeter = (label, value) => {
@@ -96,7 +165,42 @@ export default function CandidateReport({
 
   return (
     <div className="space-y-12 animate-fade-in pb-20" id="candidate-report-content">
-      
+      {needsRefresh && (
+        <div className="bg-surface-container-low border border-tertiary/50 p-4 mb-4 flex justify-between items-center rounded text-tertiary">
+          <span>
+            <span className="material-symbols-outlined mr-2 align-middle">warning</span>
+            Candidate data has changed. The intelligence report needs to be refreshed.
+          </span>
+          <button onClick={() => handleGenerateReport(true)} disabled={isGeneratingReport} className="bg-tertiary text-on-primary px-4 py-2 font-label-caps text-xs rounded">
+            {isGeneratingReport ? 'REFRESHING...' : 'REFRESH NOW'}
+          </button>
+        </div>
+      )}
+
+      {/* ── INTELLIGENCE TELEMETRY ── */}
+      {candidateReport._meta && (
+        <div className="flex flex-col md:flex-row md:items-center justify-between bg-surface-container border border-outline-variant rounded p-3 text-[11px] font-label-caps uppercase tracking-widest text-on-surface-variant mb-4">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px] text-primary">analytics</span>
+              Source: {candidateReport._meta.source || 'Active ✅'}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px]">schedule</span>
+              Generated: {new Date(candidateReport._meta.timestamp || candidateReport._timestamp).toLocaleString()}
+            </span>
+          </div>
+          <button 
+            onClick={() => handleGenerateReport(true)}
+            disabled={isGeneratingReport}
+            className="mt-2 md:mt-0 flex items-center gap-1 hover:text-primary transition-colors disabled:opacity-50"
+          >
+            <span className={`material-symbols-outlined text-[14px] ${isGeneratingReport ? 'animate-spin' : ''}`}>sync</span>
+            Force Refresh Report
+          </button>
+        </div>
+      )}
+
       {/* ── HERO DOSSIER HEADER ── */}
       <section className="bg-surface-container-low border border-outline-variant p-8 relative overflow-hidden rim-light-amber">
         <div className="absolute top-0 right-0 p-8 opacity-5">
@@ -110,8 +214,22 @@ export default function CandidateReport({
                 <span className="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
                 CONFIDENTIAL DOSSIER
               </span>
-              <span className="font-label-caps text-[10px] text-on-surface-variant">ID: DS-INT-{Math.floor(Math.random() * 90000) + 10000}</span>
-            </div>
+                <span className="font-label-caps text-[10px] text-on-surface-variant">ID: DS-INT-{Math.floor(Math.random() * 90000) + 10000}</span>
+                {history.length > 0 && (
+                  <select 
+                    className="ml-4 bg-surface-container border border-outline-variant text-on-surface text-[10px] p-1 rounded uppercase tracking-widest font-label-caps"
+                    value={selectedHistoryId}
+                    onChange={(e) => setSelectedHistoryId(e.target.value)}
+                  >
+                    <option value="">Current Report (Latest)</option>
+                    {history.map(h => (
+                      <option key={h.id} value={h.id}>
+                        History: {new Date(h.created_at).toLocaleString()}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
             <h2 className="font-display-lg text-display-lg text-on-surface mb-2">Executive Intelligence Report</h2>
             <p className="font-body-md text-on-surface-variant max-w-2xl leading-relaxed">{executiveSummary}</p>
           </div>
@@ -152,8 +270,12 @@ export default function CandidateReport({
           </div>
         </div>
       </section>
+      
+      {activeReport.scoreExplainability && (
+        <ScoreExplainability explainability={activeReport.scoreExplainability} />
+      )}
 
-      {/* ── 4 INTELLIGENCE CARDS ── */}
+      {/* ── 2. RECRUITER DOSSIER & SYNTHESIS ── */}
       <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* Verified Strengths */}
         <div className="bg-surface-container border border-outline-variant p-5 hover:-translate-y-1 transition-transform rim-light-amber">

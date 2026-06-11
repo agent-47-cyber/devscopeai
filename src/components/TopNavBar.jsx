@@ -22,7 +22,7 @@ export default function TopNavBar({ user, onExport, exportState = { status: 'idl
             <span className="material-symbols-outlined text-[14px]">
               {aiSource === 'GEMINI' ? 'auto_awesome' : 'warning'}
             </span>
-            {aiSource === 'GEMINI' ? 'AI Source: Gemini ✅' : 'AI Source: Fallback ⚠️'}
+            {aiSource === 'GEMINI' ? 'AI Source: Active ✅' : 'AI Source: Fallback ⚠️'}
           </div>
         )}
         <div className="relative flex items-center">

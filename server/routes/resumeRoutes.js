@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import crypto from 'crypto';
 import { createRequire } from 'module';
 import { analyzeResume } from '../services/resumeService.js';
 
@@ -69,20 +70,25 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
         });
       }
 
-      // 2. Send to Gemini with cross-channel data for richer analysis
-      // Load existing GitHub/LinkedIn analyses for cross-referencing
+      // 2. Hash the input and check DB cache
+      const targetRole = req.body.targetRole || 'frontend';
+      const inputHash = crypto.createHash('md5').update(extractedText + targetRole).digest('hex');
+      const forceRefresh = req.body.forceRefresh === true || req.body.forceRefresh === 'true';
+
       let githubData = null;
       let linkedinData = null;
+      let cachedResume = null;
 
       if (checkDbConnected()) {
         try {
           const profileData = await pool.query(
-            `SELECT github_data, linkedin_data FROM analyses WHERE user_id = $1 LIMIT 1`,
+            `SELECT resume_data, github_data, linkedin_data FROM analyses WHERE user_id = $1 LIMIT 1`,
             [userId]
           );
           if (profileData.rows.length > 0) {
             githubData = profileData.rows[0].github_data;
             linkedinData = profileData.rows[0].linkedin_data;
+            cachedResume = profileData.rows[0].resume_data;
           }
         } catch (e) {
           console.warn('[resumeRoutes] Could not fetch cross-analysis data:', e.message);
@@ -93,15 +99,31 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
         if (existing) {
           githubData = existing.githubData;
           linkedinData = existing.linkedinData;
+          cachedResume = existing.resumeData;
         }
       }
 
+      // Return cache if hash matches
+      if (!forceRefresh && cachedResume && cachedResume._hash === inputHash) {
+        console.log('[resumeRoutes] Cache HIT for hash:', inputHash);
+        cachedResume._meta = { source: 'Cache ⚡', timestamp: cachedResume._timestamp || new Date().toISOString() };
+        return res.json({ success: true, data: cachedResume });
+      }
+
+      console.log('[resumeRoutes] Cache MISS or force refresh. Calling Gemini...');
+
       const analysisResult = await analyzeResume(
         extractedText,
-        req.body.targetRole || 'frontend',
+        targetRole,
         githubData,
         linkedinData
       );
+
+      if (analysisResult._aiSource === 'FALLBACK' && cachedResume) {
+        console.log('[resumeRoutes] Quota hit but cache exists. Serving stale cache.');
+        cachedResume._meta = { source: 'Cache (Stale) ⚡', timestamp: cachedResume._timestamp || new Date().toISOString() };
+        return res.json({ success: true, data: cachedResume });
+      }
 
       // Normalize: map Gemini fields to what the frontend expects
       const normalized = {
@@ -125,6 +147,9 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
         suggestions: analysisResult.suggestions || analysisResult.improvementOpportunities || [],
         softSkillsFound: analysisResult.softSkillsFound || [],
         wordCount: extractedText.trim().split(/\s+/).filter(Boolean).length,
+        _hash: inputHash,
+        _timestamp: new Date().toISOString(),
+        _meta: { source: 'Gemini ✅', timestamp: new Date().toISOString() }
       };
 
       // 3. Store in DB

@@ -2,7 +2,7 @@ import { generateWithGemini } from './geminiService.js';
 import { Prompts } from './geminiPrompts.js';
 import { createGithubFallback } from './fallbackAnalysis.js';
 
-export async function analyzeGithub(username, targetRole = 'frontend', resumeData = null) {
+export async function analyzeGithub(username, targetRole = 'frontend', resumeData = null, pool = null) {
   if (!username) {
     throw new Error('GitHub username is required');
   }
@@ -119,8 +119,36 @@ export async function analyzeGithub(username, targetRole = 'frontend', resumeDat
       } : null
     };
 
+    let cachedRepoAnalysis = null;
+    let repoHash = null;
+    if (pool && bestRepo) {
+      try {
+        const crypto = await import('crypto');
+        repoHash = crypto.createHash('md5').update(bestRepo.name + bestRepo.updated_at).digest('hex');
+        const res = await pool.query('SELECT analysis_data FROM repository_analyses WHERE repo_hash = $1', [repoHash]);
+        if (res.rows.length > 0) {
+          cachedRepoAnalysis = res.rows[0].analysis_data;
+          compactProfile.cachedDeepDive = true;
+          console.log('[githubService] Found cached deep dive for repository:', bestRepo.name);
+        }
+      } catch (e) {
+        console.warn('[githubService] Failed to check repository cache:', e.message);
+      }
+    }
+
     // 4. Send to Gemini with role-aware prompt + cross-reference
-    const prompt = Prompts.githubAnalysis(compactProfile, targetRole, resumeData);
+    // OPTIMIZATION: Only send the top 5 repositories to Gemini to save tokens
+    const geminiPayload = {
+      ...compactProfile,
+      topRepositories: sortedByScore.slice(0, 5).map(r => ({
+        name: r.name,
+        description: r.description,
+        language: r.language,
+        stars: r.stargazers_count,
+        updated_at: r.updated_at
+      }))
+    };
+    const prompt = Prompts.githubAnalysis(geminiPayload, targetRole, resumeData);
     const systemInstruction = `You are a Staff Engineer and Technical Hiring Manager evaluating a ${targetRole} engineer candidate's GitHub. 
 Provide your evaluation in strict JSON format only. No markdown, no extra text.`;
 
@@ -132,6 +160,19 @@ Provide your evaluation in strict JSON format only. No markdown, no extra text.`
       console.warn('[githubService] Gemini unavailable, using local fallback:', err.message);
       analysisResult = createGithubFallback(compactProfile);
       analysisResult._aiSource = 'FALLBACK';
+    }
+
+    if (analysisResult && !analysisResult.bestRepositoryDeepAnalysis && cachedRepoAnalysis) {
+      analysisResult.bestRepositoryDeepAnalysis = cachedRepoAnalysis;
+    } else if (pool && repoHash && analysisResult && analysisResult.bestRepositoryDeepAnalysis) {
+      try {
+        await pool.query(
+          'INSERT INTO repository_analyses (repo_hash, analysis_data) VALUES ($1, $2::jsonb) ON CONFLICT DO NOTHING',
+          [repoHash, JSON.stringify(analysisResult.bestRepositoryDeepAnalysis)]
+        );
+      } catch (e) {
+        console.warn('[githubService] Failed to save repository cache:', e.message);
+      }
     }
 
     return {

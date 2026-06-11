@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import ProcessingState from './ProcessingState.jsx';
+import ScoreExplainability from './ScoreExplainability';
 
 export default function LinkedInReport({
   linkedin,
@@ -93,16 +94,22 @@ export default function LinkedInReport({
         </div>
         <div className="flex flex-col items-end gap-1">
           <div className="flex items-center gap-4 mb-2">
-            <span className="font-label-caps text-label-caps text-on-surface-variant">TIMESTAMP</span>
-            <span className="font-body-md text-[14px] font-mono text-primary">{new Date().toISOString().split('T')[0]}</span>
+            <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest bg-surface-container px-2 py-1 rounded border border-outline-variant">
+              <span className="material-symbols-outlined text-[12px] inline-block align-text-bottom mr-1">analytics</span>
+              Source: {linkedin._meta?.source || 'Active ✅'}
+            </span>
+            <span className="font-label-caps text-label-caps text-on-surface-variant">GENERATED</span>
+            <span className="font-body-md text-[14px] font-mono text-primary">
+              {linkedin._meta?.timestamp ? new Date(linkedin._meta.timestamp).toLocaleDateString() : new Date().toLocaleDateString()}
+            </span>
           </div>
           <button
             onClick={() => handleLinkLinkedinUrl(profileHandle || url, linkedin.selfReport, true)}
             disabled={isAnalyzing}
             className="px-4 py-2 border border-primary/30 text-primary hover:bg-primary/10 transition-colors flex items-center gap-2 font-label-caps text-[12px] uppercase disabled:opacity-50"
           >
-            <span className="material-symbols-outlined text-[16px]">{isAnalyzing ? 'sync' : 'refresh'}</span>
-            {isAnalyzing ? 'Refreshing...' : 'Refresh Analysis'}
+            <span className={`material-symbols-outlined text-[16px] ${isAnalyzing ? 'animate-spin' : ''}`}>sync</span>
+            {isAnalyzing ? 'Refreshing...' : 'Force Refresh'}
           </button>
         </div>
       </section>
@@ -167,6 +174,9 @@ export default function LinkedInReport({
               <>Missing Keywords: <span className="text-primary">{missingKws.slice(0, 2).join(', ')}</span></>
             ) : "Profile looks complete!"}
           </p>
+          {linkedin.scoreExplainability && (
+            <ScoreExplainability explainability={linkedin.scoreExplainability} />
+          )}
         </div>
 
         {/* LinkedIn Audit Grid */}

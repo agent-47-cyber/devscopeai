@@ -15,6 +15,7 @@ import reportRoutes from './server/routes/reportRoutes.js';
 import resumeRoutes from './server/routes/resumeRoutes.js';
 import githubRoutes from './server/routes/githubRoutes.js';
 import linkedinRoutes from './server/routes/linkedinRoutes.js';
+import intelligenceRoutes from './server/routes/intelligenceRoutes.js';
 import { testGeminiConnection } from './server/services/geminiService.js';
 
 const require = createRequire(import.meta.url);
@@ -253,6 +254,25 @@ const initializeDatabase = async () => {
         analysis_data JSONB,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS repository_analyses (
+        repo_hash TEXT PRIMARY KEY,
+        analysis_data JSONB NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS linkedin_rapidapi_cache (
+        username TEXT PRIMARY KEY,
+        raw_data JSONB NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS ai_usage (
+        id SERIAL PRIMARY KEY,
+        date DATE NOT NULL UNIQUE,
+        requests_today INTEGER NOT NULL DEFAULT 0,
+        cache_hits INTEGER NOT NULL DEFAULT 0,
+        total_response_time_ms BIGINT NOT NULL DEFAULT 0,
+        last_error TEXT,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
     `);
     isDbConnected = true;
   } catch (err) {
@@ -262,6 +282,43 @@ const initializeDatabase = async () => {
 };
 
 initializeDatabase();
+
+// Global AI Usage Logger (Decoupled from GeminiService)
+global.logAiUsage = async (isCacheHit, durationMs, errorMsg) => {
+  if (!isDbConnected) return;
+  try {
+    await pool.query(`
+      INSERT INTO ai_usage (date, requests_today, cache_hits, total_response_time_ms, last_error)
+      VALUES (CURRENT_DATE, 1, $1, $2, $3)
+      ON CONFLICT (date) DO UPDATE SET
+        requests_today = ai_usage.requests_today + 1,
+        cache_hits = ai_usage.cache_hits + EXCLUDED.cache_hits,
+        total_response_time_ms = ai_usage.total_response_time_ms + EXCLUDED.total_response_time_ms,
+        last_error = COALESCE(EXCLUDED.last_error, ai_usage.last_error),
+        updated_at = NOW()
+    `, [isCacheHit ? 1 : 0, durationMs || 0, errorMsg || null]);
+  } catch (e) {
+    console.error('Failed to log AI usage:', e.message);
+  }
+};
+
+// AI Usage Analytics Endpoint
+app.get('/api/ai/usage', authenticateToken, async (req, res) => {
+  if (isDbConnected) {
+    try {
+      const result = await pool.query(`SELECT * FROM ai_usage WHERE date = CURRENT_DATE`);
+      if (result.rows.length > 0) {
+        return res.json({ success: true, data: result.rows[0] });
+      }
+    } catch (e) {
+      console.warn('Failed to fetch AI usage:', e.message);
+    }
+  }
+  return res.json({ 
+    success: true, 
+    data: { requests_today: 0, cache_hits: 0, total_response_time_ms: 0, last_error: null } 
+  });
+});
 
 const readLocalDb = () => {
   if (useInMemoryFallback) return inMemoryDb;
@@ -761,6 +818,7 @@ app.use('/api/analyze/project-gap', projectGapRoutes(pool, authenticateToken, ch
 app.use('/api/analyze/job-match', jobMatchRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
 app.use('/api/analyze/report', reportRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
 app.use('/api/analyze/candidate-report', reportRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
+app.use('/api/intelligence/report', intelligenceRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
 
 // LinkedIn PDF upload — accepts JSON body { linkedinText } OR multipart file upload
 app.post('/api/analyze/linkedin-pdf', authenticateToken, upload.single('file'), async (req, res) => {

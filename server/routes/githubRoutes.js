@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import { analyzeGithub } from '../services/githubService.js';
 
 export default function (pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb) {
@@ -18,43 +19,52 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
       // Clean username: strip github.com URLs
       const cleanUsername = username.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '').split('/')[0];
 
-      // Check DB Cache
-      if (checkDbConnected()) {
-        const cached = await pool.query(
-          `SELECT analysis_data FROM github_analyses WHERE user_id = $1 AND github_username = $2 
-           ORDER BY created_at DESC LIMIT 1`,
-          [userId, cleanUsername]
-        );
-        if (cached.rows.length > 0 && cached.rows[0].analysis_data) {
-          return res.json({
-            success: true,
-            data: { ...cached.rows[0].analysis_data, _cached: true }
-          });
-        }
-      }
+      // 2. Hash the input and check DB cache
+      const inputHash = crypto.createHash('md5').update(cleanUsername + targetRole).digest('hex');
+      const forceRefresh = req.body.forceRefresh === true || req.body.forceRefresh === 'true';
 
-      // Load existing resume data for cross-reference
+      let cachedGithub = null;
       let resumeData = null;
+
       if (checkDbConnected()) {
         try {
           const profileData = await pool.query(
-            `SELECT resume_data FROM analyses WHERE user_id = $1 LIMIT 1`,
+            `SELECT github_data, resume_data FROM analyses WHERE user_id = $1 LIMIT 1`,
             [userId]
           );
           if (profileData.rows.length > 0) {
+            cachedGithub = profileData.rows[0].github_data;
             resumeData = profileData.rows[0].resume_data;
           }
         } catch (e) {
-          console.warn('[githubRoutes] Could not fetch resume data for cross-analysis:', e.message);
+          console.warn('[githubRoutes] Could not fetch cross-analysis data:', e.message);
         }
       } else {
         const db = readLocalDb();
         const existing = db.analyses.find(a => a.userId === userId);
-        if (existing) resumeData = existing.resumeData;
+        if (existing) {
+          cachedGithub = existing.githubData;
+          resumeData = existing.resumeData;
+        }
       }
 
+      // Return cache if hash matches
+      if (!forceRefresh && cachedGithub && cachedGithub._hash === inputHash) {
+        console.log('[githubRoutes] Cache HIT for hash:', inputHash);
+        cachedGithub._meta = { source: 'Cache ⚡', timestamp: cachedGithub._timestamp || new Date().toISOString() };
+        return res.json({ success: true, data: cachedGithub });
+      }
+
+      console.log('[githubRoutes] Cache MISS or force refresh. Calling Gemini...');
+
       // Generate new analysis with role-awareness and cross-reference
-      const { source_data, analysis_result } = await analyzeGithub(cleanUsername, targetRole, resumeData);
+      const { source_data, analysis_result } = await analyzeGithub(cleanUsername, targetRole, resumeData, checkDbConnected() ? pool : null);
+
+      if (analysis_result._aiSource === 'FALLBACK' && cachedGithub) {
+        console.log('[githubRoutes] Quota hit but cache exists. Serving stale cache.');
+        cachedGithub._meta = { source: 'Cache (Stale) ⚡', timestamp: cachedGithub._timestamp || new Date().toISOString() };
+        return res.json({ success: true, data: cachedGithub });
+      }
 
       // Normalize: map Gemini fields to frontend-expected fields
       const normalized = {
@@ -78,6 +88,9 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
         recommendations: analysis_result.projectRecommendations || [],
         careerRecommendations: analysis_result.careerRecommendations || [],
         docScore: Math.round((analysis_result.codePortfolioStrength || 50) * 0.9),
+        _hash: inputHash,
+        _timestamp: new Date().toISOString(),
+        _meta: { source: 'Gemini ✅', timestamp: new Date().toISOString() }
       };
 
       // Store in DB

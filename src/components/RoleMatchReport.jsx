@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import ProcessingState from './ProcessingState.jsx';
+import ScoreExplainability from './ScoreExplainability.jsx';
 
 export default function RoleMatchReport({
   jobMatch: roleMatch,
@@ -125,10 +126,13 @@ export default function RoleMatchReport({
             <div className={`border px-3 py-1.5 rounded font-label-caps text-[10px] uppercase tracking-wider mb-4 inline-block ${matchScore >= 80 ? 'bg-secondary/10 border-secondary/20 text-secondary' : matchScore >= 60 ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-error/10 border-error/20 text-error'}`}>
               {matchScore >= 80 ? 'HIGH PROBABILITY MATCH' : matchScore >= 60 ? 'MODERATE MATCH' : 'LOW MATCH'}
             </div>
-            <p className="font-body-md text-[13px] text-on-surface-variant max-w-[240px] leading-relaxed">
-              {roleMatch?.summary || "Candidate exhibits strong technical alignment for the requirements."}
+            <p className="font-body-md text-[13px] text-on-surface-variant leading-relaxed text-left">
+              {recruiterPerspective || "Candidate exhibits strong technical alignment for the requirements."}
             </p>
           </div>
+          {roleMatch.scoreExplainability && (
+            <ScoreExplainability explainability={roleMatch.scoreExplainability} />
+          )}
         </section>
 
         {/* Skill Gap Analysis (8 columns) */}

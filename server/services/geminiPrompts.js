@@ -31,6 +31,8 @@ Evaluate the resume strictly for a ${targetRole.toUpperCase()} engineer role. Di
 - ml-engineer: Python, ML frameworks, model deployment, data pipelines, MLOps
 - cloud-engineer: AWS/GCP/Azure, infrastructure, Kubernetes, Terraform, CI/CD
 
+CRITICAL: Every score must be strictly evidence-based. Do not hallucinate capabilities.
+
 Return ONLY a strict JSON object (no markdown, no extra text):
 {
   "executiveSummary": "string — Consulting-grade 2-3 sentence summary of the candidate's actual impact for ${targetRole} role. Be specific about what makes them stand out or fall short.",
@@ -65,6 +67,11 @@ Return ONLY a strict JSON object (no markdown, no extra text):
     "leadershipSignals": number,
     "roleAlignment": number,
     "evidenceConfidence": number
+  },
+  "scoreExplainability": {
+    "positiveContributors": ["string — specific resume evidence boosting the score"],
+    "negativeContributors": ["string — specific missing evidence lowering the score"],
+    "potentialGains": ["string — what the candidate could do to increase this score"]
   }
 }
 `,
@@ -86,12 +93,16 @@ Skills claimed: ${JSON.stringify(resumeData.keywordAnalysis?.found || resumeData
 Job readiness claimed: ${resumeData.jobReadiness || 'Not stated'}
 ` : ''}
 
+${compactProfile.cachedDeepDive ? `NOTE: The best repository deep analysis has already been performed. Do NOT include 'bestRepositoryDeepAnalysis' in your JSON output.` : ''}
+
 For a ${targetRole} role, evaluate:
 ${targetRole === 'frontend' ? '- React/Vue/Angular projects, UI complexity, component architecture, performance work' : ''}
 ${targetRole === 'backend' ? '- API design, database schemas, service architecture, scalability patterns' : ''}
 ${targetRole === 'fullstack' ? '- End-to-end applications, both UI quality and backend depth' : ''}
 ${targetRole === 'ml-engineer' ? '- Python ML projects, notebooks with models, deployment pipelines, datasets' : ''}
 ${targetRole === 'cloud-engineer' ? '- Infrastructure-as-code, deployment configs, CI/CD pipelines, cloud configs' : ''}
+
+CRITICAL: Every score must be strictly evidence-based. Do not hallucinate capabilities.
 
 Return ONLY a strict JSON object (no markdown, no extra text):
 {
@@ -113,7 +124,7 @@ Return ONLY a strict JSON object (no markdown, no extra text):
     "DevOps": [{ "technology": "string", "evidenceCount": number, "confidenceScore": number }],
     "AI_ML": [{ "technology": "string", "evidenceCount": number, "confidenceScore": number }]
   },
-  "bestRepositoryDeepAnalysis": {
+  ${compactProfile.cachedDeepDive ? '' : `"bestRepositoryDeepAnalysis": {
     "repositoryName": "string — name of the best repository",
     "projectSummary": "string",
     "architectureReview": "string",
@@ -127,7 +138,7 @@ Return ONLY a strict JSON object (no markdown, no extra text):
     "missingFeatures": ["string"],
     "recommendations": ["string"],
     "recruiterVerdict": "string — either 'Yes' or 'No'"
-  },
+  },`}
   "crossAnalysis": {
     "resumeVsGithub": "string — skills on resume vs actual GitHub evidence",
     "verifiedSkills": ["string — skills that have GitHub repository proof"],
@@ -146,6 +157,11 @@ Return ONLY a strict JSON object (no markdown, no extra text):
     "projectDiversity": number,
     "codeConsistency": number,
     "evidenceConfidence": number
+  },
+  "scoreExplainability": {
+    "positiveContributors": ["string — specific github evidence boosting the score"],
+    "negativeContributors": ["string — specific missing evidence lowering the score"],
+    "potentialGains": ["string — what the candidate could do to increase this score"]
   }
 }
 `,
@@ -177,6 +193,8 @@ ${JSON.stringify(githubData ? {
 
 Evaluate the LinkedIn profile for ${targetRole} engineer visibility and identify cross-platform inconsistencies.
 
+CRITICAL: Every score must be strictly evidence-based. Do not hallucinate capabilities.
+
 Return ONLY a strict JSON object (no markdown, no extra text):
 {
   "headlineAnalysis": "string — critique of headline for ${targetRole} recruiter SEO and visibility",
@@ -207,6 +225,11 @@ Return ONLY a strict JSON object (no markdown, no extra text):
     "githubAlignment": number,
     "industryPositioning": number,
     "evidenceConfidence": number
+  },
+  "scoreExplainability": {
+    "positiveContributors": ["string — specific linkedin evidence boosting the score"],
+    "negativeContributors": ["string — specific missing evidence lowering the score"],
+    "potentialGains": ["string — what the candidate could do to increase this score"]
   }
 }
 `,
@@ -240,6 +263,8 @@ ${JSON.stringify({
 
 Perform a COMPLETE matching analysis. For every required skill in the JD, determine if the candidate has EVIDENCE (not just claims).
 
+CRITICAL: Every score must be strictly evidence-based. Do not hallucinate capabilities.
+
 Return ONLY a strict JSON object (no markdown, no extra text):
 {
   "matchScore": number,
@@ -261,6 +286,11 @@ Return ONLY a strict JSON object (no markdown, no extra text):
     "keywordMatch": number,
     "skillMatch": number,
     "readinessScore": number
+  },
+  "scoreExplainability": {
+    "positiveContributors": ["string — specific match evidence boosting the score"],
+    "negativeContributors": ["string — specific missing evidence lowering the score"],
+    "potentialGains": ["string — what the candidate could do to increase this score"]
   }
 }
 `,
@@ -294,6 +324,8 @@ Focus on what's missing for a ${targetRole} engineer at a tech company. Identify
 - Enterprise-grade category gaps (AI, Cloud, SaaS, Team Projects, Open Source, DevOps, Architecture)
 - Specific missing projects that would maximize hiring impact
 - Priority ordering based on hiring impact vs effort
+
+CRITICAL: Every score must be strictly evidence-based. Do not hallucinate capabilities.
 
 Return ONLY a strict JSON object (no markdown, no extra text):
 {
@@ -332,6 +364,11 @@ Return ONLY a strict JSON object (no markdown, no extra text):
     "architectureReadiness": number,
     "leadershipReadiness": number,
     "openSourceReadiness": number
+  },
+  "scoreExplainability": {
+    "positiveContributors": ["string — specific portfolio evidence boosting the score"],
+    "negativeContributors": ["string — specific missing evidence lowering the score"],
+    "potentialGains": ["string — what the candidate could do to increase this score"]
   }
 }
 `,
@@ -394,6 +431,8 @@ Now synthesize a completely new, holistic evaluation. Focus heavily on:
 1. Cross-analysis: Does GitHub PROVE what the resume CLAIMS?
 2. Does LinkedIn CONFIRM what GitHub SHOWS?
 3. What's the real hiring risk vs what's stated?
+
+CRITICAL: Every score must be strictly evidence-based. Do not hallucinate capabilities.
 
 Return ONLY a strict JSON object (no markdown, no extra text):
 {
@@ -460,6 +499,11 @@ Return ONLY a strict JSON object (no markdown, no extra text):
         "impact": "string — exactly one of: 'High Impact', 'Medium Impact', 'Low Impact'"
       }
     ]
+  },
+  "scoreExplainability": {
+    "positiveContributors": ["string — specific overall evidence boosting the score"],
+    "negativeContributors": ["string — specific missing evidence lowering the score"],
+    "potentialGains": ["string — what the candidate could do to increase this score"]
   }
 }
 `

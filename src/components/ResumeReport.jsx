@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { FileText, AlertCircle, CheckCircle } from 'lucide-react';
+import ScoreExplainability from './ScoreExplainability';
 import ProcessingState from './ProcessingState.jsx';
 
 export default function ResumeReport({
@@ -96,7 +97,7 @@ export default function ResumeReport({
             {isAnalyzingResume ? (
               <div className="mt-8 mb-4">
                 <ProcessingState
-                  steps={['Parsing Resume Document', 'Extracting Skills & Experience', 'Cross-referencing Taxonomy', 'Evaluating ATS Compatibility', 'Generating Recruiter Intelligence']}
+                  steps={['Parsing Resume Document', 'Extracting Skills & Experience', 'Cross-referencing Taxonomy', 'Evaluating ATS Readiness', 'Generating Recruiter Intelligence']}
                   currentStep={analysisStep}
                   isComplete={false}
                 />
@@ -132,21 +133,37 @@ export default function ResumeReport({
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-right hidden md:block">
-                  <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest uppercase">DOSSIER ID</p>
-                  <p className="font-mono text-[12px] text-primary">DS-{Math.floor(Math.random() * 10000)}-R</p>
+                  <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest bg-surface-container px-2 py-1 rounded border border-outline-variant mb-1 inline-block">
+                    <span className="material-symbols-outlined text-[12px] inline-block align-text-bottom mr-1">analytics</span>
+                    Source: {resume._meta?.source || 'Active ✅'}
+                  </span>
+                  <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest uppercase mt-1">GENERATED</p>
+                  <p className="font-mono text-[12px] text-primary">
+                    {resume._meta?.timestamp ? new Date(resume._meta.timestamp).toLocaleDateString() : new Date().toLocaleDateString()}
+                  </p>
                 </div>
-                <button
-                  onClick={() => {
-                    setResume(null);
-                    setResumeTextInput('');
-                    setResumeFileName('');
-                    setResumeFileParseStatus(null);
-                    setResumeFileParseError('');
-                  }}
-                  className="px-4 py-2 bg-surface-container border border-outline-variant rounded font-label-caps text-[11px] uppercase tracking-widest hover:border-error/50 hover:bg-error/5 transition-all text-white"
-                >
-                  Upload New
-                </button>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => handleLinkResume(resumeTextInput || 'refresh_bypass', true)}
+                    disabled={isAnalyzingResume}
+                    className="px-4 py-2 border border-primary/30 text-primary hover:bg-primary/10 transition-colors flex items-center justify-center gap-2 font-label-caps text-[11px] uppercase disabled:opacity-50 rounded"
+                  >
+                    <span className={`material-symbols-outlined text-[14px] ${isAnalyzingResume ? 'animate-spin' : ''}`}>sync</span>
+                    {isAnalyzingResume ? 'Analyzing...' : 'Force Refresh'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setResume(null);
+                      setResumeTextInput('');
+                      setResumeFileName('');
+                      setResumeFileParseStatus(null);
+                      setResumeFileParseError('');
+                    }}
+                    className="px-4 py-2 bg-surface-container border border-outline-variant rounded font-label-caps text-[11px] uppercase tracking-widest hover:border-error/50 hover:bg-error/5 transition-all text-white"
+                  >
+                    Upload New
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -187,6 +204,7 @@ export default function ResumeReport({
                   </div>
                 </div>
               </div>
+              <ScoreExplainability explainability={resume.scoreExplainability} />
 
               {/* Technology Evidence Table */}
               <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden rim-light-amber">
@@ -306,7 +324,7 @@ export default function ResumeReport({
                   </div>
                   <div>
                     <div className="flex justify-between items-end mb-2">
-                      <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">ATS Compatibility</span>
+                      <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">ATS Readiness</span>
                       <span className="text-tertiary-container font-label-caps text-[10px] uppercase">{resume.scores?.atsCompatibility || scores.resumeDetails?.categoryBreakdown?.atsCompatibility || 90}/100</span>
                     </div>
                     <div className="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden border border-outline-variant/50">

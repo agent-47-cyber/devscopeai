@@ -14,6 +14,7 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
       let resumeData = req.body.resumeData || null;
       let githubData = req.body.githubData || null;
       let linkedinData = req.body.linkedinData || null;
+      let cachedFallback = null;
 
       if (checkDbConnected() && (!resumeData || !githubData || !linkedinData)) {
         const profileData = await pool.query(
@@ -26,16 +27,18 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
           linkedinData = linkedinData || profileData.rows[0].linkedin_data;
         }
 
-        // Check cache unless force refresh
-        if (!forceRefresh && !req.body.resumeData && !req.body.githubData && !req.body.linkedinData) {
+        try {
           const cached = await pool.query(
             `SELECT analysis_data FROM project_gap_analyses WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
             [userId]
           );
           if (cached.rows.length > 0 && cached.rows[0].analysis_data) {
-            return res.json({ success: true, data: { ...cached.rows[0].analysis_data, _cached: true } });
+            cachedFallback = cached.rows[0].analysis_data;
+            if (!forceRefresh && !req.body.resumeData && !req.body.githubData && !req.body.linkedinData) {
+              return res.json({ success: true, data: { ...cachedFallback, _cached: true } });
+            }
           }
-        }
+        } catch (e) {}
       } else if (!checkDbConnected() && (!resumeData || !githubData || !linkedinData)) {
         const db = readLocalDb();
         const existing = db.analyses.find(a => a.userId === userId);
@@ -54,6 +57,12 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
       }
 
       const analysis_result = await analyzeProjectGap(resumeData, githubData, linkedinData, targetRole);
+
+      if (analysis_result._aiSource === 'FALLBACK' && cachedFallback) {
+        console.log('[projectGapRoutes] Quota hit but cache exists. Serving stale cache.');
+        cachedFallback._meta = { source: 'Cache (Stale) ⚡', timestamp: new Date().toISOString() };
+        return res.json({ success: true, data: cachedFallback });
+      }
 
       // Store in DB
       if (checkDbConnected()) {

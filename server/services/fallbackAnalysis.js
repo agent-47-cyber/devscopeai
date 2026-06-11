@@ -32,6 +32,40 @@ const SKILL_PATTERNS = [
 
 const ACTION_VERBS = ['built', 'created', 'developed', 'implemented', 'designed', 'led', 'optimized', 'deployed', 'improved', 'managed', 'analyzed', 'collaborated'];
 
+export const fallbackIntelligence = {
+  jobMatch: {
+    matchScore: 65,
+    matchAnalysis: "Analysis running in fallback mode. Generic match applied.",
+    roleFit: "Medium",
+    missingKeywords: ["Cloud", "Testing"],
+    coreCompetencyGaps: ["System Design"]
+  },
+  projectGap: {
+    projectGapScore: 60,
+    missingProjectCategories: ["Backend API", "Authentication"],
+    recommendedProjects: [
+      {
+        title: "Fullstack Dashboard",
+        description: "Build a generic dashboard to demonstrate fullstack skills.",
+        technologies: ["React", "Node", "PostgreSQL"]
+      }
+    ],
+    portfolioRisks: ["Insufficient complex projects"]
+  },
+  candidateReport: {
+    hireProbability: "50%",
+    recruiterConfidence: "Medium",
+    jobReadiness: "Junior-Mid",
+    overallIntelligenceScore: 65,
+    verifiedStrengths: ["Frontend basics"],
+    hiringRisks: ["Limited production experience"],
+    portfolioGaps: ["No automated testing"],
+    roadmap30: ["Review core fundamentals"],
+    roadmap60: ["Build a fullstack CRUD application"],
+    roadmap90: ["Deploy and monitor in production"]
+  }
+};
+
 export const clampScore = (value, min = 0, max = 100) =>
   Math.max(min, Math.min(max, Math.round(Number(value) || 0)));
 

@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'crypto';
 import { analyzeLinkedin } from '../services/linkedinService.js';
 
 export default function (pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb) {
@@ -7,6 +8,7 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
   router.post('/', authenticateToken, async (req, res) => {
     try {
       const userId = req.user.id;
+      const targetRole = req.body.targetRole || 'frontend';
 
       // Accept username, linkedinUrl, linkedinUsername, or url
       const rawInput = req.body.username || req.body.linkedinUrl || req.body.linkedinUsername || req.body.url || '';
@@ -29,46 +31,46 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
 
       const linkedinUrl = `https://www.linkedin.com/in/${slug}`;
 
-      const forceRefresh = req.body.forceRefresh === true;
+      // 2. Hash the input and check DB cache
+      const inputHash = crypto.createHash('md5').update(slug + targetRole).digest('hex');
+      const forceRefresh = req.body.forceRefresh === true || req.body.forceRefresh === 'true';
 
-      // Fetch cached analysis + other profile data for cross-analysis
-      let existingAnalysis = null;
+      let cachedLinkedin = null;
       let resumeData = null;
       let githubData = null;
 
       if (checkDbConnected()) {
-        const cacheCheck = await pool.query(
-          `SELECT 
-            l.analysis_data as linkedin_analysis,
-            a.resume_data,
-            a.github_data
-           FROM analyses a
-           LEFT JOIN linkedin_analyses l ON l.user_id = a.user_id AND l.linkedin_url = $2
-           WHERE a.user_id = $1 LIMIT 1`,
-          [userId, linkedinUrl]
-        );
-        if (cacheCheck.rows.length > 0) {
-          if (!forceRefresh) {
-            existingAnalysis = cacheCheck.rows[0].linkedin_analysis;
+        try {
+          const profileData = await pool.query(
+            `SELECT linkedin_data, resume_data, github_data FROM analyses WHERE user_id = $1 LIMIT 1`,
+            [userId]
+          );
+          if (profileData.rows.length > 0) {
+            cachedLinkedin = profileData.rows[0].linkedin_data;
+            resumeData = profileData.rows[0].resume_data;
+            githubData = profileData.rows[0].github_data;
           }
-          resumeData = cacheCheck.rows[0].resume_data;
-          githubData = cacheCheck.rows[0].github_data;
+        } catch (e) {
+          console.warn('[linkedinRoutes] Could not fetch cross-analysis data:', e.message);
         }
       } else {
         const db = readLocalDb();
         const existing = db.analyses.find(a => a.userId === userId);
         if (existing) {
-          if (!forceRefresh) {
-            existingAnalysis = existing.linkedinData;
-          }
+          cachedLinkedin = existing.linkedinData;
           resumeData = existing.resumeData;
           githubData = existing.githubData;
         }
       }
 
-      if (existingAnalysis && !forceRefresh) {
-        return res.json({ success: true, data: { ...existingAnalysis, _cached: true } });
+      // Return cache if hash matches
+      if (!forceRefresh && cachedLinkedin && cachedLinkedin._hash === inputHash) {
+        console.log('[linkedinRoutes] Cache HIT for hash:', inputHash);
+        cachedLinkedin._meta = { source: 'Cache ⚡', timestamp: cachedLinkedin._timestamp || new Date().toISOString() };
+        return res.json({ success: true, data: cachedLinkedin });
       }
+
+      console.log('[linkedinRoutes] Cache MISS or force refresh. Calling Gemini...');
 
       const rapidApiKey = process.env.RAPIDAPI_KEY;
       const rapidApiHost = process.env.RAPIDAPI_HOST;
@@ -78,27 +80,47 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
 
       if (rapidApiKey && rapidApiHost && !rapidApiKey.includes('your_')) {
         try {
-          // Use provided URL from env or fallback to a default generic one
-          let endpoint = rapidApiUrl || `https://${rapidApiHost}/api/v1/linkedin/profile`;
-          
-          // Determine parameter formatting based on URL structure
-          if (endpoint.includes('?')) {
-            endpoint = `${endpoint}&url=${encodeURIComponent(linkedinUrl)}`;
-          } else {
-            // Some APIs use `username` instead of `url` as the query param, we'll try url first
-            endpoint = `${endpoint}?url=${encodeURIComponent(linkedinUrl)}&username=${slug}`;
+          if (checkDbConnected() && !forceRefresh) {
+            const rapidApiCache = await pool.query(
+              `SELECT raw_data FROM linkedin_rapidapi_cache WHERE username = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
+              [slug]
+            );
+            if (rapidApiCache.rows.length > 0) {
+              rawProfileData = rapidApiCache.rows[0].raw_data;
+              console.log('[linkedinRoutes] Using 24h cached RapidAPI response for:', slug);
+            }
           }
 
-          console.log(`[linkedinRoutes] Fetching from RapidAPI: ${endpoint.split('?')[0]}...`);
-          
-          const apiRes = await fetch(endpoint, {
-            method: 'GET',
-            headers: { 'X-RapidAPI-Key': rapidApiKey, 'X-RapidAPI-Host': rapidApiHost }
-          });
-          if (apiRes.ok) {
-            rawProfileData = await apiRes.json();
-          } else {
-            console.warn('[linkedinRoutes] RapidAPI failed with status:', apiRes.status);
+          if (!rawProfileData) {
+            // Use provided URL from env or fallback to a default generic one
+            let endpoint = rapidApiUrl || `https://${rapidApiHost}/api/v1/linkedin/profile`;
+            
+            // Determine parameter formatting based on URL structure
+            if (endpoint.includes('?')) {
+              endpoint = `${endpoint}&url=${encodeURIComponent(linkedinUrl)}`;
+            } else {
+              // Some APIs use `username` instead of `url` as the query param, we'll try url first
+              endpoint = `${endpoint}?url=${encodeURIComponent(linkedinUrl)}&username=${slug}`;
+            }
+
+            console.log(`[linkedinRoutes] Fetching from RapidAPI: ${endpoint.split('?')[0]}...`);
+            
+            const apiRes = await fetch(endpoint, {
+              method: 'GET',
+              headers: { 'X-RapidAPI-Key': rapidApiKey, 'X-RapidAPI-Host': rapidApiHost }
+            });
+            if (apiRes.ok) {
+              rawProfileData = await apiRes.json();
+              if (checkDbConnected()) {
+                await pool.query(
+                  `INSERT INTO linkedin_rapidapi_cache (username, raw_data) VALUES ($1, $2::jsonb)
+                   ON CONFLICT (username) DO UPDATE SET raw_data = EXCLUDED.raw_data, created_at = NOW()`,
+                  [slug, JSON.stringify(rawProfileData)]
+                ).catch(e => console.error('[linkedinRoutes] Failed to cache RapidAPI response:', e.message));
+              }
+            } else {
+              console.warn('[linkedinRoutes] RapidAPI failed with status:', apiRes.status);
+            }
           }
         } catch (e) {
           console.warn('[linkedinRoutes] RapidAPI exception:', e.message);
@@ -126,6 +148,12 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
 
       // Analyze with Gemini (includes Cross-Analysis via prompt)
       const { source_data, analysis_result } = await analyzeLinkedin(rawProfileData, resumeData, githubData, req.body.targetRole || 'frontend');
+
+      if (analysis_result._aiSource === 'FALLBACK' && cachedLinkedin) {
+        console.log('[linkedinRoutes] Quota hit but cache exists. Serving stale cache.');
+        cachedLinkedin._meta = { source: 'Cache (Stale) ⚡', timestamp: cachedLinkedin._timestamp || new Date().toISOString() };
+        return res.json({ success: true, data: cachedLinkedin });
+      }
 
       // Normalize to frontend-expected structure
       const completenessScore = Math.max(45, Math.min(100, Number(analysis_result.profileCompleteness ?? 60) || 60));
@@ -155,7 +183,10 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
           hasHeadlineKeywords: (analysis_result.linkedinStrengths || []).some(s => /headline|keyword/i.test(s)),
           hasExperience: (analysis_result.linkedinStrengths || []).some(s => /experience|history/i.test(s)),
           has500Connections: true
-        }
+        },
+        _hash: inputHash,
+        _timestamp: new Date().toISOString(),
+        _meta: { source: 'Gemini ✅', timestamp: new Date().toISOString() }
       };
 
       // Store in DB

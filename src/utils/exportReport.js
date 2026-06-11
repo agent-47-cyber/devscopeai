@@ -125,21 +125,65 @@ export const generateExecutiveSummary = (data, filename = 'Executive_Summary.pdf
 
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(10);
-  const hireProb = candidateReport?.recruiterOpinion?.hireProbability || 'N/A';
-  const confidence = candidateReport?.recruiterOpinion?.confidence || 'N/A';
+  const hireProb = candidateReport?.hireProbability || 'N/A';
+  const confidence = candidateReport?.recruiterConfidence || 'N/A';
   pdf.text(`Hire Probability: ${hireProb}`, 15, y);
   pdf.text(`Confidence Level: ${confidence}`, 100, y);
   
   y += 10;
-  const summaryText = candidateReport?.recruiterOpinion?.summary || 'No summary available.';
+  const summaryText = candidateReport?.executiveSummary || candidateReport?.recruiterNotes || 'No summary available.';
   const splitSummary = pdf.splitTextToSize(summaryText, 180);
   pdf.text(splitSummary, 15, y);
   
   y += splitSummary.length * 5 + 10;
 
+  // --- SCORE EXPLAINABILITY ---
+  if (candidateReport?.scoreExplainability) {
+    const { positiveContributors = [], negativeContributors = [], potentialGains = [] } = candidateReport.scoreExplainability;
+    
+    // Check page boundaries before adding a big block
+    if (y > 250) {
+      pdf.addPage();
+      y = 20;
+    }
+
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(14);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text('SCORE EXPLAINABILITY', 15, y);
+    y += 8;
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(34, 197, 94); // Green
+    pdf.text('Key Drivers:', 15, y);
+    y += 5;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(0, 0, 0);
+    positiveContributors.slice(0, 2).forEach(p => {
+      const text = pdf.splitTextToSize(`+ ${p}`, 180);
+      pdf.text(text, 15, y);
+      y += text.length * 5;
+    });
+
+    y += 3;
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(239, 68, 68); // Red
+    pdf.text('Negative Impacts:', 15, y);
+    y += 5;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(0, 0, 0);
+    negativeContributors.slice(0, 2).forEach(n => {
+      const text = pdf.splitTextToSize(`- ${n}`, 180);
+      pdf.text(text, 15, y);
+      y += text.length * 5;
+    });
+
+    y += 10;
+  }
+
   // --- STRENGTHS & RISKS ---
-  const strengths = candidateReport?.recruiterOpinion?.pros || [];
-  const risks = candidateReport?.recruiterOpinion?.cons || [];
+  const strengths = candidateReport?.topStrengths || candidateReport?.verifiedStrengths || [];
+  const risks = candidateReport?.hiringRisks || [];
 
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(14);
@@ -169,7 +213,17 @@ export const generateExecutiveSummary = (data, filename = 'Executive_Summary.pdf
   y = Math.max(currentY, riskY) + 15;
 
   // --- ROADMAP ---
-  if (candidateReport?.growthPlan?.roadmap && candidateReport.growthPlan.roadmap.length > 0) {
+  const roadmap30 = candidateReport?.actionPlanTimeline?.plan30Days || candidateReport?.roadmap30 || [];
+  const roadmap60 = candidateReport?.actionPlanTimeline?.plan60Days || candidateReport?.roadmap60 || [];
+  const roadmap90 = candidateReport?.actionPlanTimeline?.plan90Days || candidateReport?.roadmap90 || [];
+  
+  const allRoadmapSteps = [
+    ...(Array.isArray(roadmap30) ? roadmap30.map(r => ({ milestone: '30 Days', action: r.task || r })) : []),
+    ...(Array.isArray(roadmap60) ? roadmap60.map(r => ({ milestone: '60 Days', action: r.task || r })) : []),
+    ...(Array.isArray(roadmap90) ? roadmap90.map(r => ({ milestone: '90 Days', action: r.task || r })) : [])
+  ];
+
+  if (allRoadmapSteps.length > 0) {
     pdf.setTextColor(0, 0, 0);
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(14);
@@ -178,7 +232,7 @@ export const generateExecutiveSummary = (data, filename = 'Executive_Summary.pdf
 
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
-    candidateReport.growthPlan.roadmap.slice(0, 3).forEach((step) => {
+    allRoadmapSteps.slice(0, 3).forEach((step) => {
       pdf.setFont('helvetica', 'bold');
       pdf.text(step.milestone, 15, y);
       y += 5;

@@ -105,5 +105,21 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
     }
   });
 
+  router.get('/history', authenticateToken, async (req, res) => {
+    try {
+      const userId = req.user.id;
+      if (checkDbConnected()) {
+        const history = await pool.query(
+          `SELECT id, created_at, report_data FROM candidate_reports WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20`,
+          [userId]
+        );
+        return res.json({ success: true, data: history.rows });
+      }
+      return res.json({ success: true, data: [] });
+    } catch (e) {
+      return res.status(500).json({ success: false, error: e.message });
+    }
+  });
+
   return router;
 }

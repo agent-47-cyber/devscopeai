@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ProcessingState from './ProcessingState.jsx';
+import ScoreExplainability from './ScoreExplainability.jsx';
 
 export default function ProjectGapReport({
   projectGap,
@@ -120,6 +121,10 @@ export default function ProjectGapReport({
           </div>
         </div>
       </section>
+
+      {projectGap.scoreExplainability && (
+        <ScoreExplainability explainability={projectGap.scoreExplainability} />
+      )}
 
       {/* Portfolio Assessment & Missing Grid */}
       <div className="grid grid-cols-12 gap-card-gap">

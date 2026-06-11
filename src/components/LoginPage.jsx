@@ -294,7 +294,7 @@ function TerminalPanel() {
         {/* Real-time Technical Pipeline Stream */}
         <div className="font-mono bg-[#0c0c0c] border border-[#252525] rounded-lg p-5 mb-8">
           <div className="flex items-center justify-between border-b border-[#252525] pb-3 mb-4 text-[#9A9A9A] text-[11px]">
-            <span>ENGINE: V4.1-GEMINI-HYBRID</span>
+            <span>ENGINE: DS INTELLIGENCE CORE V4.1</span>
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
               PIPELINE ACTIVE
@@ -332,7 +332,7 @@ function TerminalPanel() {
             <div className="flex items-center justify-between px-5 py-4 border-b border-[#252525] bg-[#111111]">
               <div className="flex items-center gap-2.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#FF7A1A] animate-pulse" />
-                <span className="text-white text-xs font-bold uppercase tracking-wider font-mono">Demo Profile: Staff Frontend Architect</span>
+                <span className="text-white text-xs font-bold uppercase tracking-wider font-mono">CANDIDATE DOSSIER | Role: Staff Frontend Architect</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[#FF7A1A] text-[10px] bg-[#FF7A1A]/10 px-2.5 py-0.5 border border-[#FF7A1A]/20 font-mono font-bold tracking-widest uppercase rounded-sm">Verified Dossier</span>
@@ -343,21 +343,21 @@ function TerminalPanel() {
             {/* Metrics Row */}
             <div className="grid grid-cols-3 gap-px bg-[#1A1A1A] border-b border-[#252525]">
               <div className="bg-[#0B0B0B] p-4 text-center">
-                <div className="text-[#9A9A9A] text-[10px] uppercase font-bold tracking-wider mb-0.5 font-mono">ATS Compatibility</div>
+                <div className="text-[#9A9A9A] text-[10px] uppercase font-bold tracking-wider mb-0.5 font-mono">ATS Readiness</div>
                 <div className="text-2xl font-mono font-bold text-white">87<span className="text-xs text-[#9A9A9A]">%</span></div>
                 <div className="w-16 mx-auto bg-[#1A1A1A] h-1 rounded-full mt-2 overflow-hidden">
                   <div className="bg-[#FF7A1A] h-full" style={{ width: '87%' }} />
                 </div>
               </div>
               <div className="bg-[#0B0B0B] p-4 text-center">
-                <div className="text-[#9A9A9A] text-[10px] uppercase font-bold tracking-wider mb-0.5 font-mono">Technical Evidence</div>
+                <div className="text-[#9A9A9A] text-[10px] uppercase font-bold tracking-wider mb-0.5 font-mono">Technical Validation</div>
                 <div className="text-2xl font-mono font-bold text-white">94<span className="text-xs text-[#9A9A9A]">%</span></div>
                 <div className="w-16 mx-auto bg-[#1A1A1A] h-1 rounded-full mt-2 overflow-hidden">
                   <div className="bg-[#FF7A1A] h-full" style={{ width: '94%' }} />
                 </div>
               </div>
               <div className="bg-[#0B0B0B] p-4 text-center">
-                <div className="text-[#9A9A9A] text-[10px] uppercase font-bold tracking-wider mb-0.5 font-mono">Recruiter Confidence</div>
+                <div className="text-[#9A9A9A] text-[10px] uppercase font-bold tracking-wider mb-0.5 font-mono">Hiring Confidence</div>
                 <div className="text-2xl font-mono font-bold text-white">89<span className="text-xs text-[#9A9A9A]">%</span></div>
                 <div className="w-16 mx-auto bg-[#1A1A1A] h-1 rounded-full mt-2 overflow-hidden">
                   <div className="bg-[#FF7A1A] h-full" style={{ width: '89%' }} />
@@ -430,7 +430,7 @@ function TerminalPanel() {
                 {/* Repository Insights */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-[#D0D0D0] text-xs font-bold uppercase tracking-wider font-mono">Repository Audits</span>
+                    <span className="text-[#D0D0D0] text-xs font-bold uppercase tracking-wider font-mono">Code Evidence</span>
                     <span className="text-[10px] text-[#9A9A9A] font-mono">GitHub API</span>
                   </div>
                   <div className="space-y-2.5">
@@ -463,7 +463,7 @@ function TerminalPanel() {
                     <span className="text-[#FF7A1A] text-xs font-bold uppercase tracking-wider font-mono">Recruiter Observation</span>
                   </div>
                   <p className="text-[#c1a086] text-[11px] leading-relaxed italic">
-                    "Candidate demonstrates exceptional frontend architecture and developer tooling capabilities, with verified contribution consistency. Their design system structure and AST parsing projects are exceptional. However, there is a lack of public backend service evidence. In interviews, probe their system-design depth, especially on postgres database design and server-side performance optimization, to verify staff-level capability."
+                    "Candidate demonstrates exceptional frontend architecture capability and strong open-source contribution consistency. Primary validation focus should be backend system design, database modeling, and infrastructure ownership before staff-level recommendation."
                   </p>
                 </div>
               </div>
@@ -541,10 +541,9 @@ export default function LoginPage({ onAuthSuccess }) {
           {/* Animated 3D Engine Orb */}
           <CandidateIntelligenceEngineVisual />
 
-          {/* Logo */}
           <div className="text-center">
-            <h1 className="text-white font-black text-3xl tracking-tight mb-1 font-mono">DevScope</h1>
-            <p className="text-[#FF7A1A] text-[10px] tracking-widest uppercase font-bold font-mono">Candidate Intelligence Platform</p>
+            <h1 className="text-white font-black text-3xl tracking-tight mb-1 font-mono">DevScope AI</h1>
+            <p className="text-[#FF7A1A] text-[10px] tracking-widest uppercase font-bold font-mono">AI-Powered Recruiter Intelligence Engine</p>
           </div>
 
           {/* Pipeline Integration Visual */}
@@ -571,7 +570,7 @@ export default function LoginPage({ onAuthSuccess }) {
               </div>
               <div className="text-[#FF7A1A] text-[10px] font-mono font-bold uppercase tracking-widest bg-[#FF7A1A]/10 px-4 py-1.5 border border-[#FF7A1A]/20 rounded-sm mt-1 flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#FF7A1A] animate-pulse" />
-                Candidate Intelligence
+                Generate Intelligence Report
               </div>
             </div>
           </div>
@@ -725,25 +724,25 @@ export default function LoginPage({ onAuthSuccess }) {
           
           <div className="grid grid-cols-3 gap-2 text-center mb-4 select-none">
             <div className="border border-[#141414] bg-[#0B0B0B] p-2 rounded-sm hover:-translate-y-[1px] transition-all duration-500 hover:border-[#252525] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-              <div className="text-white text-xs font-mono font-bold">12,842</div>
-              <div className="text-[#9A9A9A] text-[8px] tracking-tight uppercase font-semibold font-mono">Scanned</div>
+              <div className="text-white text-xs font-mono font-bold">2,408</div>
+              <div className="text-[#9A9A9A] text-[8px] tracking-tight uppercase font-semibold font-mono">Resume Signals</div>
             </div>
             <div className="border border-[#141414] bg-[#0B0B0B] p-2 rounded-sm hover:-translate-y-[1px] transition-all duration-500 hover:border-[#252525] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-              <div className="text-white text-xs font-mono font-bold">48x</div>
-              <div className="text-[#9A9A9A] text-[8px] tracking-tight uppercase font-semibold font-mono">Faster</div>
+              <div className="text-white text-xs font-mono font-bold">84</div>
+              <div className="text-[#9A9A9A] text-[8px] tracking-tight uppercase font-semibold font-mono">GitHub Repositories</div>
             </div>
             <div className="border border-[#141414] bg-[#0B0B0B] p-2 rounded-sm hover:-translate-y-[1px] transition-all duration-500 hover:border-[#252525] hover:shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
-              <div className="text-[#22c55e] text-xs font-mono font-bold">+42%</div>
-              <div className="text-[#9A9A9A] text-[8px] tracking-tight uppercase font-semibold font-mono">Efficiency</div>
+              <div className="text-[#22c55e] text-xs font-mono font-bold">142</div>
+              <div className="text-[#9A9A9A] text-[8px] tracking-tight uppercase font-semibold font-mono">LinkedIn Signals</div>
             </div>
           </div>
 
           <div className="border border-[#1a130f] bg-[#0d0906]/60 p-3 rounded-sm">
             <p className="text-[#c1a086] text-[9.5px] leading-relaxed italic text-center">
-              "DevScope revealed a critical database optimization gap in our lead candidate before the technical screen. Saved us 3 engineering hours."
+              "DevScope AI validates technical claims across resume, GitHub, and LinkedIn evidence, identifying discrepancies before the technical screen."
             </p>
             <div className="text-[8px] font-mono text-[#735843] uppercase text-center mt-1.5 font-bold">
-              — Director of Engineering, Linear
+              — Director of Engineering
             </div>
           </div>
         </div>

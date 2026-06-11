@@ -142,6 +142,31 @@ function Dashboard({ profileData = {}, scores: initialScores = { github: null, r
   const [liFileParseError, setLiFileParseError] = useState('');
   const liFileInputRef = useRef(null);
 
+  // AI Usage State
+  const [aiUsage, setAiUsage] = useState(null);
+  const [geminiStatus, setGeminiStatus] = useState(null);
+
+  useEffect(() => {
+    if (activeTab === 'settings') {
+      const token = localStorage.getItem('devscope_token');
+      fetch(`${API_BASE_URL}/api/ai/usage`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setAiUsage(data.data);
+      })
+      .catch(console.error);
+
+      fetch(`${API_BASE_URL}/api/debug/gemini`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => setGeminiStatus(data))
+      .catch(console.error);
+    }
+  }, [activeTab]);
+
   // LinkedIn self-report state (interactive checklist for Resume Worded-style scoring)
   const [liSelfReport, setLiSelfReport] = useState({
     hasProfilePhoto: false,
@@ -234,6 +259,29 @@ function Dashboard({ profileData = {}, scores: initialScores = { github: null, r
   const [isAnalyzingGithub, setIsAnalyzingGithub] = useState(false);
   const [isAnalyzingResume, setIsAnalyzingResume] = useState(false);
   const [isAnalyzingLinkedin, setIsAnalyzingLinkedin] = useState(false);
+
+  const [analysisQueue, setAnalysisQueue] = useState({
+    github: 'Pending',
+    resume: 'Pending',
+    linkedin: 'Pending',
+    jobMatch: 'Pending',
+    projectGap: 'Pending',
+    report: 'Pending'
+  });
+
+  useEffect(() => {
+    setAnalysisQueue({
+      github: isAnalyzingGithub ? 'Running' : (github ? (github._meta?.source?.includes('Cache') ? 'Cached' : 'Completed') : 'Pending'),
+      resume: isAnalyzingResume ? 'Running' : (resume ? (resume._meta?.source?.includes('Cache') ? 'Cached' : 'Completed') : 'Pending'),
+      linkedin: isAnalyzingLinkedin ? 'Running' : (linkedin ? (linkedin._meta?.source?.includes('Cache') ? 'Cached' : 'Completed') : 'Pending'),
+      jobMatch: isAnalyzingJobMatch ? 'Running' : (jobMatch ? (jobMatch._meta?.source?.includes('Cache') ? 'Cached' : 'Completed') : 'Pending'),
+      projectGap: isAnalyzingProjectGap ? 'Running' : (projectGap ? (projectGap._meta?.source?.includes('Cache') ? 'Cached' : 'Completed') : 'Pending'),
+      report: isGeneratingReport ? 'Running' : (candidateReport ? 'Completed' : 'Pending')
+    });
+  }, [
+    isAnalyzingGithub, isAnalyzingResume, isAnalyzingLinkedin, isAnalyzingJobMatch, isAnalyzingProjectGap, isGeneratingReport,
+    github, resume, linkedin, jobMatch, projectGap, candidateReport
+  ]);
 
   // Chatbot State
   const [chatMessages, setChatMessages] = useState([]);
@@ -372,7 +420,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     alert(message);
   };
 
-  const handleLinkGithub = async (username) => {
+  const handleLinkGithub = async (username, forceRefresh = false) => {
     let gh = username.trim();
     if (gh) {
       gh = gh.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '');
@@ -395,7 +443,8 @@ What aspect of your portfolio or profile would you like to improve today? You ca
         },
         body: JSON.stringify({
           username: gh,
-          targetRole: selectedRole
+          targetRole: selectedRole,
+          forceRefresh
         })
       });
       const result = await response.json();
@@ -441,7 +490,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     }
   };
 
-  const handleLinkResume = async (resumeText) => {
+  const handleLinkResume = async (resumeText, forceRefresh = false) => {
     const text = resumeText.trim();
     if (!text) {
       alert("Please upload a file or paste your resume details first.");
@@ -466,7 +515,8 @@ What aspect of your portfolio or profile would you like to improve today? You ca
         },
         body: JSON.stringify({
           resumeText: text,
-          targetRole: selectedRole
+          targetRole: selectedRole,
+          forceRefresh
         })
       });
       const result = await response.json().catch(() => ({}));
@@ -1118,30 +1168,38 @@ What aspect of your portfolio or profile would you like to improve today? You ca
   };
 
   // --- Auto Re-Analyze on Role Change ---
-  const lastAnalyzedRole = useRef(selectedRole);
+  // REMOVED: Phase 2 Optimization - Do not automatically regenerate on role change.
+  // We will instead set a needsRefresh flag.
+  const [needsRefresh, setNeedsRefresh] = useState(false);
 
+  const lastAnalyzedRole = useRef(selectedRole);
+  const lastInputs = useRef({ resume: !!resume, github: !!github, linkedin: !!linkedin });
   useEffect(() => {
+    let changed = false;
     if (selectedRole !== lastAnalyzedRole.current) {
       lastAnalyzedRole.current = selectedRole;
-
-      const reanalyze = async () => {
-        if (resumeTextInput && resume) {
-          await handleLinkResume(resumeTextInput);
-        }
-        if (linkedin) {
-          if (linkedin.isPdfParsed && linkedinTextInput) {
-            await handleLinkLinkedin(linkedinTextInput);
-          } else if (!linkedin.isPdfParsed && (linkedin.profileUrl || linkedin.profileHandle)) {
-            await handleLinkLinkedinUrl(linkedin.profileUrl || linkedin.profileHandle, linkedin.selfReport);
-          }
-        }
-        if (github && github.username) {
-          await handleLinkGithub(github.username);
-        }
-      };
-      reanalyze();
+      changed = true;
     }
-  }, [selectedRole, resumeTextInput, resume, linkedin, github]);
+    if (!!resume !== lastInputs.current.resume || resume !== lastInputs.current.resumeObj) {
+      lastInputs.current.resume = !!resume;
+      lastInputs.current.resumeObj = resume;
+      changed = true;
+    }
+    if (!!github !== lastInputs.current.github || github !== lastInputs.current.githubObj) {
+      lastInputs.current.github = !!github;
+      lastInputs.current.githubObj = github;
+      changed = true;
+    }
+    if (!!linkedin !== lastInputs.current.linkedin || linkedin !== lastInputs.current.linkedinObj) {
+      lastInputs.current.linkedin = !!linkedin;
+      lastInputs.current.linkedinObj = linkedin;
+      changed = true;
+    }
+    
+    if (changed && (resume || github || linkedin)) {
+      setNeedsRefresh(true);
+    }
+  }, [selectedRole, resume, linkedin, github]);
 
   // --- Analytics Computations ---
   const frontendKeywords = ['React', 'Vue', 'Angular', 'Next.js', 'TypeScript', 'JavaScript', 'HTML/CSS', 'Tailwind', 'Redux', 'Webpack'];
@@ -1183,14 +1241,20 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     recommendations.push({ item: 'Build a new full-stack project', channel: 'Portfolio', increase: '+10 pts', color: 'var(--color-tertiary)' });
   }
 
-
-  // ── Job Match Handler ─────────────────────────────────────────────────────
-  const handleRunJobMatch = async () => {
-    if (!jobDescription.trim()) return;
+  // ── UNIFIED INTELLIGENCE ENGINE HANDLER ─────────────────────────────────────
+  const fetchIntelligenceReport = async (forceRefresh = false) => {
+    // If not forced and we already have all data, don't run it again
+    if (!forceRefresh && jobMatch && projectGap && candidateReport) {
+      return;
+    }
+    
     setIsAnalyzingJobMatch(true);
+    setIsAnalyzingProjectGap(true);
+    setIsGeneratingReport(true);
+    
     try {
       const token = localStorage.getItem('devscope_token');
-      const res = await fetch(`${API_BASE_URL}/api/analyze/job-match`, {
+      const res = await fetch(`${API_BASE_URL}/api/intelligence/report`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1199,19 +1263,23 @@ What aspect of your portfolio or profile would you like to improve today? You ca
         body: JSON.stringify({
           jobDescription,
           targetRole: selectedRole,
-          resumeData: resume,
-          githubData: github,
-          linkedinData: linkedin
+          forceRefresh
         })
       });
       if (res.ok) {
         const result = await res.json();
-        // Backend wraps in { success, data } — unwrap
-        setJobMatch(result.data || result);
+        const data = result.data || result;
+        
+        // Populate ALL downstream tabs simultaneously!
+        if (data.jobMatch) setJobMatch({ ...data.jobMatch, _hash: data._hash, _aiSource: data._aiSource, _timestamp: data._timestamp });
+        if (data.projectGap) setProjectGap({ ...data.projectGap, _hash: data._hash, _aiSource: data._aiSource, _timestamp: data._timestamp });
+        if (data.candidateReport) setCandidateReport({ ...data.candidateReport, _hash: data._hash, _aiSource: data._aiSource, _timestamp: data._timestamp });
+        setNeedsRefresh(false);
+        
       } else {
         const err = await res.json().catch(() => ({}));
-        const msg = err.error || 'Job match analysis failed.';
-        console.error('[job-match] Error:', msg);
+        const msg = err.error || 'Intelligence Engine analysis failed. Please complete Resume, GitHub, or LinkedIn first.';
+        console.error('[intelligence-engine] Error:', msg);
         alert(msg);
       }
     } catch (err) {
@@ -1219,82 +1287,14 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       alert('Error reaching analysis server: ' + err.message);
     } finally {
       setIsAnalyzingJobMatch(false);
-    }
-  };
-
-  const handleRunProjectGap = async () => {
-    setIsAnalyzingProjectGap(true);
-    try {
-      const token = localStorage.getItem('devscope_token');
-      const res = await fetch(`${API_BASE_URL}/api/analyze/project-gap`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          targetRole: selectedRole,
-          resumeData: resume,
-          githubData: github,
-          linkedinData: linkedin,
-          jobMatchData: jobMatch,
-          projectGapData: projectGap
-        })
-      });
-      if (res.ok) {
-        const result = await res.json();
-        // Backend wraps in { success, data } — unwrap
-        setProjectGap(result.data || result);
-      } else {
-        const err = await res.json().catch(() => ({}));
-        const msg = err.error || 'Project gap analysis failed.';
-        console.error('[project-gap] Error:', msg);
-        alert(msg);
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error reaching analysis server: ' + err.message);
-    } finally {
       setIsAnalyzingProjectGap(false);
+      setIsGeneratingReport(false);
     }
   };
 
-  const handleGenerateReport = async () => {
-    setIsGeneratingReport(true);
-    try {
-      const token = localStorage.getItem('devscope_token');
-      const res = await fetch(`${API_BASE_URL}/api/analyze/candidate-report`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          targetRole: selectedRole,
-          resumeData: resume,
-          githubData: github,
-          linkedinData: linkedin,
-          jobMatchData: jobMatch,
-          projectGapData: projectGap
-        })
-      });
-      if (res.ok) {
-        const result = await res.json();
-        // Backend wraps in { success, data } — unwrap
-        setCandidateReport(result.data || result);
-      } else {
-        const err = await res.json().catch(() => ({}));
-        const msg = err.error || 'Report generation failed.';
-        console.error('[candidate-report] Error:', msg);
-        alert(msg);
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Error reaching analysis server: ' + err.message);
-    } finally {
-      setIsGeneratingReport(false);
-    };
-  };
+  const handleRunJobMatch = (forceRefresh = false) => fetchIntelligenceReport(forceRefresh);
+  const handleRunProjectGap = (forceRefresh = false) => fetchIntelligenceReport(forceRefresh);
+  const handleGenerateReport = (forceRefresh = false) => fetchIntelligenceReport(forceRefresh);
 
   const handleExportReport = async () => {
     const canAnalyze = resume || github || linkedin || (scores && scores.overall > 0);
@@ -1392,7 +1392,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                 <div className="overview-main">
                   <div className="card rim-light-amber" style={{ padding: '24px' }}>
                     <div className="recruiter-header" style={{ marginBottom: '20px' }}>
-                      <h3 style={{ fontSize: '20px', fontWeight: '800' }}>Candidate Intelligence Overview</h3>
+                      <h3 style={{ fontSize: '20px', fontWeight: '800' }}>Developer Intelligence Overview</h3>
                       <div className="hire-dial-badge" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
                         <span>Profile Completion:</span>
                         <span style={{ color: 'var(--color-primary)' }}>
@@ -1412,7 +1412,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                     ) : (
                       <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-color)', marginBottom: '24px' }}>
                         <p style={{ fontSize: '14.5px', color: 'var(--text-primary)', marginBottom: '16px' }}>
-                          Connect your professional profiles to generate a complete candidate intelligence report.
+                          Connect your professional profiles to generate a complete intelligence dossier.
                         </p>
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                           <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: github ? 'var(--color-tertiary)' : 'var(--text-secondary)' }}>
@@ -1552,8 +1552,28 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         </div>
                       </div>
 
-                      {roadmap && (
+                        {/* Analysis Queue Status */}
                         <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px', marginTop: 'auto' }}>
+                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Analysis Queue Status</div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px' }}>
+                            {Object.entries(analysisQueue).map(([key, status]) => {
+                              const labels = { github: 'GitHub Analyzer', resume: 'Resume Analyzer', linkedin: 'LinkedIn Analyzer', jobMatch: 'Role Match', projectGap: 'Project Gap', report: 'Intelligence Report' };
+                              const colors = { Pending: 'var(--text-secondary)', Running: 'var(--color-primary)', Cached: '#10b981', Completed: '#3b82f6', Failed: '#ef4444' };
+                              return (
+                                <div key={key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <span style={{ color: 'var(--text-primary)' }}>{labels[key]}</span>
+                                  <span style={{ color: colors[status], fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    {status === 'Running' && <span className="material-symbols-outlined text-[12px] animate-spin">sync</span>}
+                                    {status}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {roadmap && (
+                          <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
                           <div style={{ marginBottom: '16px' }}>
                             <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Detected Skill Gaps</div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -1735,22 +1755,26 @@ What aspect of your portfolio or profile would you like to improve today? You ca
               </div>
             )}
 
-            {/* TAB 7: Recruiter Sim / Job Match */}
+            {/* TAB 7: Role Match */}
             {activeTab === 'recruiter' && (
-              <RoleMatchReport
+              <RoleMatchReport 
                 jobMatch={jobMatch}
                 isAnalyzing={isAnalyzingJobMatch}
                 jobDescription={jobDescription}
                 setJobDescription={setJobDescription}
                 handleRunJobMatch={handleRunJobMatch}
+                resume={resume}
+                github={github}
+                linkedin={linkedin}
                 analysisStep={analysisStep}
                 scores={scores}
+                needsRefresh={needsRefresh}
               />
             )}
 
-            {/* TAB 8: Project Gap Analyzer */}
+            {/* TAB 8: Project Gap */}
             {activeTab === 'projects' && (
-              <ProjectGapReport
+              <ProjectGapReport 
                 projectGap={projectGap}
                 isAnalyzing={isAnalyzingProjectGap}
                 handleRunProjectGap={handleRunProjectGap}
@@ -1759,10 +1783,11 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                 linkedin={linkedin}
                 analysisStep={analysisStep}
                 scores={scores}
+                needsRefresh={needsRefresh}
               />
             )}
 
-            {/* TAB 9: Candidate Intelligence Report */}
+            {/* TAB 9: Candidate Report */}
             {activeTab === 'analytics' && (
               <CandidateReport 
                 candidateReport={candidateReport}
@@ -1774,6 +1799,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                 scores={scores}
                 onExport={handleExportReport}
                 exportState={exportState}
+                needsRefresh={needsRefresh}
               />
             )}
 
@@ -1782,10 +1808,10 @@ What aspect of your portfolio or profile would you like to improve today? You ca
               <div className="max-w-4xl animate-fade-in">
                 <div className="mb-8">
                   <h2 className="font-display-lg text-display-lg text-primary tracking-tight">System Settings & Telemetry</h2>
-                  <p className="text-on-surface-variant mt-2 font-body-md">Verify backend intelligence endpoints and Gemini AI connectivity.</p>
+                  <p className="text-on-surface-variant mt-2 font-body-md">Verify backend intelligence endpoints and engine connectivity.</p>
                 </div>
                 <div className="bg-surface-container-low border border-outline-variant p-6 rim-light-amber">
-                  <h3 className="font-title-md mb-4 text-on-surface">Gemini AI Engine Connection</h3>
+                  <h3 className="font-title-md mb-4 text-on-surface">Intelligence Engine Connection</h3>
                   <div className="flex items-center gap-4 mb-4">
                     <button 
                       onClick={async () => {
@@ -1793,7 +1819,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         const resPre = document.getElementById('gemini-test-res');
                         btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> TESTING...';
                         btn.disabled = true;
-                        resPre.textContent = 'Awaiting response from Gemini...';
+                        resPre.textContent = 'Awaiting response from Intelligence Engine...';
                         try {
                           const res = await fetch(`/api/debug/gemini`);
                           const data = await res.json();
@@ -1801,7 +1827,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         } catch (e) {
                           resPre.textContent = 'Fetch Error: ' + e.message;
                         } finally {
-                          btn.innerHTML = '<span class="material-symbols-outlined text-sm">science</span> TEST GEMINI CONNECTION';
+                          btn.innerHTML = '<span class="material-symbols-outlined text-sm">science</span> TEST ENGINE CONNECTION';
                           btn.disabled = false;
                         }
                       }}
@@ -1809,12 +1835,64 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                       className="bg-primary text-on-primary px-4 py-2 font-label-caps flex items-center gap-2 hover:brightness-110 active:opacity-80 transition-all border border-primary/20"
                     >
                       <span className="material-symbols-outlined text-sm">science</span>
-                      TEST GEMINI CONNECTION
+                      TEST ENGINE CONNECTION
                     </button>
                   </div>
                   <pre id="gemini-test-res" className="bg-[#050505] border border-outline-variant p-4 font-mono text-[12px] text-primary whitespace-pre-wrap overflow-x-auto min-h-[100px]">
-Click 'Test Gemini Connection' to verify API key and Google AI response.
+Click 'Test Engine Connection' to verify system connectivity.
                   </pre>
+                </div>
+
+                {/* AI USAGE DASHBOARD */}
+                <div className="bg-surface-container-low border border-outline-variant p-6 rim-light-amber mt-8">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-title-md text-on-surface">AI Usage & Quota Metrics</h3>
+                    {geminiStatus && (
+                      <div className="flex gap-4">
+                        <span className="text-[11px] font-label-caps uppercase bg-primary/10 text-primary px-2 py-1 border border-primary/20">
+                          Model: {geminiStatus.model}
+                        </span>
+                        <span className={`text-[11px] font-label-caps uppercase px-2 py-1 border ${geminiStatus.connected ? 'bg-[#10b981]/10 text-[#10b981] border-[#10b981]/20' : 'bg-[#ef4444]/10 text-[#ef4444] border-[#ef4444]/20'}`}>
+                          Source: {geminiStatus.connected ? 'Active ✅' : 'Fallback ⚠️'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {aiUsage ? (
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      <div className="bg-surface-container p-4 rounded">
+                        <div className="text-[10px] text-on-surface-variant font-label-caps uppercase">Requests Today</div>
+                        <div className="text-2xl text-primary mt-1">{aiUsage.requests_today || 0}</div>
+                      </div>
+                      <div className="bg-surface-container p-4 rounded">
+                        <div className="text-[10px] text-on-surface-variant font-label-caps uppercase">Cache Hits</div>
+                        <div className="text-2xl text-tertiary mt-1">{aiUsage.cache_hits || 0}</div>
+                      </div>
+                      <div className="bg-surface-container p-4 rounded">
+                        <div className="text-[10px] text-on-surface-variant font-label-caps uppercase">Hit Rate</div>
+                        <div className="text-2xl text-secondary mt-1">
+                          {aiUsage.requests_today ? ((aiUsage.cache_hits / aiUsage.requests_today) * 100).toFixed(1) : 0}%
+                        </div>
+                      </div>
+                      <div className="bg-surface-container p-4 rounded">
+                        <div className="text-[10px] text-on-surface-variant font-label-caps uppercase">Avg Response Time</div>
+                        <div className="text-xl text-on-surface mt-1">
+                          {aiUsage.requests_today ? Math.round(aiUsage.total_response_time_ms / aiUsage.requests_today) : 0}ms
+                        </div>
+                      </div>
+                      <div className="bg-surface-container p-4 rounded">
+                        <div className="text-[10px] text-on-surface-variant font-label-caps uppercase">Last Error</div>
+                        <div className="text-[11px] text-error mt-2 truncate font-mono" title={aiUsage.last_error || 'None'}>
+                          {aiUsage.last_error || 'None'}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-on-surface-variant text-sm flex items-center gap-2">
+                      <span className="material-symbols-outlined animate-spin text-sm">sync</span>
+                      Loading AI usage metrics...
+                    </div>
+                  )}
                 </div>
               </div>
             )}
