@@ -1,18 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import ProcessingState from './ProcessingState.jsx';
 
-export default function JobMatchReport({
-  jobMatch,
+export default function RoleMatchReport({
+  roleMatch,
   isAnalyzing,
-  jobDescription,
-  setJobDescription,
-  handleRunJobMatch,
+  roleDescription,
+  setroleDescription,
+  handleRunroleMatch,
   analysisStep,
   scores
 }) {
   const progressCircleRef = useRef(null);
 
-  const matchScore = scores?.jobMatch || jobMatch?.matchScore || 0;
+  const matchScore = scores?.roleMatch || roleMatch?.matchScore || 0;
   // Calculate dash offset for gauge (440 is the circumference)
   const strokeDashoffset = 440 - (440 * matchScore) / 100;
 
@@ -25,19 +25,19 @@ export default function JobMatchReport({
     }
   }, [matchScore, strokeDashoffset]);
 
-  if (!jobMatch) {
+  if (!roleMatch) {
     return (
       <div>
         <div className="mb-10">
-          <h2 className="font-display-lg text-display-lg text-primary tracking-tight">Job Match Intelligence</h2>
+          <h2 className="font-display-lg text-display-lg text-primary tracking-tight">Role Match Intelligence</h2>
           <p className="text-on-surface-variant mt-2">Paste a Job Description to analyze your alignment.</p>
         </div>
         <div className="bg-surface-container border border-outline-variant p-8 rim-light-amber">
           <textarea
             className="w-full h-48 bg-[#050505] border border-outline-variant p-4 text-on-surface font-body-md focus:border-primary focus:ring-0 mb-4"
             placeholder="Paste Job Description here..."
-            value={jobDescription}
-            onChange={(e) => setJobDescription(e.target.value)}
+            value={roleDescription}
+            onChange={(e) => setroleDescription(e.target.value)}
           />
           {isAnalyzing ? (
             <div className="mt-4">
@@ -49,8 +49,8 @@ export default function JobMatchReport({
             </div>
           ) : (
             <button
-              onClick={handleRunJobMatch}
-              disabled={!jobDescription.trim()}
+              onClick={handleRunroleMatch}
+              disabled={!roleDescription.trim()}
               className="btn-primary mt-4"
             >
               RUN MATCH ANALYSIS
@@ -70,20 +70,20 @@ export default function JobMatchReport({
     improvementPlan = [],
     fastestImprovementPath = "",
     recruiterPerspective = ""
-  } = jobMatch;
+  } = roleMatch;
 
   return (
     <div>
       {/* Page Header */}
       <div className="mb-10 flex justify-between items-end">
         <div>
-          <h2 className="font-display-lg text-display-lg text-primary tracking-tight">Job Match Intelligence</h2>
+          <h2 className="font-display-lg text-display-lg text-primary tracking-tight">Role Match Intelligence</h2>
           <div className="flex items-center gap-3 mt-2">
             <span className="font-label-caps text-label-caps text-on-surface-variant">TARGET ROLE:</span>
-            <span className="font-title-sm text-title-sm text-on-surface uppercase">{jobMatch?.targetRole || 'Software Engineer'}</span>
+            <span className="font-title-sm text-title-sm text-on-surface uppercase">{roleMatch?.targetRole || 'Software Engineer'}</span>
             <span className="text-on-surface-variant px-2">|</span>
             <span className="font-label-caps text-label-caps text-on-surface-variant">ORGANIZATION:</span>
-            <span className="font-title-sm text-title-sm text-on-surface uppercase">{jobMatch?.organization || 'Unknown'}</span>
+            <span className="font-title-sm text-title-sm text-on-surface uppercase">{roleMatch?.organization || 'Unknown'}</span>
           </div>
         </div>
         <div className="text-right">
@@ -126,7 +126,7 @@ export default function JobMatchReport({
               {matchScore >= 80 ? 'HIGH PROBABILITY MATCH' : matchScore >= 60 ? 'MODERATE MATCH' : 'LOW MATCH'}
             </div>
             <p className="font-body-md text-[13px] text-on-surface-variant max-w-[240px] leading-relaxed">
-              {jobMatch?.summary || "Candidate exhibits strong technical alignment for the requirements."}
+              {roleMatch?.summary || "Candidate exhibits strong technical alignment for the requirements."}
             </p>
           </div>
         </section>
@@ -170,11 +170,11 @@ export default function JobMatchReport({
                 )}
               </div>
 
-              {jobMatch.verdict && (
+              {roleMatch.verdict && (
                 <div className="mt-6 pt-5 border-t border-error/10">
                   <h5 className="font-label-caps text-[10px] text-error uppercase mb-2">Analysis Verdict</h5>
                   <p className="font-body-md text-[13px] text-on-surface-variant leading-relaxed">
-                    {jobMatch.verdict}
+                    {roleMatch.verdict}
                   </p>
                 </div>
               )}

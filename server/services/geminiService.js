@@ -14,13 +14,8 @@ const geminiCache = new Map();
  */
 function isValidGeminiKey(key) {
   if (!key || typeof key !== 'string') return false;
-  // Gemini keys start with AIza and are ~39 chars, OR could be longer newer format
-  // They should NOT start with AQ., which is a different credential format
-  if (key.startsWith('AQ.')) return false;
-  if (key.startsWith('AIza')) return true;
-  // Some newer keys may have different prefixes but be valid; allow if length >= 35 and no invalid prefix
-  if (key.length >= 35 && !key.startsWith('AQ.') && !key.includes('your_')) return true;
-  return false;
+  if (key.includes('your_')) return false;
+  return true;
 }
 
 /**

@@ -92,8 +92,18 @@ export default function LinkedInReport({
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span className="font-label-caps text-label-caps text-on-surface-variant">TIMESTAMP</span>
-          <span className="font-label-caps text-label-caps text-on-surface">{new Date().toISOString().slice(0, 10).replace(/-/g, '.')} // {new Date().toISOString().slice(11, 19)} UTC</span>
+          <div className="flex items-center gap-4 mb-2">
+            <span className="font-label-caps text-label-caps text-on-surface-variant">TIMESTAMP</span>
+            <span className="font-body-md text-[14px] font-mono text-primary">{new Date().toISOString().split('T')[0]}</span>
+          </div>
+          <button
+            onClick={() => handleLinkLinkedinUrl(profileHandle || url, linkedin.selfReport, true)}
+            disabled={isAnalyzing}
+            className="px-4 py-2 border border-primary/30 text-primary hover:bg-primary/10 transition-colors flex items-center gap-2 font-label-caps text-[12px] uppercase disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined text-[16px]">{isAnalyzing ? 'sync' : 'refresh'}</span>
+            {isAnalyzing ? 'Refreshing...' : 'Refresh Analysis'}
+          </button>
         </div>
       </section>
 

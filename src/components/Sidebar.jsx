@@ -24,7 +24,7 @@ export default function Sidebar({ onSignOut, userName }) {
     { id: 'resume', path: '/resume', icon: 'description', label: 'Resume Analyzer' },
     { id: 'github', path: '/github', icon: 'code', label: 'GitHub Analyzer' },
     { id: 'linkedin', path: '/linkedin', icon: 'account_circle', label: 'LinkedIn Analyzer' },
-    { id: 'recruiter', path: '/job-match', icon: 'work', label: 'Job Match' },
+    { id: 'recruiter', path: '/job-match', icon: 'work', label: 'Role Match' },
     { id: 'projects', path: '/project-gap', icon: 'map', label: 'Project Gap Analysis' },
     { id: 'analytics', path: '/report', icon: 'assessment', label: 'Candidate Report' }
   ];

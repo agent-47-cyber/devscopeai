@@ -81,7 +81,7 @@ export default function ProjectGapReport({
   const topProjects = recommendedProjects.map(p => ({
     title: p.name || 'Recommended Project',
     difficulty: p.difficulty || 'Medium',
-    effort: p.difficulty || 'Medium',
+    effort: p.estimatedTime || p.difficulty || 'Medium',
     description: p.description || '',
     impact: (p.hiringImpact || '').toLowerCase().includes('high') || (p.hiringImpact || '').toLowerCase().includes('critical') ? 90 : 60,
     learningValue: p.estimatedLearningValue || ''

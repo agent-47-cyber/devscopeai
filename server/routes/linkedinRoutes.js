@@ -29,6 +29,8 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
 
       const linkedinUrl = `https://www.linkedin.com/in/${slug}`;
 
+      const forceRefresh = req.body.forceRefresh === true;
+
       // Fetch cached analysis + other profile data for cross-analysis
       let existingAnalysis = null;
       let resumeData = null;
@@ -46,7 +48,9 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
           [userId, linkedinUrl]
         );
         if (cacheCheck.rows.length > 0) {
-          existingAnalysis = cacheCheck.rows[0].linkedin_analysis;
+          if (!forceRefresh) {
+            existingAnalysis = cacheCheck.rows[0].linkedin_analysis;
+          }
           resumeData = cacheCheck.rows[0].resume_data;
           githubData = cacheCheck.rows[0].github_data;
         }
@@ -54,30 +58,50 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
         const db = readLocalDb();
         const existing = db.analyses.find(a => a.userId === userId);
         if (existing) {
+          if (!forceRefresh) {
+            existingAnalysis = existing.linkedinData;
+          }
           resumeData = existing.resumeData;
           githubData = existing.githubData;
         }
       }
 
-      if (existingAnalysis) {
+      if (existingAnalysis && !forceRefresh) {
         return res.json({ success: true, data: { ...existingAnalysis, _cached: true } });
       }
 
-      // Build mock/minimal profile data since we don't have RapidAPI
-      // The Gemini prompt will still generate useful analysis from this + cross-referencing resume/github
       const rapidApiKey = process.env.RAPIDAPI_KEY;
       const rapidApiHost = process.env.RAPIDAPI_HOST;
+      const rapidApiUrl = process.env.RAPIDAPI_URL;
+      
       let rawProfileData = null;
 
       if (rapidApiKey && rapidApiHost && !rapidApiKey.includes('your_')) {
         try {
-          const apiRes = await fetch(`https://${rapidApiHost}/api/v1/linkedin/profile?url=${encodeURIComponent(linkedinUrl)}`, {
+          // Use provided URL from env or fallback to a default generic one
+          let endpoint = rapidApiUrl || `https://${rapidApiHost}/api/v1/linkedin/profile`;
+          
+          // Determine parameter formatting based on URL structure
+          if (endpoint.includes('?')) {
+            endpoint = `${endpoint}&url=${encodeURIComponent(linkedinUrl)}`;
+          } else {
+            // Some APIs use `username` instead of `url` as the query param, we'll try url first
+            endpoint = `${endpoint}?url=${encodeURIComponent(linkedinUrl)}&username=${slug}`;
+          }
+
+          console.log(`[linkedinRoutes] Fetching from RapidAPI: ${endpoint.split('?')[0]}...`);
+          
+          const apiRes = await fetch(endpoint, {
             method: 'GET',
             headers: { 'X-RapidAPI-Key': rapidApiKey, 'X-RapidAPI-Host': rapidApiHost }
           });
-          if (apiRes.ok) rawProfileData = await apiRes.json();
+          if (apiRes.ok) {
+            rawProfileData = await apiRes.json();
+          } else {
+            console.warn('[linkedinRoutes] RapidAPI failed with status:', apiRes.status);
+          }
         } catch (e) {
-          console.warn('[linkedinRoutes] RapidAPI failed:', e.message);
+          console.warn('[linkedinRoutes] RapidAPI exception:', e.message);
         }
       }
 
