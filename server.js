@@ -908,15 +908,50 @@ app.post('/api/parse/resume', upload.single('file'), async (req, res) => {
   }
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'healthy', database: isDbConnected ? 'PostgreSQL' : 'JSON File Fallback', allowedOrigins });
-});
+app.get('/api/health', async (req, res) => {
+  const geminiConfigured = !!process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes('your_');
+  const rapidApiConfigured = !!process.env.RAPIDAPI_KEY && !process.env.RAPIDAPI_KEY.includes('your_');
+  let geminiReachable = false;
+  
+  if (geminiConfigured) {
+    try {
+      const testRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: 'Reply with just: OK' }] }],
+            generationConfig: { maxOutputTokens: 5 }
+          })
+        }
+      );
+      geminiReachable = testRes.status === 200;
+    } catch (e) {
+      geminiReachable = false;
+    }
+  }
 
+  res.json({
+    geminiConfigured,
+    geminiReachable,
+    rapidApiConfigured,
+    databaseConnected: isDbConnected,
+    debug: {
+      hasGeminiEnv: !!process.env.GEMINI_API_KEY,
+      keyPrefix: process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 5) : 'none',
+      nodeEnv: process.env.NODE_ENV
+    }
+  });
+});
 // AI Engine Status endpoint - tests Gemini connectivity
 app.get('/api/ai-status', async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
+  console.log('[DEBUG /api/ai-status] GEMINI_API_KEY is present?', !!apiKey);
+  console.log('[DEBUG /api/ai-status] Key length:', apiKey ? apiKey.length : 0);
   
   if (!apiKey || apiKey.includes('your_')) {
+    console.log('[DEBUG /api/ai-status] Returning not_configured');
     return res.json({ 
       status: 'not_configured', 
       message: 'Gemini API key not configured',
@@ -925,6 +960,7 @@ app.get('/api/ai-status', async (req, res) => {
   }
 
   try {
+    console.log('[DEBUG /api/ai-status] Running Gemini test request...');
     const testRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
@@ -936,6 +972,8 @@ app.get('/api/ai-status', async (req, res) => {
         })
       }
     );
+    
+    console.log('[DEBUG /api/ai-status] Gemini test status:', testRes.status);
 
     if (testRes.status === 200) {
       return res.json({ status: 'online', message: 'Gemini AI is active', usingFallback: false });
@@ -946,6 +984,8 @@ app.get('/api/ai-status', async (req, res) => {
         usingFallback: true
       });
     } else {
+      const errText = await testRes.text();
+      console.error('[DEBUG /api/ai-status] Gemini error response:', errText.substring(0, 200));
       return res.json({ 
         status: 'error', 
         message: `Gemini AI returned status ${testRes.status}`,
@@ -953,6 +993,7 @@ app.get('/api/ai-status', async (req, res) => {
       });
     }
   } catch (e) {
+    console.error('[DEBUG /api/ai-status] Gemini test fetch failed:', e.message);
     return res.json({ 
       status: 'offline', 
       message: 'Cannot reach Gemini AI. Using fallback intelligence engine.',
