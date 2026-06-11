@@ -2,17 +2,17 @@ import React, { useEffect, useRef } from 'react';
 import ProcessingState from './ProcessingState.jsx';
 
 export default function RoleMatchReport({
-  roleMatch,
+  jobMatch: roleMatch,
   isAnalyzing,
-  roleDescription,
-  setroleDescription,
-  handleRunroleMatch,
+  jobDescription: roleDescription,
+  setJobDescription: setroleDescription,
+  handleRunJobMatch: handleRunroleMatch,
   analysisStep,
   scores
 }) {
   const progressCircleRef = useRef(null);
 
-  const matchScore = scores?.roleMatch || roleMatch?.matchScore || 0;
+  const matchScore = scores?.jobMatch || roleMatch?.matchScore || 0;
   // Calculate dash offset for gauge (440 is the circumference)
   const strokeDashoffset = 440 - (440 * matchScore) / 100;
 
