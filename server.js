@@ -909,6 +909,10 @@ app.post('/api/parse/resume', upload.single('file'), async (req, res) => {
 });
 
 app.get('/api/health', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  
   const geminiConfigured = !!process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes('your_');
   const rapidApiConfigured = !!process.env.RAPIDAPI_KEY && !process.env.RAPIDAPI_KEY.includes('your_');
   let geminiReachable = false;
@@ -946,6 +950,10 @@ app.get('/api/health', async (req, res) => {
 });
 // AI Engine Status endpoint - tests Gemini connectivity
 app.get('/api/ai-status', async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
   const apiKey = process.env.GEMINI_API_KEY;
   console.log('[DEBUG /api/ai-status] GEMINI_API_KEY is present?', !!apiKey);
   console.log('[DEBUG /api/ai-status] Key length:', apiKey ? apiKey.length : 0);
