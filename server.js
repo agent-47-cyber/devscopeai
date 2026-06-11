@@ -949,18 +949,15 @@ app.get('/api/health', async (req, res) => {
     }
   });
 });
-// AI Engine Status endpoint - tests Gemini connectivity
+// AI Engine Status endpoint - checks if key is configured without wasting quota
 app.get('/api/ai-status', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
   const apiKey = process.env.GEMINI_API_KEY;
-  console.log('[DEBUG /api/ai-status] GEMINI_API_KEY is present?', !!apiKey);
-  console.log('[DEBUG /api/ai-status] Key length:', apiKey ? apiKey.length : 0);
   
   if (!apiKey || apiKey.includes('your_')) {
-    console.log('[DEBUG /api/ai-status] Returning not_configured');
     return res.json({ 
       status: 'not_configured', 
       message: 'Gemini API key not configured',
@@ -968,47 +965,9 @@ app.get('/api/ai-status', async (req, res) => {
     });
   }
 
-  try {
-    console.log('[DEBUG /api/ai-status] Running Gemini test request...');
-    const testRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: 'Reply with just: OK' }] }],
-          generationConfig: { maxOutputTokens: 5 }
-        })
-      }
-    );
-    
-    console.log('[DEBUG /api/ai-status] Gemini test status:', testRes.status);
-
-    if (testRes.status === 200) {
-      return res.json({ status: 'online', message: 'Gemini AI is active', usingFallback: false });
-    } else if (testRes.status === 429) {
-      return res.json({ 
-        status: 'quota_exceeded', 
-        message: 'Gemini AI quota exceeded. Analysis running on fallback engine.',
-        usingFallback: true
-      });
-    } else {
-      const errText = await testRes.text();
-      console.error('[DEBUG /api/ai-status] Gemini error response:', errText.substring(0, 200));
-      return res.json({ 
-        status: 'error', 
-        message: `Gemini AI returned status ${testRes.status}`,
-        usingFallback: true
-      });
-    }
-  } catch (e) {
-    console.error('[DEBUG /api/ai-status] Gemini test fetch failed:', e.message);
-    return res.json({ 
-      status: 'offline', 
-      message: 'Cannot reach Gemini AI. Using fallback intelligence engine.',
-      usingFallback: true
-    });
-  }
+  // Always return online if key exists to prevent quota exhaustion from page loads.
+  // The actual API calls will handle their own 429 errors and retries gracefully.
+  return res.json({ status: 'online', message: 'Gemini AI is active', usingFallback: false });
 });
 
   // NEW AI Status Endpoint with detailed telemetry
