@@ -3,13 +3,176 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Analyze your GitHub, resume & LinkedIn with AI. Get recruiter-grade feedback, ATS scoring, skill-gap analysis, and a personalized career roadmap." />
-    <title>DevScope AI - See Your Profile Through a Recruiter's Eyes</title>
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevScope AI | Cinematic Landing Page</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "surface": "#111111",
+          "on-surface": "#D0D0D0",
+          "primary": "#FF7A1A",
+          "on-primary": "#131313",
+          "primary-container": "#f59e0b",
+          "secondary": "#4edea3",
+          "on-secondary": "#003824",
+          "tertiary": "#ffbcb7",
+          "on-tertiary": "#68000a",
+          "surface-dim": "#131313",
+          "surface-bright": "#3a3939",
+          "surface-container-lowest": "#080808",
+          "surface-container-low": "#0B0B0B",
+          "surface-container": "#111111",
+          "surface-container-high": "#151515",
+          "surface-container-highest": "#1A1A1A",
+          "outline": "#2D2D2D",
+          "outline-variant": "#252525",
+          "background": "#050505",
+          "on-background": "#FFFFFF",
+          "error": "#ef4444",
+          "on-error": "#690005",
+          "tertiary-container": "#00b5fc",
+          "secondary-container": "#464747",
+          "surface-muted": "#171717",
+          "on-primary-fixed-variant": "#6e3900",
+          "border-subtle": "#252525",
+          "primary-fixed-dim": "#ffb77d",
+          "on-primary-fixed": "#2f1500",
+          "error-container": "#93000a",
+          "inverse-primary": "#904d00",
+          "on-tertiary-fixed": "#001e2e",
+          "primary-fixed": "#ffdcc3",
+          "surface-tint": "#ffb77d",
+          "vivid-amber": "#FF7A1A",
+          "secondary-fixed": "#e3e2e2",
+          "on-primary-container": "#623200",
+          "on-error-container": "#ffdad6",
+          "tertiary-fixed-dim": "#85cfff",
+          "inverse-surface": "#e2e2e2",
+          "on-surface-variant": "#9A9A9A",
+          "secondary-fixed-dim": "#c7c6c6",
+          "tertiary-fixed": "#c7e7ff",
+          "surface-deep": "#0A0A0A",
+          "on-secondary-container": "#b6b5b5",
+          "on-tertiary-fixed-variant": "#004c6c",
+          "on-secondary-fixed": "#1b1c1c",
+          "on-tertiary-container": "#004360",
+          "inverse-on-surface": "#303030",
+          "on-secondary-fixed-variant": "#464747"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "gutter": "1.5rem",
+          "sidebar-width": "240px",
+          "section-margin": "3rem",
+          "card-gap": "1rem",
+          "container-padding": "2rem",
+          "margin-desktop": "32px",
+          "unit": "4px",
+          "margin-mobile": "16px",
+          "container-max": "1440px"
+        },
+        "fontFamily": {
+          "title-sm": ["Inter"],
+          "label-caps": ["JetBrains Mono"],
+          "display-lg": ["Hanken Grotesk"],
+          "data-lg": ["Hanken Grotesk"],
+          "body-md": ["Inter"],
+          "label-sm": ["Inter"],
+          "headline-md": ["Hanken Grotesk"],
+          "body-sm": ["Inter"],
+          "headline-lg-mobile": ["Inter"],
+          "body-lg": ["Inter"],
+          "headline-lg": ["Inter"],
+          "code-md": ["JetBrains Mono"],
+          "display": ["Inter"]
+        },
+        "fontSize": {
+          "title-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+          "label-caps": ["11px", {"lineHeight": "12px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+          "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "data-lg": ["40px", {"lineHeight": "1", "fontWeight": "700"}],
+          "body-md": ["15px", {"lineHeight": "1.6", "fontWeight": "400"}],
+          "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+          "headline-md": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+          "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+          "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+          "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "code-md": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+          "display": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+        /* Custom overrides to match the exact aesthetic */
+        body {
+            background-color: #050505;
+            color: #e2e2e2;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .border-technical {
+            border-color: #252525;
+        }
+        
+        .bg-surface-main {
+            background-color: #080808;
+        }
+        
+        .bg-surface-elevated {
+            background-color: #111111;
+        }
+        
+        .text-muted {
+            color: #c7c6c6;
+        }
+        
+        .btn-primary {
+            background-color: #FF7A1A;
+            color: #000000;
+            font-weight: 600;
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid #262626;
+            color: #e2e2e2;
+            transition: border-color 0.2s;
+        }
+        .btn-secondary:hover {
+            border-color: #FF7A1A;
+        }
+        
+    </style>
+
   </head>
   <body>
     <div id="root"></div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, ArrowLeft, Terminal, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { Upload, ArrowLeft, Terminal, CheckCircle, AlertCircle, Loader, Loader2 } from 'lucide-react';
 import { API_UPLOAD_URL } from '../config.js';
 import './InputForm.css';
 
@@ -243,15 +243,30 @@ function InputForm({ onSubmit, onBack, isLoading }) {
     <div className="input-form-wrapper">
       <div className="input-form-card">
         {isLoading && (
-          <div className="scanning-overlay">
-            <div className="scanner-circle-container">
-              <div className="scanner-circle"></div>
-              <div className="scanner-circle-inner"></div>
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-xl rounded-2xl border border-[#252525] overflow-hidden">
+            {/* Animated scanning line */}
+            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#FF7A1A] to-transparent animate-[scan_2s_ease-in-out_infinite]"></div>
+            
+            {/* Central Intelligence Core */}
+            <div className="relative w-24 h-24 mb-8 flex items-center justify-center">
+              {/* Outer pulsing ring */}
+              <div className="absolute inset-0 border-2 border-[#FF7A1A]/20 rounded-full animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+              {/* Middle spinning dashed ring */}
+              <div className="absolute inset-1 border border-dashed border-[#FF7A1A]/40 rounded-full animate-[spin_4s_linear_infinite]"></div>
+              {/* Inner glowing core */}
+              <div className="absolute inset-4 bg-gradient-to-tr from-[#FF7A1A] to-[#ffb77d] rounded-full blur-md opacity-40 animate-[pulse_1.5s_ease-in-out_infinite]"></div>
+              <div className="absolute inset-6 bg-[#FF7A1A] rounded-full shadow-[0_0_20px_rgba(249,115,22,0.8)] flex items-center justify-center">
+                <Terminal size={18} className="text-white animate-pulse" />
+              </div>
             </div>
-            <div className="scanner-text text-gradient">Analyzing Profile</div>
-            <div className="scanner-subtext">
-              <Terminal size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
-              {scanSteps[scanStep]}
+
+            <h3 className="text-xl font-bold tracking-tight text-white mb-2 animate-pulse">
+              Synthesizing Intelligence
+            </h3>
+            
+            <div className="flex items-center gap-2 text-sm text-[#c7c6c6] bg-[#111111]/80 px-4 py-2 rounded-full border border-[#252525] shadow-lg">
+              <Loader2 size={14} className="animate-spin text-[#FF7A1A]" />
+              <span className="font-mono tracking-tight">{scanSteps[scanStep]}</span>
             </div>
           </div>
         )}

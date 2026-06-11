@@ -1,279 +1,202 @@
-import React, { useState } from 'react';
-import { 
-  Github, 
-  FileText, 
-  Linkedin, 
-  Zap, 
-  MessageSquare, 
-  UserCheck, 
-  Cpu, 
-  BarChart3, 
-  ArrowRight, 
-  Plus 
-} from 'lucide-react';
-import './LandingPage.css';
 
-function LandingPage({ onGetStarted, scores, onLoginClick, user, onLogout }) {
-  const [activeFaq, setActiveFaq] = useState(null);
+import React from 'react';
 
-  const toggleFaq = (index) => {
-    if (activeFaq === index) {
-      setActiveFaq(null);
-    } else {
-      setActiveFaq(index);
-    }
-  };
-
-  const features = [
-    {
-      icon: <Github size={22} />,
-      title: "GitHub Analyzer",
-      description: "Deep analysis of repos, commits, tech stack & open-source contributions."
-    },
-    {
-      icon: <FileText size={22} />,
-      title: "Resume Scanner",
-      description: "ATS scoring, keyword analysis & optimization suggestions."
-    },
-    {
-      icon: <Linkedin size={22} />,
-      title: "LinkedIn Analyzer",
-      description: "Profile completeness, visibility & recruiter attraction scoring."
-    },
-    {
-      icon: <Zap size={22} />,
-      title: "Skill Gap Detection",
-      description: "Identify missing skills for your target role with learning roadmaps."
-    },
-    {
-      icon: <MessageSquare size={22} />,
-      title: "AI Career Coach",
-      description: "Interactive assistant for career guidance & interview prep."
-    },
-    {
-      icon: <UserCheck size={22} />,
-      title: "Recruiter Simulator",
-      description: "See your profile through a recruiter's eyes with hire probability."
-    },
-    {
-      icon: <Cpu size={22} />,
-      title: "Project Engine",
-      description: "Personalized project ideas to boost your resume impact."
-    },
-    {
-      icon: <BarChart3 size={22} />,
-      title: "Analytics Dashboard",
-      description: "Track your growth with detailed charts and progress metrics."
-    }
-  ];
-
-  const testimonials = [
-    {
-      avatar: "AC",
-      name: "Alex Chen",
-      role: "Software Engineer @ Google",
-      quote: "\"DevScope AI helped me identify gaps in my GitHub profile that I never noticed. Landed my dream job!\""
-    },
-    {
-      avatar: "SK",
-      name: "Sarah Kim",
-      role: "Full Stack Dev @ Stripe",
-      quote: "\"The recruiter simulation was eye-opening. It completely changed how I present my portfolio.\""
-    },
-    {
-      avatar: "JP",
-      name: "James Patel",
-      role: "ML Engineer @ OpenAI",
-      quote: "\"The skill gap analysis gave me a clear roadmap. Within 3 months, I had the skills to transition into AI.\""
-    }
-  ];
-
-  const faqs = [
-    {
-      q: "How does the GitHub analysis work?",
-      a: "We use AI to analyze your public GitHub profile including repository quality, commit patterns, README quality, tech diversity, and overall project complexity to generate a comprehensive score."
-    },
-    {
-      q: "Is my data secure?",
-      a: "Absolutely. All uploaded files are encrypted and processed securely. We never store your raw files permanently — only the extracted analysis data."
-    },
-    {
-      q: "Can I use DevScope AI for free?",
-      a: "Yes! Our free tier includes basic analyses. Upgrade to Pro for unlimited access to all features including the AI Career Coach and Recruiter Simulator."
-    },
-    {
-      q: "How accurate is the ATS scoring?",
-      a: "Our ATS scoring model is trained on patterns from major ATS systems used by Fortune 500 companies, achieving 90%+ accuracy on keyword matching and formatting analysis."
-    }
-  ];
-
+export default function LandingPage({ onGetStarted, scores, onLoginClick, user, onLogout }) {
+  // Let's wire up the buttons
   return (
-    <div className="landing-page animate-fade-in">
-      {/* Header */}
-      <header className="header">
-        <div className="container header-container">
-          <a href="#" className="logo">
-            <div className="logo-icon">⚡</div>
-            DevScope AI
-          </a>
-          <nav className="nav-links">
-            <a href="#features" className="nav-link">Features</a>
-            <a href="#pricing" className="nav-link">Pricing</a>
-            <a href="#faq" className="nav-link">FAQ</a>
-          </nav>
-          <div className="header-actions">
-            {user ? (
-              <>
-                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                  Hi, <strong>{user.username}</strong>
-                </span>
-                <button className="btn btn-secondary btn-sm" onClick={onLogout}>Log Out</button>
-              </>
-            ) : (
-              <>
-                <button className="login-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }} onClick={onLoginClick}>
-                  Log In
-                </button>
-                <button className="btn btn-primary btn-sm" onClick={onGetStarted}>Get Started →</button>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="container">
-          <div className="hero-badge-container">
-            <div className="hero-badge">
-              <span className="dot"></span>
-              AI-Powered Portfolio Intelligence
+    <div className="dark text-on-surface bg-surface min-h-screen">
+      
+{/**/}
+{/**/}
+<header className="bg-[#050505] text-vivid-amber font-label-caps text-label-caps docked full-width top-0 sticky z-40 border-b border-subtle flex justify-between items-center h-14 px-gutter relative z-50">
+<div className="flex items-center gap-4">
+<span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>analytics</span>
+<div className="font-headline-md text-headline-md font-bold text-vivid-amber tracking-tight">
+                DevScope AI
             </div>
-          </div>
-          <h1 className="hero-title">
-            See Your Profile <br />
-            <span className="text-gradient">Through a Recruiter’s Eyes</span>
-          </h1>
-          <p className="hero-description">
-            Analyze your GitHub, resume & LinkedIn with AI. Get recruiter-grade feedback, ATS scoring, skill-gap analysis, and a personalized career roadmap.
-          </p>
-          <div className="hero-actions">
-            <button className="btn btn-primary" onClick={onGetStarted}>
-              Start Free Analysis <ArrowRight size={16} />
+</div>
+<div className="flex items-center gap-6">
+<nav className="hidden md:flex gap-6 text-muted uppercase font-label-caps text-label-caps">
+<a className="hover:text-vivid-amber transition-colors" href="#" onClick={(e) => { e.preventDefault(); onGetStarted(); }}>Product</a>
+<a className="hover:text-vivid-amber transition-colors" href="#" onClick={(e) => { e.preventDefault(); onGetStarted(); }}>Methodology</a>
+<a className="hover:text-vivid-amber transition-colors" href="#" onClick={(e) => { e.preventDefault(); onGetStarted(); }}>Pricing</a>
+</nav>
+
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-sm">Welcome, {user.username}</span>
+              <button onClick={onLogout} className="btn-secondary px-4 py-2 rounded text-label-caps font-label-caps uppercase">Log Out</button>
+            </div>
+          ) : (
+            <button onClick={onLoginClick} className="btn-secondary px-4 py-2 rounded text-label-caps font-label-caps uppercase">
+                Log In
             </button>
-            <a href="#features" className="btn btn-secondary">See How It Works</a>
-          </div>
+          )}
 
-          {/* Metrics bar */}
-          <div className="metrics-wrapper">
-            <div className="metrics-card">
-              <div className="metric-item">
-                <div className="metric-val">{scores.portfolio}</div>
-                <div className="metric-label">Portfolio Score</div>
-              </div>
-              <div className="metric-item">
-                <div className="metric-val">{scores.ats}</div>
-                <div className="metric-label">ATS Score</div>
-              </div>
-              <div className="metric-item">
-                <div className="metric-val">{scores.github}</div>
-                <div className="metric-label">GitHub Score</div>
-              </div>
-              <div className="metric-item">
-                <div className="metric-val">{scores.careerReady}</div>
-                <div className="metric-label">Career Ready</div>
-              </div>
+</div>
+</header>
+{/**/}
+<main className="relative z-10 container mx-auto px-gutter pt-24 pb-32 max-w-container-max flex flex-col items-center justify-center min-h-[921px]">
+{/**/}
+<div className="text-center max-w-3xl mb-16 flex flex-col items-center">
+<div className="inline-flex items-center gap-2 px-3 py-1 bg-surface-elevated border border-subtle rounded-full text-label-caps font-label-caps text-vivid-amber mb-8 uppercase">
+<span className="w-1.5 h-1.5 bg-vivid-amber rounded-full"></span>
+                v2.0 Intelligence Engine Live
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section id="features" className="features-section">
-        <div className="container">
-          <h2 className="section-title">Everything You Need to Stand Out</h2>
-          <p className="section-subtitle">
-            Comprehensive tools to analyze, improve, and showcase your developer profile
-          </p>
-          
-          <div className="features-grid">
-            {features.map((feature, idx) => (
-              <div className="card feature-card" key={idx}>
-                <div className="feature-icon-wrapper">
-                  {feature.icon}
-                </div>
-                <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="testimonials-section">
-        <div className="container">
-          <h2 className="section-title" style={{ marginBottom: '56px' }}>Loved by Developers</h2>
-          <div className="testimonials-grid">
-            {testimonials.map((t, idx) => (
-              <div className="card testimonial-card" key={idx}>
-                <div className="stars">★★★★★</div>
-                <p className="testimonial-quote">{t.quote}</p>
-                <div className="testimonial-author">
-                  <div className="author-avatar">{t.avatar}</div>
-                  <div>
-                    <div className="author-name">{t.name}</div>
-                    <div className="author-role">{t.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section id="faq" className="faq-section">
-        <div className="container">
-          <h2 className="section-title" style={{ textAlign: 'center', marginBottom: '56px' }}>Frequently Asked Questions</h2>
-          <div className="faq-list">
-            {faqs.map((faq, idx) => (
-              <div 
-                className={`faq-item ${activeFaq === idx ? 'active' : ''}`} 
-                key={idx}
-              >
-                <button className="faq-question" onClick={() => toggleFaq(idx)}>
-                  {faq.q}
-                  <Plus size={18} className="faq-icon" />
+<h1 className="font-display text-display text-white mb-6 leading-tight">
+                Your Resume Says One Thing.<br/>
+<span className="text-secondary">Your GitHub Says Another.</span>
+</h1>
+<p className="font-body-md text-body-md md:text-body-lg text-muted max-w-2xl mb-10">
+                Understand how recruiters evaluate your skills, projects, and professional presence across Resume, GitHub, LinkedIn, and target job descriptions.
+            </p>
+<div className="flex flex-col sm:flex-row gap-4">
+<button onClick={onGetStarted} className="btn-primary px-6 py-3 rounded-lg text-label-caps font-label-caps uppercase tracking-wider">
+                    Analyze My Profile
                 </button>
-                <div className="faq-answer">
-                  <p>{faq.a}</p>
+<button onClick={onGetStarted} className="btn-secondary px-6 py-3 rounded-lg text-label-caps font-label-caps uppercase tracking-wider flex items-center gap-2 justify-center">
+<span className="material-symbols-outlined text-[16px]">visibility</span>
+                    View Sample Report
+                </button>
+</div>
+</div>
+{/**/}
+<div className="w-full max-w-5xl bg-surface-deep border border-subtle rounded-xl shadow-2xl overflow-hidden flex flex-col mt-8">
+{/**/}
+<div className="h-10 border-b border-subtle bg-surface-dim flex items-center px-4 justify-between">
+<div className="flex gap-2">
+<div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]"></div>
+<div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]"></div>
+<div className="w-2.5 h-2.5 rounded-full bg-[#1A1A1A]"></div>
+</div>
+<div className="font-label-caps text-label-caps text-muted flex items-center gap-2 uppercase">
+<span className="material-symbols-outlined text-[14px]">lock</span>
+                    report_id: cnd_8x9f2a_v2
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+<div className="w-12"></div> {/**/}
+</div>
+{/**/}
+<div className="flex h-[500px]">
+{/**/}
+<div className="w-48 border-r border-subtle bg-surface-deep p-4 flex flex-col gap-4 hidden md:flex">
+<div className="text-label-caps font-label-caps text-muted mb-2 uppercase tracking-wider">Modules</div>
+<div className="flex items-center gap-3 text-vivid-amber font-label-caps text-label-caps bg-surface-dim py-1.5 px-2 rounded lg border border-subtle uppercase tracking-widest">
+<span className="material-symbols-outlined text-[16px]">dashboard</span>
+                        Overview
+                    </div>
+<div className="flex items-center gap-3 text-muted font-label-caps text-label-caps hover:text-white py-1.5 px-2 cursor-pointer uppercase tracking-widest">
+<span className="material-symbols-outlined text-[16px]">description</span>
+                        Resume
+                    </div>
+<div className="flex items-center gap-3 text-muted font-label-caps text-label-caps hover:text-white py-1.5 px-2 cursor-pointer uppercase tracking-widest">
+<span className="material-symbols-outlined text-[16px]">terminal</span>
+                        GitHub
+                    </div>
+<div className="flex items-center gap-3 text-muted font-label-caps text-label-caps hover:text-white py-1.5 px-2 cursor-pointer uppercase tracking-widest">
+<span className="material-symbols-outlined text-[16px]">person_search</span>
+                        LinkedIn
+                    </div>
+<div className="mt-auto border-t border-subtle pt-4">
+<div className="flex items-center gap-3 text-muted font-label-caps text-label-caps uppercase tracking-widest">
+<span className="material-symbols-outlined text-[16px]">rule</span>
+                            Job Match: 84%
+                        </div>
+</div>
+</div>
+{/**/}
+<div className="flex-1 p-6 bg-[#050505] overflow-hidden flex flex-col gap-6">
+{/**/}
+<div className="flex justify-between items-start">
+<div>
+<h2 className="font-headline-lg text-headline-lg text-white mb-1 font-bold">Alex Chen</h2>
+<div className="font-label-caps text-label-caps text-muted uppercase tracking-widest">Senior Full Stack Engineer</div>
+</div>
+<div className="text-right">
+<div className="inline-block bg-surface-dim border border-subtle px-3 py-1 rounded-lg text-label-caps font-label-caps text-vivid-amber uppercase tracking-widest">
+                                Overall Score: 92/100
+                            </div>
+</div>
+</div>
+{/**/}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+{/**/}
+<div className="col-span-1 md:col-span-2 bg-surface-deep border border-subtle rounded-xl p-4 flex flex-col">
+<div className="font-label-caps text-label-caps text-muted mb-4 uppercase tracking-widest flex justify-between">
+<span>Skill Verification Gap</span>
+<span className="material-symbols-outlined text-[14px]">analytics</span>
+</div>
+<div className="flex-1 flex flex-col justify-center gap-4">
+{/**/}
+<div>
+<div className="flex justify-between text-label-caps font-label-caps mb-1 uppercase tracking-widest">
+<span className="text-white">React / Next.js</span>
+<span className="text-muted">High Confidence</span>
+</div>
+<div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div className="w-3/4 bg-vivid-amber h-full"></div>
+<div className="w-1/4 bg-surface-dim h-full border-l border-subtle"></div>
+</div>
+<div className="flex text-[10px] text-muted mt-1 font-label-caps uppercase justify-between">
+<span>Resume Claim</span>
+<span>GitHub Evidence</span>
+</div>
+</div>
+<div>
+<div className="flex justify-between text-label-caps font-label-caps mb-1 uppercase tracking-widest">
+<span className="text-white">Python / Django</span>
+<span className="text-muted">Moderate Gap</span>
+</div>
+<div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div className="w-[85%] bg-surface-bright h-full"></div>
+<div className="w-[15%] bg-surface-dim h-full border-l border-subtle"></div>
+</div>
+<div className="flex text-[10px] text-muted mt-1 font-label-caps uppercase justify-between">
+<span>Resume Claim</span>
+<span>GitHub Evidence (Lacking)</span>
+</div>
+</div>
+<div>
+<div className="flex justify-between text-label-caps font-label-caps mb-1 uppercase tracking-widest">
+<span className="text-white">AWS / Infrastructure</span>
+<span className="text-muted">Verified</span>
+</div>
+<div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden flex">
+<div className="w-[60%] bg-surface-bright h-full"></div>
+</div>
+</div>
+</div>
+</div>
+{/**/}
+<div className="bg-surface-deep border border-subtle rounded-xl p-4 flex flex-col">
+<div className="font-label-caps text-label-caps text-muted mb-4 uppercase tracking-widest">
+                                Code Consistency
+                            </div>
+<div className="flex-1 flex items-center justify-center">
+{/**/}
+<div className="relative w-32 h-32 rounded-full border border-subtle flex items-center justify-center">
+<div className="absolute inset-2 rounded-full border border-[#252525] opacity-50"></div>
+<div className="absolute inset-6 rounded-full border border-[#252525] opacity-20"></div>
+<div className="text-center">
+<div className="text-2xl font-headline-md text-white">1.2k</div>
+<div className="text-[10px] font-label-caps text-muted uppercase">Commits YTD</div>
+</div>
+</div>
+</div>
+</div>
+{/**/}
+<div className="col-span-1 md:col-span-3 bg-surface-dim border border-subtle rounded-xl p-3 flex items-start gap-3">
+<span className="material-symbols-outlined text-vivid-amber text-[20px] mt-0.5">warning</span>
+<div>
+<div className="font-label-caps text-label-caps text-white font-semibold uppercase tracking-widest mb-1">Missing Keywords for Target Role</div>
+<div className="font-body-md text-body-md text-muted">The target job description emphasizes "CI/CD pipelines" and "Docker", which are absent from your LinkedIn summary despite appearing in your GitHub repositories.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
 
-      {/* Footer */}
-      <footer className="footer">
-        <div className="container footer-container">
-          <a href="#" className="logo">
-            <div className="logo-icon">⚡</div>
-            DevScope AI
-          </a>
-          <div className="footer-links">
-            <a href="#" className="footer-link">Privacy Policy</a>
-            <a href="#" className="footer-link">Terms of Service</a>
-            <a href="#" className="footer-link">Contact</a>
-          </div>
-          <div className="copyright">
-            © 2026 DevScope AI. All rights reserved.
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
-
-export default LandingPage;

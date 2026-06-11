@@ -586,6 +586,1740 @@
       },
       "userId": "6a25397258f0ab1f721baea1",
       "createdAt": "2026-06-07T09:27:29.401Z"
+    },
+    {
+      "userId": "beb51ceb-9a7d-454d-888e-2ad4fe039e7f",
+      "githubUsername": "torvalds",
+      "githubData": {
+        "repositoryQuality": "Exceptional. The portfolio includes the Linux kernel, a project of unparalleled complexity, scale, and impact in the software world. Other repositories consistently demonstrate strong low-level C programming, systems understanding, and hardware interaction, indicating a high standard of code quality and engineering rigor.",
+        "projectDiversity": "Highly specialized. The projects are almost exclusively focused on low-level systems programming in C, embedded systems, and some hardware design (OpenSCAD). There is a notable lack of diversity in application domains such as web development, mobile, cloud services, data science, or higher-level application development.",
+        "technologyCoverage": "Profound depth in C and systems programming, including kernel-level development, embedded systems, and hardware description languages (OpenSCAD). The breadth of technologies is narrow, with no evidence of experience in modern web frameworks, cloud platforms, databases, or other common enterprise technologies.",
+        "codePortfolioStrength": 100,
+        "architectureMaturity": "Outstanding. The presence of the Linux kernel demonstrates a mastery of complex system architecture, concurrency, resource management, and modular design at an industrial scale. Smaller projects also show a clear understanding of structured programming and system-level design principles.",
+        "recruiterImpression": "Extremely impressive for roles requiring deep systems, kernel, or embedded expertise. The candidate's contributions are globally recognized and highly impactful. For roles outside of this specialized domain, a recruiter might note the lack of breadth, but the sheer depth and quality of work in their niche would still command significant respect.",
+        "portfolioRisks": [
+          "Highly specialized skill set, potentially limiting for roles requiring broader technology stacks (e.g., full-stack web, cloud engineering, data platforms).",
+          "Limited evidence of experience with modern distributed systems, cloud infrastructure, or contemporary application development paradigms."
+        ],
+        "bestRepository": "linux",
+        "weakestRepository": "pesconvert",
+        "missingProjectCategories": [
+          "Web Development (Frontend/Backend)",
+          "Mobile Applications",
+          "Cloud/Distributed Systems",
+          "Data Science/Machine Learning",
+          "API Development",
+          "Full-Stack Applications"
+        ],
+        "missingTechnologies": [
+          "Python",
+          "Java",
+          "Go",
+          "JavaScript/TypeScript",
+          "Node.js",
+          "React/Angular/Vue",
+          "Docker",
+          "Kubernetes",
+          "AWS/Azure/GCP",
+          "SQL/NoSQL Databases",
+          "CI/CD tools"
+        ],
+        "openSourcePresence": "Exceptional. The candidate is the primary maintainer and creator of the Linux kernel, one of the most significant open-source projects in history. The high follower count and star count on repositories further underscore a massive and influential open-source presence.",
+        "projectRecommendations": [
+          "Explore modern systems programming languages like Rust to demonstrate adaptability and contemporary practices.",
+          "Undertake a project involving a small-scale distributed system or network service to broaden experience beyond single-node systems.",
+          "Perhaps a project demonstrating integration with a modern cloud platform, even if it's a simple utility."
+        ],
+        "careerRecommendations": [
+          "Target senior or staff-level roles in operating systems development, kernel engineering, embedded systems, or critical infrastructure.",
+          "Consider architect or technical leadership positions where deep systems knowledge is paramount.",
+          "If seeking to transition into broader software engineering roles, strategically engage with projects that introduce new paradigms (e.g., cloud-native, microservices) while leveraging existing systems expertise."
+        ],
+        "score": 100,
+        "username": "torvalds",
+        "publicRepos": 12,
+        "followers": 306476,
+        "totalStars": 247209,
+        "languages": [
+          {
+            "name": "C"
+          },
+          {
+            "name": "OpenSCAD"
+          }
+        ],
+        "topRepositories": [
+          {
+            "name": "linux",
+            "description": "Linux kernel source tree",
+            "language": "C",
+            "stars": 236030,
+            "size": 6169353
+          },
+          {
+            "name": "AudioNoise",
+            "description": "Random digital audio effects",
+            "language": "C",
+            "stars": 4382,
+            "size": 1428
+          },
+          {
+            "name": "uemacs",
+            "description": "Random version of microemacs with my private modificatons",
+            "language": "C",
+            "stars": 2045,
+            "size": 478
+          },
+          {
+            "name": "GuitarPedal",
+            "description": "Linus learns analog circuits",
+            "language": "C",
+            "stars": 1998,
+            "size": 6653
+          },
+          {
+            "name": "test-tlb",
+            "description": "Stupid memory latency and TLB tester",
+            "language": "C",
+            "stars": 1007,
+            "size": 19
+          },
+          {
+            "name": "pesconvert",
+            "description": "Brother PES file converter",
+            "language": "C",
+            "stars": 562,
+            "size": 17
+          },
+          {
+            "name": "1590A",
+            "description": "Random odd guitar pedal design in kicad",
+            "language": "OpenSCAD",
+            "stars": 566,
+            "size": 10882
+          },
+          {
+            "name": "HunspellColorize",
+            "description": "Wrapper around 'less' to colorize spelling mistakes using Hunspell",
+            "language": "C",
+            "stars": 347,
+            "size": 15
+          },
+          {
+            "name": "ScrollWheel",
+            "description": "Minimalist RP2350 magnetic sensor scroll wheel toy project",
+            "language": "C",
+            "stars": 272,
+            "size": 15
+          }
+        ],
+        "bestRepo": "linux",
+        "missingCategories": [
+          "Web Development (Frontend/Backend)",
+          "Mobile Applications",
+          "Cloud/Distributed Systems",
+          "Data Science/Machine Learning",
+          "API Development",
+          "Full-Stack Applications"
+        ],
+        "missingTech": [
+          "Python",
+          "Java",
+          "Go",
+          "JavaScript/TypeScript",
+          "Node.js",
+          "React/Angular/Vue",
+          "Docker",
+          "Kubernetes",
+          "AWS/Azure/GCP",
+          "SQL/NoSQL Databases",
+          "CI/CD tools"
+        ],
+        "recommendations": [
+          "Explore modern systems programming languages like Rust to demonstrate adaptability and contemporary practices.",
+          "Undertake a project involving a small-scale distributed system or network service to broaden experience beyond single-node systems.",
+          "Perhaps a project demonstrating integration with a modern cloud platform, even if it's a simple utility."
+        ],
+        "docScore": 90
+      },
+      "scores": {
+        "github": 100,
+        "ats": 92
+      },
+      "createdAt": "2026-06-10T23:48:03.858Z",
+      "resumeData": {
+        "executiveSummary": "John Doe presents as a highly effective Senior Software Engineer with a strong command of modern web technologies, particularly React, Node.js, and TypeScript. His resume highlights significant, quantifiable impact, including a 40% reduction in load time, successful scaling of APIs to 100K daily requests, and leadership in a substantial codebase migration. While the technical execution and immediate impact are clear, the resume could benefit from further detailing architectural contributions, system design ownership, and broader leadership beyond a single migration effort to solidify his senior-level standing.",
+        "atsScore": 92,
+        "keywordAnalysis": {
+          "found": [
+            "JavaScript",
+            "TypeScript",
+            "React",
+            "Node.js",
+            "Express",
+            "PostgreSQL",
+            "AWS",
+            "Docker",
+            "Git",
+            "Senior Software Engineer",
+            "B.Tech",
+            "Computer Science",
+            "REST APIs",
+            "full-stack",
+            "SaaS"
+          ],
+          "missing": [
+            "System Design",
+            "Microservices",
+            "CI/CD",
+            "Testing (e.g., Jest, React Testing Library)",
+            "Cloud Services (specifics like S3, EC2, Lambda, RDS)",
+            "Mentorship",
+            "Agile/Scrum",
+            "Performance Optimization (beyond load time)",
+            "Monitoring",
+            "Security"
+          ]
+        },
+        "strengths": [
+          "Quantifiable achievements with clear business impact (40% load time reduction, 100K daily requests).",
+          "Demonstrated leadership in a significant technical migration (50K+ LOC from JS to TS).",
+          "Strong alignment with in-demand modern web development technologies (React, Node.js, TypeScript).",
+          "Concise and well-formatted resume, easy to parse.",
+          "Good use of action verbs.",
+          "Inclusion of a relevant personal project."
+        ],
+        "weaknesses": [
+          "The 'Senior Software Engineer' title is supported by strong achievements, but the listed experience duration (2 years at Acme Corp) is relatively short for a typical senior role, potentially implying missing prior experience.",
+          "Lack of detail regarding architectural contributions, system design, or broader technical leadership beyond the migration.",
+          "No mention of testing methodologies, CI/CD pipelines, or deployment strategies.",
+          "The project description is generic and lacks specific challenges, unique features, or technical decisions.",
+          "Absence of soft skills or explicit mentorship/team leadership examples."
+        ],
+        "projectEvaluation": "The 'E-Commerce Platform' project, while demonstrating full-stack capabilities with a relevant tech stack (React + Node.js + PostgreSQL), is a very common project choice. It lacks specific details about unique features, technical challenges overcome, design decisions made, or the scale/complexity achieved. To truly stand out, it needs to articulate 'why' this project is different or what specific advanced concepts were explored.",
+        "recruiterNotes": "Green flags: Strong technical execution, clear impact metrics, and experience leading a significant technical initiative. This candidate is likely a high-performing individual contributor. Red flags: The listed experience duration (2 years at Acme Corp) for a 'Senior' title, coupled with a 2019 graduation date, suggests either a very rapid career progression or missing prior experience that needs to be clarified. The generic project description also warrants further probing during an interview to assess depth of understanding and problem-solving skills.",
+        "improvementOpportunities": [
+          "Elaborate on the 'led migration' bullet: Describe the challenges faced, the specific strategies employed, and the broader impact on the team or product beyond just LOC.",
+          "Add a 'System Design' or 'Architecture' section if applicable, or integrate such contributions into existing experience bullets.",
+          "Provide more specific details for the personal project, focusing on unique features, technical hurdles, and design choices.",
+          "Include experience with testing frameworks, CI/CD pipelines, and cloud-native services (beyond just 'AWS').",
+          "Consider adding a brief 'About Me' or 'Summary' section to highlight career aspirations, leadership philosophy, or unique value proposition.",
+          "If there is prior experience between 2019 and 2021, it should be added to the resume."
+        ],
+        "recommendedTechnologies": [
+          "Kubernetes",
+          "GraphQL",
+          "Serverless (AWS Lambda, Azure Functions)",
+          "Message Queues (Kafka, RabbitMQ)",
+          "NoSQL Databases (MongoDB, DynamoDB)",
+          "Advanced CI/CD tools (Jenkins, GitLab CI, GitHub Actions)",
+          "Observability tools (Prometheus, Grafana, Datadog)"
+        ],
+        "recommendedProjects": [
+          "A distributed system demonstrating microservices architecture and inter-service communication.",
+          "A real-time data processing application using websockets or streaming technologies.",
+          "An open-source contribution or a project solving a niche, complex technical problem.",
+          "A project showcasing advanced cloud infrastructure deployment and management (e.g., IaC with Terraform/CloudFormation)."
+        ],
+        "jobReadiness": "Senior. The demonstrated impact (performance optimization, scaling, leading a major migration) aligns with senior-level responsibilities, despite the relatively short listed tenure in the current role. The candidate shows strong execution and technical ownership.",
+        "score": 92,
+        "foundKeywords": [
+          "JavaScript",
+          "TypeScript",
+          "React",
+          "Node.js",
+          "Express",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Git",
+          "Senior Software Engineer",
+          "B.Tech",
+          "Computer Science",
+          "REST APIs",
+          "full-stack",
+          "SaaS"
+        ],
+        "missingKeywords": [
+          "System Design",
+          "Microservices",
+          "CI/CD",
+          "Testing (e.g., Jest, React Testing Library)",
+          "Cloud Services (specifics like S3, EC2, Lambda, RDS)",
+          "Mentorship",
+          "Agile/Scrum",
+          "Performance Optimization (beyond load time)",
+          "Monitoring",
+          "Security"
+        ],
+        "recommendations": [
+          "Elaborate on the 'led migration' bullet: Describe the challenges faced, the specific strategies employed, and the broader impact on the team or product beyond just LOC.",
+          "Add a 'System Design' or 'Architecture' section if applicable, or integrate such contributions into existing experience bullets.",
+          "Provide more specific details for the personal project, focusing on unique features, technical hurdles, and design choices.",
+          "Include experience with testing frameworks, CI/CD pipelines, and cloud-native services (beyond just 'AWS').",
+          "Consider adding a brief 'About Me' or 'Summary' section to highlight career aspirations, leadership philosophy, or unique value proposition.",
+          "If there is prior experience between 2019 and 2021, it should be added to the resume."
+        ],
+        "recruitingNotes": "Green flags: Strong technical execution, clear impact metrics, and experience leading a significant technical initiative. This candidate is likely a high-performing individual contributor. Red flags: The listed experience duration (2 years at Acme Corp) for a 'Senior' title, coupled with a 2019 graduation date, suggests either a very rapid career progression or missing prior experience that needs to be clarified. The generic project description also warrants further probing during an interview to assess depth of understanding and problem-solving skills.",
+        "wordCount": 78
+      },
+      "updatedAt": "2026-06-10T23:48:27.025Z"
+    },
+    {
+      "userId": "48911acf-9731-42eb-8414-51ef5a1f57a6",
+      "githubUsername": "darkmoon564",
+      "githubData": {
+        "repositoryQuality": "Difficult to assess due to the complete absence of project descriptions (READMEs) across all listed repositories. The low star count (2 total across 27 repos) suggests limited external validation or impact. Project sizes vary, hinting at potential complexity in some (e.g., 'ashitvijay_portfolio', 'SHL'), but without context, it's impossible to evaluate code quality, architecture, or purpose.",
+        "projectDiversity": "Good breadth in terms of domain, covering AI/ML applications (Python) and various frontend/utility projects (TypeScript). However, the depth and actual implementation complexity of these diverse projects are not discernible without descriptions.",
+        "technologyCoverage": "Covers modern languages like Python and TypeScript, which is a strong foundation. Python suggests data science/ML or scripting, while TypeScript points to web development (frontend or Node.js backend). However, specific frameworks (e.g., React/Angular/Vue, Node.js/Express, Django/Flask) and infrastructure (databases, cloud) are not explicitly demonstrated.",
+        "codePortfolioStrength": 20,
+        "architectureMaturity": "Cannot be assessed. Without project descriptions, code access, or any indication of design patterns, state management, or data modeling within the provided profile, it's impossible to evaluate architectural maturity. The lack of information is a significant barrier.",
+        "recruiterImpression": "Extremely poor. A recruiter would struggle immensely to understand the candidate's skills, experience, or the purpose of any project. The absence of READMEs is a critical oversight that makes the portfolio uninterpretable and suggests a lack of attention to detail or understanding of professional presentation. It looks like a collection of uncontextualized code.",
+        "portfolioRisks": [
+          "Complete absence of project descriptions (READMEs).",
+          "Very low community engagement (stars, followers).",
+          "Lack of clear project scope, purpose, and demonstrated impact.",
+          "No explicit demonstration of robust backend development (e.g., REST APIs, database interactions).",
+          "No visible evidence of testing, CI/CD, or deployment practices.",
+          "Difficulty in assessing actual code quality or architectural patterns."
+        ],
+        "bestRepository": "multi-pdf-chatreader",
+        "weakestRepository": "algorizz",
+        "missingProjectCategories": [
+          "Well-documented, deployed full-stack applications.",
+          "Robust API development with clear data models and error handling.",
+          "Cloud deployments and infrastructure-as-code.",
+          "Projects demonstrating strong testing practices (unit, integration, E2E).",
+          "Contributions to larger open-source projects."
+        ],
+        "missingTechnologies": [
+          "Specific web frameworks (e.g., React, Angular, Vue, Next.js, Express, Django, Flask).",
+          "Database technologies (SQL/NoSQL).",
+          "Cloud platforms (AWS, GCP, Azure) and related services.",
+          "Containerization (Docker) and orchestration (Kubernetes).",
+          "CI/CD pipelines."
+        ],
+        "openSourcePresence": "Minimal to non-existent. With 0 followers and only 2 stars across 27 original repositories, there is no visible community engagement or impact. No evidence of contributions to external projects.",
+        "projectRecommendations": [
+          "Crucially, add comprehensive README.md files to *all* significant projects. These should include project purpose, technologies used, how to run/install, features, architecture overview, and screenshots/demos.",
+          "Select 2-3 strongest projects and enhance them with clear documentation, robust testing, and live deployments (if applicable).",
+          "Demonstrate full-stack capabilities by building a project with a clear frontend, a well-defined backend API, and database integration.",
+          "Implement CI/CD pipelines and add unit/integration tests to projects.",
+          "Consider deploying a project to a cloud platform (e.g., Vercel, Netlify, AWS EC2/Lambda) to showcase DevOps skills."
+        ],
+        "careerRecommendations": [
+          "Focus on presenting work professionally. A GitHub profile is a professional resume; treat it as such by providing context and explanation for every project.",
+          "Engage with the developer community: contribute to open-source projects, answer questions, or seek feedback on your own projects.",
+          "Clearly define a career path (e.g., Frontend, Backend, Full-Stack, ML Engineer) and tailor the portfolio to showcase deep expertise in that area, while still demonstrating breadth.",
+          "Seek opportunities to collaborate on projects to gain experience with team workflows and larger codebases."
+        ],
+        "score": 20,
+        "username": "darkmoon564",
+        "publicRepos": 27,
+        "followers": 0,
+        "totalStars": 2,
+        "languages": [
+          {
+            "name": "Python"
+          },
+          {
+            "name": "TypeScript"
+          }
+        ],
+        "topRepositories": [
+          {
+            "name": "multi-pdf-chatreader",
+            "description": null,
+            "language": "Python",
+            "stars": 1,
+            "size": 7
+          },
+          {
+            "name": "fake_news_detection",
+            "description": null,
+            "language": "Python",
+            "stars": 1,
+            "size": 3
+          },
+          {
+            "name": "lifepilot",
+            "description": null,
+            "language": "TypeScript",
+            "stars": 0,
+            "size": 82
+          },
+          {
+            "name": "aethera",
+            "description": null,
+            "language": "TypeScript",
+            "stars": 0,
+            "size": 23
+          },
+          {
+            "name": "ashitvijay_portfolio",
+            "description": null,
+            "language": "TypeScript",
+            "stars": 0,
+            "size": 11932
+          },
+          {
+            "name": "algorizz",
+            "description": null,
+            "language": "Python",
+            "stars": 0,
+            "size": 7
+          },
+          {
+            "name": "SHL",
+            "description": null,
+            "language": "Python",
+            "stars": 0,
+            "size": 11194
+          },
+          {
+            "name": "financeagent",
+            "description": null,
+            "language": "Python",
+            "stars": 0,
+            "size": 42
+          },
+          {
+            "name": "scribeai",
+            "description": null,
+            "language": "TypeScript",
+            "stars": 0,
+            "size": 111
+          },
+          {
+            "name": "voice-email",
+            "description": null,
+            "language": "TypeScript",
+            "stars": 0,
+            "size": 153
+          }
+        ],
+        "bestRepo": "multi-pdf-chatreader",
+        "missingCategories": [
+          "Well-documented, deployed full-stack applications.",
+          "Robust API development with clear data models and error handling.",
+          "Cloud deployments and infrastructure-as-code.",
+          "Projects demonstrating strong testing practices (unit, integration, E2E).",
+          "Contributions to larger open-source projects."
+        ],
+        "missingTech": [
+          "Specific web frameworks (e.g., React, Angular, Vue, Next.js, Express, Django, Flask).",
+          "Database technologies (SQL/NoSQL).",
+          "Cloud platforms (AWS, GCP, Azure) and related services.",
+          "Containerization (Docker) and orchestration (Kubernetes).",
+          "CI/CD pipelines."
+        ],
+        "recommendations": [
+          "Crucially, add comprehensive README.md files to *all* significant projects. These should include project purpose, technologies used, how to run/install, features, architecture overview, and screenshots/demos.",
+          "Select 2-3 strongest projects and enhance them with clear documentation, robust testing, and live deployments (if applicable).",
+          "Demonstrate full-stack capabilities by building a project with a clear frontend, a well-defined backend API, and database integration.",
+          "Implement CI/CD pipelines and add unit/integration tests to projects.",
+          "Consider deploying a project to a cloud platform (e.g., Vercel, Netlify, AWS EC2/Lambda) to showcase DevOps skills."
+        ],
+        "docScore": 18
+      },
+      "scores": {
+        "github": 20,
+        "careerReady": 5
+      },
+      "createdAt": "2026-06-10T23:48:22.418Z",
+      "linkedinData": {
+        "headlineAnalysis": "The headline 'Professional at LinkedIn (williamhgates)' is extremely generic, uses a placeholder name, and provides no information about the candidate's actual profession, skills, or value proposition. It severely hinders SEO and recruiter visibility, making it impossible for a recruiter to identify the candidate's expertise or target role. This is a critical missed opportunity to convey value.",
+        "profileCompleteness": 5,
+        "keywordCoverage": "The LinkedIn profile has virtually no keyword coverage due to its empty sections. While the GitHub profile indicates proficiency in Python and TypeScript, along with potential exposure to AI/ML and frontend development, these valuable keywords are entirely absent from the LinkedIn presence, making the candidate undiscoverable for relevant searches.",
+        "skillVisibility": "No skills are listed or visible on the LinkedIn profile. This is a critical oversight, as recruiters heavily rely on the skills section for candidate matching and evaluation. The candidate's technical capabilities, as hinted by GitHub, are completely obscured.",
+        "recruiterVisibility": "Recruiter visibility is extremely low. With an uninformative headline, empty 'About' section, no experience, and no skills, this profile would not appear in searches for specific roles, technologies, or industries. It presents as an incomplete placeholder and would be immediately passed over.",
+        "experienceReview": "No employment history or experience details are provided on the LinkedIn profile. This makes it impossible to assess career progression, responsibilities, or impact in previous roles, which is a fundamental requirement for any professional evaluation.",
+        "linkedinStrengths": [],
+        "linkedinWeaknesses": [
+          "Extremely generic and uninformative headline that lacks professional branding.",
+          "Completely empty 'About' section, failing to provide a career summary or aspirations.",
+          "No work experience listed, making it impossible to understand professional background.",
+          "No skills listed, rendering the profile invisible to skill-based searches.",
+          "No education or certifications provided, missing key credentials.",
+          "Overall lack of content, presenting as an incomplete and unprofessional profile.",
+          "Zero recruiter visibility for any specific role or skill set, severely limiting job prospects."
+        ],
+        "profileOptimizationSuggestions": [
+          "Update the headline to clearly state your current role, key skills, and career aspirations (e.g., 'Full-Stack Developer | Python | TypeScript | AI/ML Enthusiast | Seeking Software Engineering Roles').",
+          "Fill out the 'About' section with a compelling summary of your career, expertise, key achievements, and what you're passionate about.",
+          "Add all relevant work experience, including detailed descriptions of responsibilities, quantifiable achievements, and technologies used in each role.",
+          "Populate the 'Skills' section with all relevant technical and soft skills, ensuring they align with your GitHub projects (e.g., Python, TypeScript, Machine Learning, Web Development, Data Science, API Development, Cloud Computing).",
+          "Add all educational background and any relevant certifications to demonstrate formal qualifications.",
+          "Utilize the 'Projects' section to showcase your GitHub repositories, providing context and linking directly to the best-documented ones with live demos if available.",
+          "Request recommendations from former colleagues, managers, or professors to add credibility and social proof to your profile."
+        ],
+        "resumeConsistency": "Cannot assess consistency as the provided Resume Data is empty. Both the LinkedIn profile and the resume would need to be populated with professional history to identify discrepancies in dates, titles, or responsibilities.",
+        "githubConsistency": "The LinkedIn profile currently claims no skills, so there are no direct discrepancies with GitHub. However, the significant gap is that the skills demonstrated (or implied) by the GitHub profile (Python, TypeScript, AI/ML, frontend development) are entirely absent from the LinkedIn profile, failing to leverage the candidate's technical capabilities and creating a disconnect between potential and presentation.",
+        "improvementOpportunities": [
+          "**LinkedIn Profile Overhaul:** Completely rebuild the LinkedIn profile by filling in all sections (Headline, About, Experience, Skills, Education, Certifications, Projects) to accurately reflect professional capabilities and aspirations. This is the most critical first step.",
+          "**GitHub Portfolio Documentation:** Address the critical lack of documentation by adding comprehensive README.md files to *all* significant projects. These READMEs should explain project purpose, technologies used, architecture, how to run, key features, and include screenshots/demos.",
+          "**Skill Alignment & Promotion:** Ensure that all technical skills showcased on GitHub (e.g., Python, TypeScript, specific frameworks, cloud tools, databases) are explicitly listed and endorsed on the LinkedIn profile to maximize discoverability.",
+          "**Project Showcase & Context:** Select 2-3 strongest GitHub projects, enhance their documentation, and link them directly from the LinkedIn 'Projects' section, providing a brief overview of each project's problem, solution, and impact.",
+          "**Demonstrate Full-Stack & DevOps:** Build and document a full-stack application that includes a clear frontend, robust backend API, database integration, and ideally, CI/CD and cloud deployment to showcase end-to-end development capabilities and modern practices.",
+          "**Community Engagement:** Increase GitHub activity through meaningful contributions to open-source projects or by actively seeking feedback and collaboration on personal projects to build a stronger developer presence and network."
+        ],
+        "score": 5,
+        "slug": "williamhgates",
+        "url": "https://www.linkedin.com/in/williamhgates",
+        "hasCustomSlug": true,
+        "completeness": 5,
+        "strengths": [],
+        "weaknesses": [
+          "Extremely generic and uninformative headline that lacks professional branding.",
+          "Completely empty 'About' section, failing to provide a career summary or aspirations.",
+          "No work experience listed, making it impossible to understand professional background.",
+          "No skills listed, rendering the profile invisible to skill-based searches.",
+          "No education or certifications provided, missing key credentials.",
+          "Overall lack of content, presenting as an incomplete and unprofessional profile.",
+          "Zero recruiter visibility for any specific role or skill set, severely limiting job prospects."
+        ],
+        "recommendations": [
+          "Update the headline to clearly state your current role, key skills, and career aspirations (e.g., 'Full-Stack Developer | Python | TypeScript | AI/ML Enthusiast | Seeking Software Engineering Roles').",
+          "Fill out the 'About' section with a compelling summary of your career, expertise, key achievements, and what you're passionate about.",
+          "Add all relevant work experience, including detailed descriptions of responsibilities, quantifiable achievements, and technologies used in each role.",
+          "Populate the 'Skills' section with all relevant technical and soft skills, ensuring they align with your GitHub projects (e.g., Python, TypeScript, Machine Learning, Web Development, Data Science, API Development, Cloud Computing).",
+          "Add all educational background and any relevant certifications to demonstrate formal qualifications.",
+          "Utilize the 'Projects' section to showcase your GitHub repositories, providing context and linking directly to the best-documented ones with live demos if available.",
+          "Request recommendations from former colleagues, managers, or professors to add credibility and social proof to your profile."
+        ],
+        "crossAnalysis": {
+          "resumeConsistency": "Cannot assess consistency as the provided Resume Data is empty. Both the LinkedIn profile and the resume would need to be populated with professional history to identify discrepancies in dates, titles, or responsibilities.",
+          "githubConsistency": "The LinkedIn profile currently claims no skills, so there are no direct discrepancies with GitHub. However, the significant gap is that the skills demonstrated (or implied) by the GitHub profile (Python, TypeScript, AI/ML, frontend development) are entirely absent from the LinkedIn profile, failing to leverage the candidate's technical capabilities and creating a disconnect between potential and presentation."
+        },
+        "tips": [
+          "Update the headline to clearly state your current role, key skills, and career aspirations (e.g., 'Full-Stack Developer | Python | TypeScript | AI/ML Enthusiast | Seeking Software Engineering Roles').",
+          "Fill out the 'About' section with a compelling summary of your career, expertise, key achievements, and what you're passionate about.",
+          "Add all relevant work experience, including detailed descriptions of responsibilities, quantifiable achievements, and technologies used in each role.",
+          "Populate the 'Skills' section with all relevant technical and soft skills, ensuring they align with your GitHub projects (e.g., Python, TypeScript, Machine Learning, Web Development, Data Science, API Development, Cloud Computing).",
+          "Add all educational background and any relevant certifications to demonstrate formal qualifications.",
+          "Utilize the 'Projects' section to showcase your GitHub repositories, providing context and linking directly to the best-documented ones with live demos if available.",
+          "Request recommendations from former colleagues, managers, or professors to add credibility and social proof to your profile."
+        ],
+        "suggestedHeadline": "",
+        "foundKws": []
+      },
+      "linkedinUsername": "williamhgates",
+      "updatedAt": "2026-06-10T23:55:58.125Z"
+    },
+    {
+      "userId": "c1d8b81e-f21b-43c9-a706-d3bd927d4942",
+      "resumeData": {
+        "executiveSummary": "The candidate presents a strong technical foundation in modern web technologies (React, TypeScript, Node.js, PostgreSQL, AWS, Docker) and demonstrates tangible impact through quantifiable achievements. Leading an e-commerce platform serving 50K users and building APIs handling 100K daily requests are significant accomplishments that highlight experience with scalable, production-grade systems. However, the summary lacks crucial context regarding the scale of the team, the specific business challenges addressed, the duration of these projects, or the candidate's precise contributions beyond 'led' and 'built.' This makes it difficult to ascertain the depth of their architectural involvement, problem-solving skills, or the full scope of their leadership and ownership.",
+        "atsScore": 88,
+        "keywordAnalysis": {
+          "found": [
+            "Software Engineer",
+            "React",
+            "TypeScript",
+            "Node.js",
+            "PostgreSQL",
+            "AWS",
+            "Docker",
+            "Led development",
+            "e-commerce platform",
+            "50K users",
+            "Built REST APIs",
+            "100K daily requests"
+          ],
+          "missing": [
+            "Unit Testing",
+            "Integration Testing",
+            "CI/CD",
+            "Git",
+            "Agile",
+            "Scrum",
+            "Microservices",
+            "Kubernetes",
+            "Serverless",
+            "GraphQL",
+            "Redux",
+            "Express.js",
+            "ORM",
+            "Terraform",
+            "CloudFormation",
+            "Monitoring",
+            "Logging",
+            "Security",
+            "Performance Optimization",
+            "System Design",
+            "Mentoring",
+            "Cross-functional collaboration",
+            "Database Design"
+          ]
+        },
+        "strengths": [
+          "Quantifiable impact with significant metrics ('50K users', '100K daily requests').",
+          "Strong, modern, and in-demand tech stack (React, TypeScript, Node.js, PostgreSQL, AWS, Docker).",
+          "Clear action verbs ('Led', 'Built') demonstrating ownership and initiative.",
+          "Demonstrates leadership and project ownership ('Led development').",
+          "Experience with scalable, high-traffic systems (e-commerce, high API request volume)."
+        ],
+        "weaknesses": [
+          "Lack of context: No company name, project duration, team size, or specific business challenges addressed.",
+          "Limited scope: Only two bullet points, providing an incomplete picture of the candidate's full SDLC involvement.",
+          "Absence of soft skills or collaboration examples.",
+          "No mention of testing methodologies, deployment pipelines, monitoring, or security practices.",
+          "Generic 'Software Engineer' title without explicit seniority (though 'Led' implies experience).",
+          "Lack of detail on architectural decisions, specific technical challenges overcome, or problem-solving approaches."
+        ],
+        "projectEvaluation": "The projects mentioned are impactful and demonstrate experience with critical, high-traffic systems. 'Led development of e-commerce platform serving 50K users' is a strong statement, indicating leadership and full lifecycle involvement. 'Built REST APIs handling 100K daily requests' showcases backend proficiency and scalability considerations. However, both lack depth. What were the *specific* challenges in leading the e-commerce platform? What architectural decisions were made? What was the *business outcome* beyond just serving users (e.g., increased revenue, improved conversion)? For the APIs, what was the complexity, what data did they handle, and how was performance optimized? Without these details, they remain high-level claims rather than detailed accomplishments, making it hard to assess the depth of technical contribution and problem-solving.",
+        "recruiterNotes": "Green flags: Strong, relevant tech stack; quantifiable impact; clear leadership demonstrated. This candidate clearly has experience with production-grade, scalable systems. Red flags: This is a very brief snippet, lacking the full context of a complete resume. I would need to probe heavily on the 'led development' aspect – specifically, team size, specific contributions, challenges overcome, and architectural decisions. The absence of testing/CI/CD in this summary is a minor concern but common in brief overviews. Overall, a promising candidate who needs to elaborate significantly on their experiences.",
+        "improvementOpportunities": [
+          "Expand on the 'led development' role: specify team size, specific leadership responsibilities (e.g., mentoring, architectural decisions, project planning), and the full scope of the project.",
+          "Detail the business impact of the e-commerce platform (e.g., 'resulting in X% revenue increase' or 'improving customer retention by Y%').",
+          "Provide more technical depth for the REST APIs: mention specific frameworks, database interactions, caching strategies, security measures, and performance optimizations.",
+          "Add context about the company/organization and the duration of these roles/projects.",
+          "Include examples of problem-solving, debugging, or overcoming significant technical challenges.",
+          "Incorporate keywords related to the full SDLC: testing (unit, integration, E2E), CI/CD, monitoring, logging, and agile methodologies.",
+          "Showcase soft skills: collaboration, communication, mentorship, and cross-functional teamwork.",
+          "Consider adding a dedicated 'Skills' section to clearly list all proficiencies and tools."
+        ],
+        "recommendedTechnologies": [
+          "Specific AWS services (e.g., Lambda, SQS, SNS, DynamoDB, ECS/EKS for container orchestration).",
+          "CI/CD tools (e.g., GitHub Actions, GitLab CI, Jenkins).",
+          "Testing frameworks (e.g., Jest, React Testing Library, Cypress).",
+          "Container orchestration (e.g., Kubernetes).",
+          "Infrastructure as Code (e.g., Terraform, AWS CloudFormation).",
+          "Monitoring/Logging tools (e.g., Prometheus, Grafana, ELK Stack, Datadog).",
+          "GraphQL (as an alternative/complement to REST).",
+          "Caching solutions (e.g., Redis, Memcached)."
+        ],
+        "recommendedProjects": [
+          "A microservices-based application demonstrating advanced system design, inter-service communication patterns, and robust error handling.",
+          "A serverless application on AWS (Lambda, API Gateway, DynamoDB) to showcase cloud-native architecture and cost optimization.",
+          "A full-stack application with a strong emphasis on comprehensive testing (unit, integration, E2E) and a fully automated CI/CD pipeline.",
+          "An open-source contribution or a personal project that solves a specific, non-trivial problem, demonstrating problem-solving and architectural skills.",
+          "A project involving real-time data processing or websockets to expand beyond traditional REST APIs and demonstrate event-driven architecture."
+        ],
+        "jobReadiness": "Mid-to-Senior",
+        "score": 88,
+        "foundKeywords": [
+          "Software Engineer",
+          "React",
+          "TypeScript",
+          "Node.js",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Led development",
+          "e-commerce platform",
+          "50K users",
+          "Built REST APIs",
+          "100K daily requests"
+        ],
+        "missingKeywords": [
+          "Unit Testing",
+          "Integration Testing",
+          "CI/CD",
+          "Git",
+          "Agile",
+          "Scrum",
+          "Microservices",
+          "Kubernetes",
+          "Serverless",
+          "GraphQL",
+          "Redux",
+          "Express.js",
+          "ORM",
+          "Terraform",
+          "CloudFormation",
+          "Monitoring",
+          "Logging",
+          "Security",
+          "Performance Optimization",
+          "System Design",
+          "Mentoring",
+          "Cross-functional collaboration",
+          "Database Design"
+        ],
+        "recommendations": [
+          "Expand on the 'led development' role: specify team size, specific leadership responsibilities (e.g., mentoring, architectural decisions, project planning), and the full scope of the project.",
+          "Detail the business impact of the e-commerce platform (e.g., 'resulting in X% revenue increase' or 'improving customer retention by Y%').",
+          "Provide more technical depth for the REST APIs: mention specific frameworks, database interactions, caching strategies, security measures, and performance optimizations.",
+          "Add context about the company/organization and the duration of these roles/projects.",
+          "Include examples of problem-solving, debugging, or overcoming significant technical challenges.",
+          "Incorporate keywords related to the full SDLC: testing (unit, integration, E2E), CI/CD, monitoring, logging, and agile methodologies.",
+          "Showcase soft skills: collaboration, communication, mentorship, and cross-functional teamwork.",
+          "Consider adding a dedicated 'Skills' section to clearly list all proficiencies and tools."
+        ],
+        "recruitingNotes": "Green flags: Strong, relevant tech stack; quantifiable impact; clear leadership demonstrated. This candidate clearly has experience with production-grade, scalable systems. Red flags: This is a very brief snippet, lacking the full context of a complete resume. I would need to probe heavily on the 'led development' aspect – specifically, team size, specific contributions, challenges overcome, and architectural decisions. The absence of testing/CI/CD in this summary is a minor concern but common in brief overviews. Overall, a promising candidate who needs to elaborate significantly on their experiences.",
+        "wordCount": 25
+      },
+      "scores": {
+        "ats": 88,
+        "careerReady": 5
+      },
+      "createdAt": "2026-06-10T23:50:09.649Z",
+      "linkedinData": {
+        "headlineAnalysis": "The headline \"Professional at LinkedIn (williamhgates)\" is extremely poor for recruiter visibility and SEO. It provides no information about the candidate's role, industry, or key skills. It will not appear in relevant searches for tech roles and gives no immediate value proposition.",
+        "profileCompleteness": 5,
+        "keywordCoverage": "The LinkedIn profile has virtually no keyword coverage. The headline is generic, and the 'about', 'experience', 'skills', 'education', and 'certifications' sections are all empty. This means the candidate will not be discoverable by recruiters searching for relevant technical skills (React, Node.js, AWS, etc.) that are present in their resume.",
+        "skillVisibility": "Skill visibility is non-existent. The 'skills' section on LinkedIn is empty, meaning none of the strong technical skills mentioned in the resume (React, TypeScript, Node.js, PostgreSQL, AWS, Docker) are visible to recruiters browsing the profile or using LinkedIn's search filters.",
+        "recruiterVisibility": "Recruiter visibility is critically low. With an empty profile across all key sections (headline, about, experience, skills, education, certifications), this candidate is effectively invisible to recruiters using LinkedIn's search functionality. Even if a recruiter somehow landed on this profile, there's no information to assess their fit for a role.",
+        "experienceReview": "The 'experience' section on LinkedIn is empty. This is a significant red flag, as it means there is no public record of the candidate's professional history, roles, responsibilities, or achievements. This directly contradicts the strong experience implied by the resume's executive summary.",
+        "linkedinStrengths": [],
+        "linkedinWeaknesses": [
+          "Empty headline, providing no professional context or keywords.",
+          "Completely empty 'About' section.",
+          "No professional experience listed.",
+          "No skills listed, making the candidate undiscoverable for technical roles.",
+          "No education details provided.",
+          "No certifications listed.",
+          "Lack of cross-platform consistency with the resume.",
+          "Extremely low recruiter visibility and SEO."
+        ],
+        "profileOptimizationSuggestions": [
+          "Update the headline to include current role, key technologies (e.g., 'Senior Software Engineer | React | Node.js | AWS | Building Scalable E-commerce Platforms'), and potentially a specialization.",
+          "Populate the 'About' section with a compelling summary, drawing heavily from the resume's executive summary, highlighting key achievements, tech stack, and career aspirations.",
+          "Add all relevant work experience, including company names, titles, dates, and detailed bullet points outlining responsibilities and quantifiable achievements (as per the resume's strengths).",
+          "Add all relevant skills, especially those from the resume's 'foundKeywords' (React, TypeScript, Node.js, PostgreSQL, AWS, Docker) and consider adding 'missingKeywords' if applicable (e.g., Unit Testing, CI/CD, Agile, System Design).",
+          "Add educational background, including degrees, institutions, and dates.",
+          "Add any relevant certifications.",
+          "Ensure the profile picture is professional and the background image is appropriate.",
+          "Engage with relevant content or groups to increase network visibility."
+        ],
+        "resumeConsistency": "There is a severe lack of consistency. The LinkedIn profile is almost entirely blank, while the resume provides a strong, albeit brief, overview of technical skills and quantifiable achievements. The LinkedIn profile offers no corroboration for the experience, skills, or professional background detailed in the resume. This discrepancy is a major red flag, as it suggests either a lack of attention to professional branding or an attempt to hide information.",
+        "githubConsistency": "Both the LinkedIn profile and GitHub data are empty. Therefore, there is no evidence on GitHub to support or contradict any skills, as no skills are claimed on LinkedIn.",
+        "improvementOpportunities": [
+          "Completely overhaul the LinkedIn profile to reflect the rich experience and skills detailed in the resume.",
+          "Ensure the LinkedIn headline, 'About' section, and 'Experience' entries are keyword-rich and align with target roles.",
+          "Add a comprehensive list of skills to the LinkedIn profile, prioritizing those mentioned in the resume and adding others relevant to the candidate's expertise.",
+          "Fill in all educational and certification details.",
+          "Consider adding a professional profile picture and a relevant background image.",
+          "Actively maintain and update the LinkedIn profile to ensure it remains a current and accurate reflection of professional capabilities.",
+          "If possible, link to a professional portfolio or GitHub profile from LinkedIn once the GitHub profile is populated."
+        ],
+        "score": 5,
+        "slug": "williamhgates",
+        "url": "https://www.linkedin.com/in/williamhgates",
+        "hasCustomSlug": true,
+        "completeness": 5,
+        "strengths": [],
+        "weaknesses": [
+          "Empty headline, providing no professional context or keywords.",
+          "Completely empty 'About' section.",
+          "No professional experience listed.",
+          "No skills listed, making the candidate undiscoverable for technical roles.",
+          "No education details provided.",
+          "No certifications listed.",
+          "Lack of cross-platform consistency with the resume.",
+          "Extremely low recruiter visibility and SEO."
+        ],
+        "recommendations": [
+          "Update the headline to include current role, key technologies (e.g., 'Senior Software Engineer | React | Node.js | AWS | Building Scalable E-commerce Platforms'), and potentially a specialization.",
+          "Populate the 'About' section with a compelling summary, drawing heavily from the resume's executive summary, highlighting key achievements, tech stack, and career aspirations.",
+          "Add all relevant work experience, including company names, titles, dates, and detailed bullet points outlining responsibilities and quantifiable achievements (as per the resume's strengths).",
+          "Add all relevant skills, especially those from the resume's 'foundKeywords' (React, TypeScript, Node.js, PostgreSQL, AWS, Docker) and consider adding 'missingKeywords' if applicable (e.g., Unit Testing, CI/CD, Agile, System Design).",
+          "Add educational background, including degrees, institutions, and dates.",
+          "Add any relevant certifications.",
+          "Ensure the profile picture is professional and the background image is appropriate.",
+          "Engage with relevant content or groups to increase network visibility."
+        ],
+        "crossAnalysis": {
+          "resumeConsistency": "There is a severe lack of consistency. The LinkedIn profile is almost entirely blank, while the resume provides a strong, albeit brief, overview of technical skills and quantifiable achievements. The LinkedIn profile offers no corroboration for the experience, skills, or professional background detailed in the resume. This discrepancy is a major red flag, as it suggests either a lack of attention to professional branding or an attempt to hide information.",
+          "githubConsistency": "Both the LinkedIn profile and GitHub data are empty. Therefore, there is no evidence on GitHub to support or contradict any skills, as no skills are claimed on LinkedIn."
+        },
+        "tips": [
+          "Update the headline to include current role, key technologies (e.g., 'Senior Software Engineer | React | Node.js | AWS | Building Scalable E-commerce Platforms'), and potentially a specialization.",
+          "Populate the 'About' section with a compelling summary, drawing heavily from the resume's executive summary, highlighting key achievements, tech stack, and career aspirations.",
+          "Add all relevant work experience, including company names, titles, dates, and detailed bullet points outlining responsibilities and quantifiable achievements (as per the resume's strengths).",
+          "Add all relevant skills, especially those from the resume's 'foundKeywords' (React, TypeScript, Node.js, PostgreSQL, AWS, Docker) and consider adding 'missingKeywords' if applicable (e.g., Unit Testing, CI/CD, Agile, System Design).",
+          "Add educational background, including degrees, institutions, and dates.",
+          "Add any relevant certifications.",
+          "Ensure the profile picture is professional and the background image is appropriate.",
+          "Engage with relevant content or groups to increase network visibility."
+        ],
+        "suggestedHeadline": "",
+        "foundKws": [
+          "Software Engineer",
+          "React",
+          "TypeScript",
+          "Node.js",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Led development",
+          "e-commerce platform",
+          "50K users",
+          "Built REST APIs",
+          "100K daily requests"
+        ]
+      },
+      "linkedinUsername": "williamhgates",
+      "updatedAt": "2026-06-10T23:50:48.070Z",
+      "projectGapData": {
+        "missingAiProjects": "The candidate's profile shows no experience or projects related to Artificial Intelligence or Machine Learning. This is a significant gap for roles that involve data-driven features, predictive analytics, or intelligent automation. Demonstrating an understanding of how to integrate AI/ML models, even through simple API consumption or basic model training, would significantly broaden their appeal for modern tech companies.",
+        "missingCloudProjects": "While the resume mentions 'AWS' and 'Docker', the description lacks specific details on advanced cloud services, infrastructure as code (IaC), serverless architectures, or container orchestration beyond a general mention. The current experience doesn't clearly demonstrate deep understanding of cloud-native design patterns, cost optimization, resilience, or specific AWS services (e.g., Lambda, SQS, SNS, DynamoDB, ECS/EKS). This limits the perception of their ability to design and manage complex, scalable cloud infrastructure.",
+        "missingSaasProjects": "The 'e-commerce platform' could be considered a SaaS product, but the description provides no context on multi-tenancy, subscription management, user provisioning, or the specific architectural challenges inherent in building a scalable Software-as-a-Service offering. Without these details, it's difficult to assess their experience in designing and delivering a product that serves multiple distinct customers/organizations.",
+        "missingTeamProjects": "The phrase 'Led development' implies team involvement, but the profile explicitly notes a 'Lack of context: No company name, project duration, team size... or the candidate's precise contributions beyond 'led' and 'built.'' The absence of soft skills, collaboration examples, or any populated LinkedIn/GitHub profile means there's no verifiable evidence of their ability to work effectively within a team, mentor others, or contribute to a shared codebase. This is a critical gap for mid-to-senior roles requiring collaboration and leadership.",
+        "missingOpenSourceContributions": "The candidate's GitHub profile is empty, indicating no public open-source contributions. This is a missed opportunity to showcase coding style, problem-solving skills, collaboration abilities, and engagement with the broader developer community. Open-source contributions are highly valued by many companies as a demonstration of passion and practical skills outside of a structured work environment.",
+        "missingDevopsExperience": "The profile explicitly lists 'CI/CD', 'Monitoring', 'Logging', 'Security', 'Performance Optimization', 'Terraform', and 'CloudFormation' as missing keywords. There is no mention of testing methodologies (unit, integration, E2E), automated deployment pipelines, infrastructure as code, or observability practices. This is a significant weakness, as modern software development heavily relies on robust DevOps practices for efficient, reliable, and secure deployments.",
+        "missingArchitectureExperience": "The resume lacks detail on specific architectural decisions, technical challenges overcome, or problem-solving approaches. 'System Design' is a missing keyword. While 'led development' suggests some architectural involvement, there's no concrete evidence of their ability to design complex systems, evaluate trade-offs, or articulate architectural patterns. This is a critical gap for senior engineering roles that require significant design and planning capabilities.",
+        "recommendedProjects": [
+          {
+            "name": "Multi-Tenant SaaS E-commerce Platform with Microservices & Advanced DevOps",
+            "description": "Build a full-stack, multi-tenant e-commerce platform. Implement a microservices architecture using Node.js/TypeScript for backend services (e.g., Product Catalog, Order Management, User Authentication, Payment Gateway integration). Utilize React/TypeScript for the frontend. Deploy to AWS using a combination of Serverless (Lambda, API Gateway) and containerized services (ECS/EKS). Implement Infrastructure as Code (Terraform) for all AWS resources. Establish a robust CI/CD pipeline (GitHub Actions) with comprehensive unit, integration, and end-to-end testing (Jest, Cypress). Integrate monitoring (Prometheus/Grafana or AWS CloudWatch) and centralized logging (ELK stack or AWS CloudWatch Logs). Focus on demonstrating multi-tenancy patterns, inter-service communication, data consistency, and security best practices.",
+            "difficulty": "High",
+            "hiringImpact": "Critical",
+            "estimatedLearningValue": "Extremely High (Covers Cloud, SaaS, DevOps, Architecture, Testing, Security, System Design)",
+            "priorityOrder": 1
+          },
+          {
+            "name": "Automated CI/CD & Observability for an Existing/New Full-Stack Application",
+            "description": "Take a small existing full-stack application (or build a new one with a simple CRUD API and UI) and implement a complete, production-grade CI/CD pipeline. This project should focus heavily on the 'DevOps' aspect. Set up automated builds, comprehensive testing (unit, integration, E2E), code quality checks (ESLint, Prettier), security scanning (e.g., Snyk, Dependabot), and automated deployments to AWS (e.g., S3 for frontend, ECS/Lambda for backend, RDS for database). Integrate robust monitoring and alerting (e.g., Prometheus/Grafana, Datadog, or AWS CloudWatch Alarms) and centralized logging. Document the entire pipeline, architectural decisions, and trade-offs.",
+            "difficulty": "Medium",
+            "hiringImpact": "High",
+            "estimatedLearningValue": "High (Deep dive into DevOps, CI/CD, Testing, Monitoring, Logging, IaC)",
+            "priorityOrder": 2
+          },
+          {
+            "name": "Meaningful Open Source Contribution",
+            "description": "Identify a popular open-source project (e.g., a React component library, a Node.js framework utility, an AWS SDK helper) that aligns with your tech stack. Contribute a non-trivial feature, a significant bug fix, or a substantial improvement to documentation/tests. The goal is to demonstrate the ability to understand an existing codebase, adhere to project guidelines, collaborate with maintainers, and successfully navigate the pull request process. Document your contribution and the problem it solves.",
+            "difficulty": "Medium",
+            "hiringImpact": "High",
+            "estimatedLearningValue": "Medium (Focus on collaboration, code quality, understanding existing systems)",
+            "priorityOrder": 3
+          },
+          {
+            "name": "Detailed System Design Document for a Complex Problem",
+            "description": "Choose a complex, real-world system problem (e.g., designing a distributed payment processing system, a real-time analytics dashboard for IoT devices, or a scalable video streaming service). Create a comprehensive system design document that includes: high-level architecture diagrams, detailed component breakdowns, API specifications, data models (relational/NoSQL), scaling strategies (horizontal/vertical, caching, load balancing), security considerations, error handling, monitoring strategies, and a discussion of trade-offs and alternative solutions. This project is less about coding and more about demonstrating deep architectural thinking and communication skills.",
+            "difficulty": "Medium",
+            "hiringImpact": "High",
+            "estimatedLearningValue": "High (Focus on System Design, Architectural Patterns, Problem Solving, Communication)",
+            "priorityOrder": 4
+          }
+        ]
+      }
+    },
+    {
+      "userId": "c4a07168-4097-422d-bb95-029c8d040c3c",
+      "githubUsername": "torvalds",
+      "githubData": {
+        "repositoryQuality": "Exceptional. Demonstrates mastery of low-level systems programming, performance optimization, and complex kernel architecture. The `linux` kernel is a testament to world-class engineering, showcasing unparalleled robustness and scalability. Other projects also reflect high-quality, efficient C implementations.",
+        "projectDiversity": "Highly specialized. Projects are almost exclusively focused on system-level programming, embedded systems, and hardware interaction (including CAD for physical designs). While deep, the portfolio lacks breadth in application-layer development (e.g., web, mobile, data science, AI).",
+        "technologyCoverage": "Profound depth in C and low-level systems programming. Unique expertise in hardware description languages (OpenSCAD) for physical design and embedded systems. Breadth is intentionally narrow, focusing on foundational technologies rather than application frameworks or cloud platforms.",
+        "codePortfolioStrength": 100,
+        "architectureMaturity": "Exemplary. The `linux` kernel showcases an understanding of scalable, robust, and highly concurrent system architecture that is virtually unmatched globally. Other projects also reflect solid, efficient design principles for their respective domains, demonstrating deep insight into resource management and performance.",
+        "recruiterImpression": "Legendary. This portfolio belongs to one of the most influential figures in software history. It immediately signals world-class expertise in operating systems, low-level programming, and open-source leadership. The impact and scale of contributions are unparalleled, making this an extraordinary candidate.",
+        "portfolioRisks": [
+          "Highly specialized focus on C and low-level systems, which might not align with roles primarily focused on modern web, mobile, or cloud application development.",
+          "Limited demonstration of experience with higher-level languages or contemporary application frameworks."
+        ],
+        "bestRepository": "linux",
+        "weakestRepository": "pesconvert",
+        "missingProjectCategories": [
+          "Full-Stack Web Applications",
+          "Mobile Development",
+          "Cloud-Native Services/DevOps",
+          "Data Engineering/Machine Learning",
+          "Distributed Systems (beyond kernel internals)"
+        ],
+        "missingTechnologies": [
+          "Modern web frameworks (e.g., React, Node.js, Django, Spring)",
+          "Cloud platforms (AWS, Azure, GCP)",
+          "Databases (SQL/NoSQL)",
+          "Containerization (Docker, Kubernetes)",
+          "Higher-level languages (e.g., Python, Go, Java, Rust for application layers)",
+          "CI/CD pipelines"
+        ],
+        "openSourcePresence": "Iconic. The very definition of open-source leadership and contribution, having created and stewarded the most impactful open-source project globally. Their presence is foundational to the open-source ecosystem.",
+        "projectRecommendations": [
+          "Given the candidate's unique stature, specific project recommendations are largely superfluous. However, continued exploration in areas like RISC-V architecture, advanced embedded Linux applications, or perhaps contributing to next-generation low-level security primitives would align with their demonstrated expertise and continue to push boundaries."
+        ],
+        "careerRecommendations": [
+          "This candidate is a global leader and innovator. Career recommendations would focus on continued leadership in foundational software, strategic advisory roles, or driving new initiatives in operating systems, hardware-software co-design, or open-source governance. The impact is already established, and their expertise is invaluable for any organization seeking to innovate at the deepest technical levels."
+        ],
+        "score": 100,
+        "username": "torvalds",
+        "publicRepos": 12,
+        "followers": 306476,
+        "totalStars": 247209,
+        "languages": [
+          {
+            "name": "C"
+          },
+          {
+            "name": "OpenSCAD"
+          }
+        ],
+        "topRepositories": [
+          {
+            "name": "linux",
+            "description": "Linux kernel source tree",
+            "language": "C",
+            "stars": 236030,
+            "size": 6169353
+          },
+          {
+            "name": "AudioNoise",
+            "description": "Random digital audio effects",
+            "language": "C",
+            "stars": 4382,
+            "size": 1428
+          },
+          {
+            "name": "uemacs",
+            "description": "Random version of microemacs with my private modificatons",
+            "language": "C",
+            "stars": 2045,
+            "size": 478
+          },
+          {
+            "name": "GuitarPedal",
+            "description": "Linus learns analog circuits",
+            "language": "C",
+            "stars": 1998,
+            "size": 6653
+          },
+          {
+            "name": "test-tlb",
+            "description": "Stupid memory latency and TLB tester",
+            "language": "C",
+            "stars": 1007,
+            "size": 19
+          },
+          {
+            "name": "pesconvert",
+            "description": "Brother PES file converter",
+            "language": "C",
+            "stars": 562,
+            "size": 17
+          },
+          {
+            "name": "1590A",
+            "description": "Random odd guitar pedal design in kicad",
+            "language": "OpenSCAD",
+            "stars": 566,
+            "size": 10882
+          },
+          {
+            "name": "HunspellColorize",
+            "description": "Wrapper around 'less' to colorize spelling mistakes using Hunspell",
+            "language": "C",
+            "stars": 347,
+            "size": 15
+          },
+          {
+            "name": "ScrollWheel",
+            "description": "Minimalist RP2350 magnetic sensor scroll wheel toy project",
+            "language": "C",
+            "stars": 272,
+            "size": 15
+          }
+        ],
+        "bestRepo": "linux",
+        "missingCategories": [
+          "Full-Stack Web Applications",
+          "Mobile Development",
+          "Cloud-Native Services/DevOps",
+          "Data Engineering/Machine Learning",
+          "Distributed Systems (beyond kernel internals)"
+        ],
+        "missingTech": [
+          "Modern web frameworks (e.g., React, Node.js, Django, Spring)",
+          "Cloud platforms (AWS, Azure, GCP)",
+          "Databases (SQL/NoSQL)",
+          "Containerization (Docker, Kubernetes)",
+          "Higher-level languages (e.g., Python, Go, Java, Rust for application layers)",
+          "CI/CD pipelines"
+        ],
+        "recommendations": [
+          "Given the candidate's unique stature, specific project recommendations are largely superfluous. However, continued exploration in areas like RISC-V architecture, advanced embedded Linux applications, or perhaps contributing to next-generation low-level security primitives would align with their demonstrated expertise and continue to push boundaries."
+        ],
+        "docScore": 90
+      },
+      "scores": {
+        "github": 100,
+        "ats": 92,
+        "careerReady": 0
+      },
+      "createdAt": "2026-06-10T23:55:55.353Z",
+      "resumeData": {
+        "executiveSummary": "John Doe presents as a competent Senior Software Engineer with a solid foundation in modern web technologies, specifically React, Node.js, and TypeScript. His resume highlights tangible contributions, including a 40% reduction in load time for a critical dashboard and the successful migration of a substantial codebase to TypeScript. He demonstrates the ability to build scalable backend services handling significant traffic. While the stated impact is strong, the depth of his architectural contributions, advanced cloud proficiency, and broader leadership beyond a single migration event requires further exploration to fully validate a senior-level profile.",
+        "atsScore": 92,
+        "keywordAnalysis": {
+          "found": [
+            "Senior Software Engineer",
+            "React",
+            "TypeScript",
+            "Node.js",
+            "REST APIs",
+            "JavaScript",
+            "Express",
+            "PostgreSQL",
+            "AWS",
+            "Docker",
+            "Git",
+            "Full-stack",
+            "SaaS",
+            "Migration"
+          ],
+          "missing": [
+            "CI/CD",
+            "Testing (Jest, Mocha, Cypress)",
+            "Cloud Services (specifics like EC2, S3, Lambda, RDS)",
+            "Container Orchestration (Kubernetes)",
+            "State Management (Redux, Zustand)",
+            "ORM (Sequelize, Prisma)",
+            "Microservices",
+            "System Design",
+            "Agile Methodologies (Scrum, Kanban)",
+            "Mentorship",
+            "Performance Optimization (beyond load time)"
+          ]
+        },
+        "strengths": [
+          "Quantifiable achievements with clear metrics (40% load time reduction, 100K daily requests).",
+          "Demonstrated leadership in a significant technical migration (JavaScript to TypeScript across 50K+ LOC).",
+          "Strong proficiency in a highly in-demand full-stack technology stack (React, Node.js, TypeScript).",
+          "Clear and concise resume formatting, easy to parse.",
+          "Experience with both front-end and back-end development, including database interaction."
+        ],
+        "weaknesses": [
+          "Lack of detail regarding specific AWS services utilized, simply stating 'AWS' is vague for a senior role.",
+          "Absence of explicit mention of testing frameworks or CI/CD pipelines, which are critical for senior engineers.",
+          "Limited insight into architectural contributions or system design principles applied.",
+          "The 'Led migration' bullet could be expanded to include *how* it was led (e.g., mentorship, code reviews, design decisions).",
+          "Project description is minimal, lacking specific features, challenges, or impact."
+        ],
+        "projectEvaluation": "The 'E-Commerce Platform' project, while a standard demonstration of full-stack capabilities, is described too briefly. It serves as a basic portfolio piece but doesn't showcase advanced problem-solving, unique features, or the candidate's ability to tackle complex architectural challenges. For a Senior Software Engineer, a project should ideally highlight more sophisticated design choices, scalability considerations, or innovative solutions beyond a typical CRUD application.",
+        "recruiterNotes": "Green flags include strong quantifiable impact, a modern and relevant tech stack, and clear leadership on a significant migration. The 2019 graduation date aligns with a Senior role, and the impact statements support it. Red flags are the potential gaps in deeper cloud expertise, testing practices, and CI/CD, which are often expected at a senior level. Will need to probe these areas during an interview to ensure a comprehensive senior profile. The candidate appears to be a solid performer, but the depth of their senior-level contributions (e.g., system design, mentorship, advanced cloud architecture) needs to be validated.",
+        "improvementOpportunities": [
+          "Elaborate on specific AWS services used (e.g., EC2, S3, Lambda, RDS) and the context of their application.",
+          "Add experience with testing frameworks (e.g., Jest, React Testing Library, Cypress) and CI/CD tools (e.g., GitHub Actions, Jenkins, GitLab CI).",
+          "Include bullet points detailing contributions to system architecture, design decisions, or scalability improvements.",
+          "Expand on the 'Led migration' bullet to describe the process, challenges overcome, and any mentorship provided.",
+          "Enhance project descriptions with specific features, technical challenges faced, and the impact or learning outcomes.",
+          "Consider adding a 'Leadership' or 'Mentorship' section if applicable, detailing team guidance or code review processes."
+        ],
+        "recommendedTechnologies": [
+          "Kubernetes",
+          "AWS Lambda / Serverless Framework",
+          "Jest / React Testing Library / Cypress",
+          "Redux / Zustand (for React state management)",
+          "Terraform / CloudFormation (Infrastructure as Code)",
+          "Message Queues (e.g., SQS, RabbitMQ, Kafka)"
+        ],
+        "recommendedProjects": [
+          "A project demonstrating microservices architecture using Docker and Kubernetes.",
+          "A serverless application leveraging AWS Lambda, API Gateway, and DynamoDB.",
+          "A real-time application (e.g., chat, collaborative editor) using WebSockets and a robust backend.",
+          "An open-source contribution or a project with a focus on complex data visualization or analytics.",
+          "A project showcasing advanced CI/CD pipelines and automated testing strategies."
+        ],
+        "jobReadiness": "Senior",
+        "score": 92,
+        "foundKeywords": [
+          "Senior Software Engineer",
+          "React",
+          "TypeScript",
+          "Node.js",
+          "REST APIs",
+          "JavaScript",
+          "Express",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Git",
+          "Full-stack",
+          "SaaS",
+          "Migration"
+        ],
+        "missingKeywords": [
+          "CI/CD",
+          "Testing (Jest, Mocha, Cypress)",
+          "Cloud Services (specifics like EC2, S3, Lambda, RDS)",
+          "Container Orchestration (Kubernetes)",
+          "State Management (Redux, Zustand)",
+          "ORM (Sequelize, Prisma)",
+          "Microservices",
+          "System Design",
+          "Agile Methodologies (Scrum, Kanban)",
+          "Mentorship",
+          "Performance Optimization (beyond load time)"
+        ],
+        "recommendations": [
+          "Elaborate on specific AWS services used (e.g., EC2, S3, Lambda, RDS) and the context of their application.",
+          "Add experience with testing frameworks (e.g., Jest, React Testing Library, Cypress) and CI/CD tools (e.g., GitHub Actions, Jenkins, GitLab CI).",
+          "Include bullet points detailing contributions to system architecture, design decisions, or scalability improvements.",
+          "Expand on the 'Led migration' bullet to describe the process, challenges overcome, and any mentorship provided.",
+          "Enhance project descriptions with specific features, technical challenges faced, and the impact or learning outcomes.",
+          "Consider adding a 'Leadership' or 'Mentorship' section if applicable, detailing team guidance or code review processes."
+        ],
+        "recruitingNotes": "Green flags include strong quantifiable impact, a modern and relevant tech stack, and clear leadership on a significant migration. The 2019 graduation date aligns with a Senior role, and the impact statements support it. Red flags are the potential gaps in deeper cloud expertise, testing practices, and CI/CD, which are often expected at a senior level. Will need to probe these areas during an interview to ensure a comprehensive senior profile. The candidate appears to be a solid performer, but the depth of their senior-level contributions (e.g., system design, mentorship, advanced cloud architecture) needs to be validated.",
+        "wordCount": 78
+      },
+      "updatedAt": "2026-06-10T23:57:12.174Z",
+      "linkedinData": {
+        "headlineAnalysis": "The headline \"Professional at LinkedIn (satyanadella)\" is extremely generic, unprofessional, and provides zero value for recruiter visibility or SEO. It does not convey any specific role, skills, or industry expertise. The reference to \"satyanadella\" is highly unusual and confusing, suggesting either a placeholder, a joke, or a severe identity misrepresentation, which is a significant red flag.",
+        "profileCompleteness": 0,
+        "keywordCoverage": "The LinkedIn profile has virtually no keyword coverage, as all key sections (about, experience, skills) are empty. This stands in stark contrast to the resume, which is rich with relevant keywords for a Senior Software Engineer (React, Node.js, TypeScript, AWS), and the GitHub profile, which demonstrates deep expertise in C and low-level systems programming. There is zero overlap in keywords between LinkedIn and either the resume or GitHub, and critically, zero overlap between the resume's tech stack and GitHub's demonstrated expertise.",
+        "skillVisibility": "Skill visibility on LinkedIn is non-existent as the skills section is empty. This means the candidate cannot be found via skill-based searches and provides no validation for any skills mentioned on the resume or demonstrated on GitHub.",
+        "recruiterVisibility": "Recruiter visibility for this LinkedIn profile is effectively zero. With a generic headline, empty 'about' section, and no listed experience or skills, the profile would not appear in any targeted searches for specific roles or technologies. It presents as an incomplete or abandoned profile.",
+        "experienceReview": "The LinkedIn 'experience' section is completely empty. This is a critical omission that renders the profile useless for professional networking or recruitment. It offers no opportunity to cross-reference the detailed 'Senior Software Engineer' experience described in the resume, nor the legendary contributions to the Linux kernel evident in the GitHub profile. The lack of any employment history on LinkedIn is a major red flag for credibility.",
+        "linkedinStrengths": [
+          "None. The LinkedIn profile is essentially a blank slate and offers no discernible strengths."
+        ],
+        "linkedinWeaknesses": [
+          "Extremely generic and unprofessional headline with a confusing external reference.",
+          "Completely empty 'About' section, failing to introduce the candidate's professional identity.",
+          "No employment history listed, making it impossible to verify career progression or responsibilities.",
+          "No skills listed, severely limiting discoverability and credibility.",
+          "No education or certifications provided.",
+          "Zero keyword optimization, rendering the profile invisible to recruiters.",
+          "Complete lack of content to establish professional credibility or expertise."
+        ],
+        "profileOptimizationSuggestions": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "resumeConsistency": "There is a complete and fundamental lack of consistency between the LinkedIn profile and the resume. The LinkedIn profile is almost entirely empty, providing no information (dates, titles, companies, skills, summary) that could be cross-referenced with the detailed 'Senior Software Engineer' profile presented in the resume. This suggests the LinkedIn profile is either abandoned, a placeholder, or belongs to a different individual entirely.",
+        "githubConsistency": "There is a profound and irreconcilable inconsistency between the LinkedIn profile, the resume, and the GitHub profile. The LinkedIn profile is empty. The GitHub profile (username 'torvalds', featuring the `linux` kernel) showcases legendary expertise in C and low-level systems programming, which is entirely distinct from the 'Senior Software Engineer' profile described in the resume (focusing on React, Node.js, TypeScript, and AWS). The skills, experience, and professional identity presented across these three platforms are fundamentally incompatible, indicating these profiles belong to at least two, if not three, different individuals. Specifically, skills claimed on the resume (React, Node.js, TypeScript) are entirely absent from the GitHub profile, and the profound C/systems expertise on GitHub is not mentioned on the resume.",
+        "improvementOpportunities": [
+          "**Resolve Identity Discrepancy:** The most critical step is to determine which individual this profile represents. The LinkedIn profile, the resume, and the GitHub profile describe three vastly different professional identities. This fundamental inconsistency must be addressed immediately.",
+          "**If the candidate is 'John Doe' (Resume):** The LinkedIn profile must be completely rebuilt to accurately reflect the resume's content, including a professional headline, detailed experience, relevant skills (React, Node.js, TypeScript, AWS), and education.",
+          "**If the candidate is 'torvalds' (GitHub):** The LinkedIn profile would need to be populated with an unparalleled career history in operating systems, open-source leadership, and C programming, which would contradict the resume entirely. The current empty state and misleading headline are unacceptable for a profile of such stature.",
+          "**If the GitHub profile is misattributed or irrelevant to the resume:** The candidate should provide a GitHub profile that aligns with the tech stack and experience detailed in their resume (React, Node.js, TypeScript projects).",
+          "Ensure all professional platforms (LinkedIn, Resume, GitHub) present a cohesive and consistent narrative of the candidate's skills, experience, and career goals."
+        ],
+        "score": 0,
+        "slug": "satyanadella",
+        "url": "https://www.linkedin.com/in/satyanadella",
+        "hasCustomSlug": true,
+        "completeness": 0,
+        "strengths": [
+          "None. The LinkedIn profile is essentially a blank slate and offers no discernible strengths."
+        ],
+        "weaknesses": [
+          "Extremely generic and unprofessional headline with a confusing external reference.",
+          "Completely empty 'About' section, failing to introduce the candidate's professional identity.",
+          "No employment history listed, making it impossible to verify career progression or responsibilities.",
+          "No skills listed, severely limiting discoverability and credibility.",
+          "No education or certifications provided.",
+          "Zero keyword optimization, rendering the profile invisible to recruiters.",
+          "Complete lack of content to establish professional credibility or expertise."
+        ],
+        "recommendations": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "crossAnalysis": {
+          "resumeConsistency": "There is a complete and fundamental lack of consistency between the LinkedIn profile and the resume. The LinkedIn profile is almost entirely empty, providing no information (dates, titles, companies, skills, summary) that could be cross-referenced with the detailed 'Senior Software Engineer' profile presented in the resume. This suggests the LinkedIn profile is either abandoned, a placeholder, or belongs to a different individual entirely.",
+          "githubConsistency": "There is a profound and irreconcilable inconsistency between the LinkedIn profile, the resume, and the GitHub profile. The LinkedIn profile is empty. The GitHub profile (username 'torvalds', featuring the `linux` kernel) showcases legendary expertise in C and low-level systems programming, which is entirely distinct from the 'Senior Software Engineer' profile described in the resume (focusing on React, Node.js, TypeScript, and AWS). The skills, experience, and professional identity presented across these three platforms are fundamentally incompatible, indicating these profiles belong to at least two, if not three, different individuals. Specifically, skills claimed on the resume (React, Node.js, TypeScript) are entirely absent from the GitHub profile, and the profound C/systems expertise on GitHub is not mentioned on the resume."
+        },
+        "tips": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "suggestedHeadline": "",
+        "foundKws": [
+          "Senior Software Engineer",
+          "React",
+          "TypeScript",
+          "Node.js",
+          "REST APIs",
+          "JavaScript",
+          "Express",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Git",
+          "Full-stack",
+          "SaaS",
+          "Migration"
+        ]
+      },
+      "linkedinUsername": "satyanadella",
+      "jobMatchData": {
+        "matchScore": 5,
+        "matchingSkills": [
+          "React",
+          "TypeScript",
+          "Senior Software Engineer (role alignment based on resume)"
+        ],
+        "missingSkills": [
+          "Next.js",
+          "Strong system design skills (specifically in frontend/web context)",
+          "CI/CD pipeline experience"
+        ],
+        "missingTechnologies": [
+          "Next.js"
+        ],
+        "keywordGaps": [
+          "Next.js",
+          "CI/CD",
+          "System Design (for frontend)"
+        ],
+        "hiringRisks": [
+          "Severe Identity Misrepresentation/Fraud: The LinkedIn profile (referencing 'satyanadella' and empty), the GitHub profile (belonging to 'torvalds' with C/kernel expertise), and the resume (describing 'John Doe' with React/TypeScript/Node.js) are fundamentally inconsistent and belong to different individuals. This is an immediate and critical disqualifier.",
+          "Lack of Credibility: Due to the profound inconsistencies, none of the information provided can be trusted or verified.",
+          "Missing Core Frontend Framework: Lack of explicit Next.js experience, which is a key requirement for a Senior Frontend Engineer at a fast-growing startup.",
+          "Absence of DevOps/CI/CD Experience: Critical for a senior role, especially in a startup environment.",
+          "Unproven System Design in Relevant Domain: While the GitHub profile (if it were genuinely the candidate's) shows legendary system design in C/kernel, this does not translate to frontend web architecture, and the resume lacks detail in this area."
+        ],
+        "improvementPlan": [
+          "**Immediate and Critical Action:** Resolve the severe identity discrepancies across all professional profiles. Ensure the Resume, GitHub, and LinkedIn all belong to the same individual and present a consistent, verifiable professional narrative.",
+          "Completely rebuild the LinkedIn profile to accurately reflect the candidate's actual experience, skills (React, TypeScript, Node.js, AWS), and education as detailed in the resume.",
+          "Provide a GitHub profile that genuinely belongs to the candidate and showcases relevant projects in React, TypeScript, Next.js, and ideally, demonstrates CI/CD practices.",
+          "Gain hands-on experience with Next.js and update the resume/portfolio to reflect this.",
+          "Add specific examples of CI/CD pipeline involvement and contributions to the resume.",
+          "Elaborate on architectural contributions and system design decisions made in a frontend context within the resume."
+        ],
+        "fastestImprovementPath": "Immediately clarify and rectify the severe identity inconsistencies across the LinkedIn, GitHub, and Resume profiles. Provide a single, cohesive, and verifiable professional identity, starting with a complete and accurate LinkedIn profile that matches the resume.",
+        "recruiterPerspective": "This application is an immediate rejection. The profound and irreconcilable inconsistencies across the resume, GitHub, and LinkedIn profiles (suggesting identity misrepresentation or severe data corruption) make it impossible to verify any information provided. This is a critical trust issue and an immediate disqualifier. Even if the resume alone had some relevant keywords, the overall profile integrity is completely compromised."
+      }
+    },
+    {
+      "userId": "bd413414-17e4-4fde-a781-e20566931086",
+      "resumeData": {
+        "executiveSummary": "John Doe presents as a competent Senior Software Engineer with a solid foundation in modern web technologies, specifically React, Node.js, and TypeScript. His resume highlights tangible contributions, including a 40% reduction in load time for a critical dashboard and the successful migration of a substantial codebase to TypeScript. He demonstrates the ability to build scalable backend services handling significant traffic. While the stated impact is strong, the depth of his architectural contributions, advanced cloud proficiency, and broader leadership beyond a single migration event requires further exploration to fully validate a senior-level profile.",
+        "atsScore": 92,
+        "keywordAnalysis": {
+          "found": [
+            "Senior Software Engineer",
+            "React",
+            "TypeScript",
+            "Node.js",
+            "REST APIs",
+            "JavaScript",
+            "Express",
+            "PostgreSQL",
+            "AWS",
+            "Docker",
+            "Git",
+            "Full-stack",
+            "SaaS",
+            "Migration"
+          ],
+          "missing": [
+            "CI/CD",
+            "Testing (Jest, Mocha, Cypress)",
+            "Cloud Services (specifics like EC2, S3, Lambda, RDS)",
+            "Container Orchestration (Kubernetes)",
+            "State Management (Redux, Zustand)",
+            "ORM (Sequelize, Prisma)",
+            "Microservices",
+            "System Design",
+            "Agile Methodologies (Scrum, Kanban)",
+            "Mentorship",
+            "Performance Optimization (beyond load time)"
+          ]
+        },
+        "strengths": [
+          "Quantifiable achievements with clear metrics (40% load time reduction, 100K daily requests).",
+          "Demonstrated leadership in a significant technical migration (JavaScript to TypeScript across 50K+ LOC).",
+          "Strong proficiency in a highly in-demand full-stack technology stack (React, Node.js, TypeScript).",
+          "Clear and concise resume formatting, easy to parse.",
+          "Experience with both front-end and back-end development, including database interaction."
+        ],
+        "weaknesses": [
+          "Lack of detail regarding specific AWS services utilized, simply stating 'AWS' is vague for a senior role.",
+          "Absence of explicit mention of testing frameworks or CI/CD pipelines, which are critical for senior engineers.",
+          "Limited insight into architectural contributions or system design principles applied.",
+          "The 'Led migration' bullet could be expanded to include *how* it was led (e.g., mentorship, code reviews, design decisions).",
+          "Project description is minimal, lacking specific features, challenges, or impact."
+        ],
+        "projectEvaluation": "The 'E-Commerce Platform' project, while a standard demonstration of full-stack capabilities, is described too briefly. It serves as a basic portfolio piece but doesn't showcase advanced problem-solving, unique features, or the candidate's ability to tackle complex architectural challenges. For a Senior Software Engineer, a project should ideally highlight more sophisticated design choices, scalability considerations, or innovative solutions beyond a typical CRUD application.",
+        "recruiterNotes": "Green flags include strong quantifiable impact, a modern and relevant tech stack, and clear leadership on a significant migration. The 2019 graduation date aligns with a Senior role, and the impact statements support it. Red flags are the potential gaps in deeper cloud expertise, testing practices, and CI/CD, which are often expected at a senior level. Will need to probe these areas during an interview to ensure a comprehensive senior profile. The candidate appears to be a solid performer, but the depth of their senior-level contributions (e.g., system design, mentorship, advanced cloud architecture) needs to be validated.",
+        "improvementOpportunities": [
+          "Elaborate on specific AWS services used (e.g., EC2, S3, Lambda, RDS) and the context of their application.",
+          "Add experience with testing frameworks (e.g., Jest, React Testing Library, Cypress) and CI/CD tools (e.g., GitHub Actions, Jenkins, GitLab CI).",
+          "Include bullet points detailing contributions to system architecture, design decisions, or scalability improvements.",
+          "Expand on the 'Led migration' bullet to describe the process, challenges overcome, and any mentorship provided.",
+          "Enhance project descriptions with specific features, technical challenges faced, and the impact or learning outcomes.",
+          "Consider adding a 'Leadership' or 'Mentorship' section if applicable, detailing team guidance or code review processes."
+        ],
+        "recommendedTechnologies": [
+          "Kubernetes",
+          "AWS Lambda / Serverless Framework",
+          "Jest / React Testing Library / Cypress",
+          "Redux / Zustand (for React state management)",
+          "Terraform / CloudFormation (Infrastructure as Code)",
+          "Message Queues (e.g., SQS, RabbitMQ, Kafka)"
+        ],
+        "recommendedProjects": [
+          "A project demonstrating microservices architecture using Docker and Kubernetes.",
+          "A serverless application leveraging AWS Lambda, API Gateway, and DynamoDB.",
+          "A real-time application (e.g., chat, collaborative editor) using WebSockets and a robust backend.",
+          "An open-source contribution or a project with a focus on complex data visualization or analytics.",
+          "A project showcasing advanced CI/CD pipelines and automated testing strategies."
+        ],
+        "jobReadiness": "Senior",
+        "score": 92,
+        "foundKeywords": [
+          "Senior Software Engineer",
+          "React",
+          "TypeScript",
+          "Node.js",
+          "REST APIs",
+          "JavaScript",
+          "Express",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Git",
+          "Full-stack",
+          "SaaS",
+          "Migration"
+        ],
+        "missingKeywords": [
+          "CI/CD",
+          "Testing (Jest, Mocha, Cypress)",
+          "Cloud Services (specifics like EC2, S3, Lambda, RDS)",
+          "Container Orchestration (Kubernetes)",
+          "State Management (Redux, Zustand)",
+          "ORM (Sequelize, Prisma)",
+          "Microservices",
+          "System Design",
+          "Agile Methodologies (Scrum, Kanban)",
+          "Mentorship",
+          "Performance Optimization (beyond load time)"
+        ],
+        "recommendations": [
+          "Elaborate on specific AWS services used (e.g., EC2, S3, Lambda, RDS) and the context of their application.",
+          "Add experience with testing frameworks (e.g., Jest, React Testing Library, Cypress) and CI/CD tools (e.g., GitHub Actions, Jenkins, GitLab CI).",
+          "Include bullet points detailing contributions to system architecture, design decisions, or scalability improvements.",
+          "Expand on the 'Led migration' bullet to describe the process, challenges overcome, and any mentorship provided.",
+          "Enhance project descriptions with specific features, technical challenges faced, and the impact or learning outcomes.",
+          "Consider adding a 'Leadership' or 'Mentorship' section if applicable, detailing team guidance or code review processes."
+        ],
+        "recruitingNotes": "Green flags include strong quantifiable impact, a modern and relevant tech stack, and clear leadership on a significant migration. The 2019 graduation date aligns with a Senior role, and the impact statements support it. Red flags are the potential gaps in deeper cloud expertise, testing practices, and CI/CD, which are often expected at a senior level. Will need to probe these areas during an interview to ensure a comprehensive senior profile. The candidate appears to be a solid performer, but the depth of their senior-level contributions (e.g., system design, mentorship, advanced cloud architecture) needs to be validated.",
+        "wordCount": 78
+      },
+      "scores": {
+        "ats": 92,
+        "careerReady": 0
+      },
+      "createdAt": "2026-06-11T00:20:39.905Z",
+      "linkedinData": {
+        "headlineAnalysis": "The headline \"Professional at LinkedIn (satyanadella)\" is extremely generic, unprofessional, and provides zero value for recruiter visibility or SEO. It does not convey any specific role, skills, or industry expertise. The reference to \"satyanadella\" is highly unusual and confusing, suggesting either a placeholder, a joke, or a severe identity misrepresentation, which is a significant red flag.",
+        "profileCompleteness": 0,
+        "keywordCoverage": "The LinkedIn profile has virtually no keyword coverage, as all key sections (about, experience, skills) are empty. This stands in stark contrast to the resume, which is rich with relevant keywords for a Senior Software Engineer (React, Node.js, TypeScript, AWS), and the GitHub profile, which demonstrates deep expertise in C and low-level systems programming. There is zero overlap in keywords between LinkedIn and either the resume or GitHub, and critically, zero overlap between the resume's tech stack and GitHub's demonstrated expertise.",
+        "skillVisibility": "Skill visibility on LinkedIn is non-existent as the skills section is empty. This means the candidate cannot be found via skill-based searches and provides no validation for any skills mentioned on the resume or demonstrated on GitHub.",
+        "recruiterVisibility": "Recruiter visibility for this LinkedIn profile is effectively zero. With a generic headline, empty 'about' section, and no listed experience or skills, the profile would not appear in any targeted searches for specific roles or technologies. It presents as an incomplete or abandoned profile.",
+        "experienceReview": "The LinkedIn 'experience' section is completely empty. This is a critical omission that renders the profile useless for professional networking or recruitment. It offers no opportunity to cross-reference the detailed 'Senior Software Engineer' experience described in the resume, nor the legendary contributions to the Linux kernel evident in the GitHub profile. The lack of any employment history on LinkedIn is a major red flag for credibility.",
+        "linkedinStrengths": [
+          "None. The LinkedIn profile is essentially a blank slate and offers no discernible strengths."
+        ],
+        "linkedinWeaknesses": [
+          "Extremely generic and unprofessional headline with a confusing external reference.",
+          "Completely empty 'About' section, failing to introduce the candidate's professional identity.",
+          "No employment history listed, making it impossible to verify career progression or responsibilities.",
+          "No skills listed, severely limiting discoverability and credibility.",
+          "No education or certifications provided.",
+          "Zero keyword optimization, rendering the profile invisible to recruiters.",
+          "Complete lack of content to establish professional credibility or expertise."
+        ],
+        "profileOptimizationSuggestions": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "resumeConsistency": "There is a complete and fundamental lack of consistency between the LinkedIn profile and the resume. The LinkedIn profile is almost entirely empty, providing no information (dates, titles, companies, skills, summary) that could be cross-referenced with the detailed 'Senior Software Engineer' profile presented in the resume. This suggests the LinkedIn profile is either abandoned, a placeholder, or belongs to a different individual entirely.",
+        "githubConsistency": "There is a profound and irreconcilable inconsistency between the LinkedIn profile, the resume, and the GitHub profile. The LinkedIn profile is empty. The GitHub profile (username 'torvalds', featuring the `linux` kernel) showcases legendary expertise in C and low-level systems programming, which is entirely distinct from the 'Senior Software Engineer' profile described in the resume (focusing on React, Node.js, TypeScript, and AWS). The skills, experience, and professional identity presented across these three platforms are fundamentally incompatible, indicating these profiles belong to at least two, if not three, different individuals. Specifically, skills claimed on the resume (React, Node.js, TypeScript) are entirely absent from the GitHub profile, and the profound C/systems expertise on GitHub is not mentioned on the resume.",
+        "improvementOpportunities": [
+          "**Resolve Identity Discrepancy:** The most critical step is to determine which individual this profile represents. The LinkedIn profile, the resume, and the GitHub profile describe three vastly different professional identities. This fundamental inconsistency must be addressed immediately.",
+          "**If the candidate is 'John Doe' (Resume):** The LinkedIn profile must be completely rebuilt to accurately reflect the resume's content, including a professional headline, detailed experience, relevant skills (React, Node.js, TypeScript, AWS), and education.",
+          "**If the candidate is 'torvalds' (GitHub):** The LinkedIn profile would need to be populated with an unparalleled career history in operating systems, open-source leadership, and C programming, which would contradict the resume entirely. The current empty state and misleading headline are unacceptable for a profile of such stature.",
+          "**If the GitHub profile is misattributed or irrelevant to the resume:** The candidate should provide a GitHub profile that aligns with the tech stack and experience detailed in their resume (React, Node.js, TypeScript projects).",
+          "Ensure all professional platforms (LinkedIn, Resume, GitHub) present a cohesive and consistent narrative of the candidate's skills, experience, and career goals."
+        ],
+        "score": 0,
+        "slug": "satyanadella",
+        "url": "https://www.linkedin.com/in/satyanadella",
+        "hasCustomSlug": true,
+        "completeness": 0,
+        "strengths": [
+          "None. The LinkedIn profile is essentially a blank slate and offers no discernible strengths."
+        ],
+        "weaknesses": [
+          "Extremely generic and unprofessional headline with a confusing external reference.",
+          "Completely empty 'About' section, failing to introduce the candidate's professional identity.",
+          "No employment history listed, making it impossible to verify career progression or responsibilities.",
+          "No skills listed, severely limiting discoverability and credibility.",
+          "No education or certifications provided.",
+          "Zero keyword optimization, rendering the profile invisible to recruiters.",
+          "Complete lack of content to establish professional credibility or expertise."
+        ],
+        "recommendations": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "crossAnalysis": {
+          "resumeConsistency": "There is a complete and fundamental lack of consistency between the LinkedIn profile and the resume. The LinkedIn profile is almost entirely empty, providing no information (dates, titles, companies, skills, summary) that could be cross-referenced with the detailed 'Senior Software Engineer' profile presented in the resume. This suggests the LinkedIn profile is either abandoned, a placeholder, or belongs to a different individual entirely.",
+          "githubConsistency": "There is a profound and irreconcilable inconsistency between the LinkedIn profile, the resume, and the GitHub profile. The LinkedIn profile is empty. The GitHub profile (username 'torvalds', featuring the `linux` kernel) showcases legendary expertise in C and low-level systems programming, which is entirely distinct from the 'Senior Software Engineer' profile described in the resume (focusing on React, Node.js, TypeScript, and AWS). The skills, experience, and professional identity presented across these three platforms are fundamentally incompatible, indicating these profiles belong to at least two, if not three, different individuals. Specifically, skills claimed on the resume (React, Node.js, TypeScript) are entirely absent from the GitHub profile, and the profound C/systems expertise on GitHub is not mentioned on the resume."
+        },
+        "tips": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "suggestedHeadline": "",
+        "foundKws": [
+          "Senior Software Engineer",
+          "React",
+          "TypeScript",
+          "Node.js",
+          "REST APIs",
+          "JavaScript",
+          "Express",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Git",
+          "Full-stack",
+          "SaaS",
+          "Migration"
+        ]
+      },
+      "linkedinUsername": "satyanadella",
+      "updatedAt": "2026-06-11T00:20:39.915Z",
+      "jobMatchData": {
+        "matchScore": 5,
+        "matchingSkills": [
+          "React",
+          "TypeScript",
+          "Senior Software Engineer (role alignment based on resume)"
+        ],
+        "missingSkills": [
+          "Next.js",
+          "Strong system design skills (specifically in frontend/web context)",
+          "CI/CD pipeline experience"
+        ],
+        "missingTechnologies": [
+          "Next.js"
+        ],
+        "keywordGaps": [
+          "Next.js",
+          "CI/CD",
+          "System Design (for frontend)"
+        ],
+        "hiringRisks": [
+          "Severe Identity Misrepresentation/Fraud: The LinkedIn profile (referencing 'satyanadella' and empty), the GitHub profile (belonging to 'torvalds' with C/kernel expertise), and the resume (describing 'John Doe' with React/TypeScript/Node.js) are fundamentally inconsistent and belong to different individuals. This is an immediate and critical disqualifier.",
+          "Lack of Credibility: Due to the profound inconsistencies, none of the information provided can be trusted or verified.",
+          "Missing Core Frontend Framework: Lack of explicit Next.js experience, which is a key requirement for a Senior Frontend Engineer at a fast-growing startup.",
+          "Absence of DevOps/CI/CD Experience: Critical for a senior role, especially in a startup environment.",
+          "Unproven System Design in Relevant Domain: While the GitHub profile (if it were genuinely the candidate's) shows legendary system design in C/kernel, this does not translate to frontend web architecture, and the resume lacks detail in this area."
+        ],
+        "improvementPlan": [
+          "**Immediate and Critical Action:** Resolve the severe identity discrepancies across all professional profiles. Ensure the Resume, GitHub, and LinkedIn all belong to the same individual and present a consistent, verifiable professional narrative.",
+          "Completely rebuild the LinkedIn profile to accurately reflect the candidate's actual experience, skills (React, TypeScript, Node.js, AWS), and education as detailed in the resume.",
+          "Provide a GitHub profile that genuinely belongs to the candidate and showcases relevant projects in React, TypeScript, Next.js, and ideally, demonstrates CI/CD practices.",
+          "Gain hands-on experience with Next.js and update the resume/portfolio to reflect this.",
+          "Add specific examples of CI/CD pipeline involvement and contributions to the resume.",
+          "Elaborate on architectural contributions and system design decisions made in a frontend context within the resume."
+        ],
+        "fastestImprovementPath": "Immediately clarify and rectify the severe identity inconsistencies across the LinkedIn, GitHub, and Resume profiles. Provide a single, cohesive, and verifiable professional identity, starting with a complete and accurate LinkedIn profile that matches the resume.",
+        "recruiterPerspective": "This application is an immediate rejection. The profound and irreconcilable inconsistencies across the resume, GitHub, and LinkedIn profiles (suggesting identity misrepresentation or severe data corruption) make it impossible to verify any information provided. This is a critical trust issue and an immediate disqualifier. Even if the resume alone had some relevant keywords, the overall profile integrity is completely compromised."
+      }
+    },
+    {
+      "userId": "6703497b-8201-4fa2-974e-c91616a4ef49",
+      "resumeData": {
+        "executiveSummary": "John Doe presents as a competent Senior Software Engineer with a solid foundation in modern web technologies, specifically React, Node.js, and TypeScript. His resume highlights tangible contributions, including a 40% reduction in load time for a critical dashboard and the successful migration of a substantial codebase to TypeScript. He demonstrates the ability to build scalable backend services handling significant traffic. While the stated impact is strong, the depth of his architectural contributions, advanced cloud proficiency, and broader leadership beyond a single migration event requires further exploration to fully validate a senior-level profile.",
+        "atsScore": 92,
+        "keywordAnalysis": {
+          "found": [
+            "Senior Software Engineer",
+            "React",
+            "TypeScript",
+            "Node.js",
+            "REST APIs",
+            "JavaScript",
+            "Express",
+            "PostgreSQL",
+            "AWS",
+            "Docker",
+            "Git",
+            "Full-stack",
+            "SaaS",
+            "Migration"
+          ],
+          "missing": [
+            "CI/CD",
+            "Testing (Jest, Mocha, Cypress)",
+            "Cloud Services (specifics like EC2, S3, Lambda, RDS)",
+            "Container Orchestration (Kubernetes)",
+            "State Management (Redux, Zustand)",
+            "ORM (Sequelize, Prisma)",
+            "Microservices",
+            "System Design",
+            "Agile Methodologies (Scrum, Kanban)",
+            "Mentorship",
+            "Performance Optimization (beyond load time)"
+          ]
+        },
+        "strengths": [
+          "Quantifiable achievements with clear metrics (40% load time reduction, 100K daily requests).",
+          "Demonstrated leadership in a significant technical migration (JavaScript to TypeScript across 50K+ LOC).",
+          "Strong proficiency in a highly in-demand full-stack technology stack (React, Node.js, TypeScript).",
+          "Clear and concise resume formatting, easy to parse.",
+          "Experience with both front-end and back-end development, including database interaction."
+        ],
+        "weaknesses": [
+          "Lack of detail regarding specific AWS services utilized, simply stating 'AWS' is vague for a senior role.",
+          "Absence of explicit mention of testing frameworks or CI/CD pipelines, which are critical for senior engineers.",
+          "Limited insight into architectural contributions or system design principles applied.",
+          "The 'Led migration' bullet could be expanded to include *how* it was led (e.g., mentorship, code reviews, design decisions).",
+          "Project description is minimal, lacking specific features, challenges, or impact."
+        ],
+        "projectEvaluation": "The 'E-Commerce Platform' project, while a standard demonstration of full-stack capabilities, is described too briefly. It serves as a basic portfolio piece but doesn't showcase advanced problem-solving, unique features, or the candidate's ability to tackle complex architectural challenges. For a Senior Software Engineer, a project should ideally highlight more sophisticated design choices, scalability considerations, or innovative solutions beyond a typical CRUD application.",
+        "recruiterNotes": "Green flags include strong quantifiable impact, a modern and relevant tech stack, and clear leadership on a significant migration. The 2019 graduation date aligns with a Senior role, and the impact statements support it. Red flags are the potential gaps in deeper cloud expertise, testing practices, and CI/CD, which are often expected at a senior level. Will need to probe these areas during an interview to ensure a comprehensive senior profile. The candidate appears to be a solid performer, but the depth of their senior-level contributions (e.g., system design, mentorship, advanced cloud architecture) needs to be validated.",
+        "improvementOpportunities": [
+          "Elaborate on specific AWS services used (e.g., EC2, S3, Lambda, RDS) and the context of their application.",
+          "Add experience with testing frameworks (e.g., Jest, React Testing Library, Cypress) and CI/CD tools (e.g., GitHub Actions, Jenkins, GitLab CI).",
+          "Include bullet points detailing contributions to system architecture, design decisions, or scalability improvements.",
+          "Expand on the 'Led migration' bullet to describe the process, challenges overcome, and any mentorship provided.",
+          "Enhance project descriptions with specific features, technical challenges faced, and the impact or learning outcomes.",
+          "Consider adding a 'Leadership' or 'Mentorship' section if applicable, detailing team guidance or code review processes."
+        ],
+        "recommendedTechnologies": [
+          "Kubernetes",
+          "AWS Lambda / Serverless Framework",
+          "Jest / React Testing Library / Cypress",
+          "Redux / Zustand (for React state management)",
+          "Terraform / CloudFormation (Infrastructure as Code)",
+          "Message Queues (e.g., SQS, RabbitMQ, Kafka)"
+        ],
+        "recommendedProjects": [
+          "A project demonstrating microservices architecture using Docker and Kubernetes.",
+          "A serverless application leveraging AWS Lambda, API Gateway, and DynamoDB.",
+          "A real-time application (e.g., chat, collaborative editor) using WebSockets and a robust backend.",
+          "An open-source contribution or a project with a focus on complex data visualization or analytics.",
+          "A project showcasing advanced CI/CD pipelines and automated testing strategies."
+        ],
+        "jobReadiness": "Senior",
+        "score": 92,
+        "foundKeywords": [
+          "Senior Software Engineer",
+          "React",
+          "TypeScript",
+          "Node.js",
+          "REST APIs",
+          "JavaScript",
+          "Express",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Git",
+          "Full-stack",
+          "SaaS",
+          "Migration"
+        ],
+        "missingKeywords": [
+          "CI/CD",
+          "Testing (Jest, Mocha, Cypress)",
+          "Cloud Services (specifics like EC2, S3, Lambda, RDS)",
+          "Container Orchestration (Kubernetes)",
+          "State Management (Redux, Zustand)",
+          "ORM (Sequelize, Prisma)",
+          "Microservices",
+          "System Design",
+          "Agile Methodologies (Scrum, Kanban)",
+          "Mentorship",
+          "Performance Optimization (beyond load time)"
+        ],
+        "recommendations": [
+          "Elaborate on specific AWS services used (e.g., EC2, S3, Lambda, RDS) and the context of their application.",
+          "Add experience with testing frameworks (e.g., Jest, React Testing Library, Cypress) and CI/CD tools (e.g., GitHub Actions, Jenkins, GitLab CI).",
+          "Include bullet points detailing contributions to system architecture, design decisions, or scalability improvements.",
+          "Expand on the 'Led migration' bullet to describe the process, challenges overcome, and any mentorship provided.",
+          "Enhance project descriptions with specific features, technical challenges faced, and the impact or learning outcomes.",
+          "Consider adding a 'Leadership' or 'Mentorship' section if applicable, detailing team guidance or code review processes."
+        ],
+        "recruitingNotes": "Green flags include strong quantifiable impact, a modern and relevant tech stack, and clear leadership on a significant migration. The 2019 graduation date aligns with a Senior role, and the impact statements support it. Red flags are the potential gaps in deeper cloud expertise, testing practices, and CI/CD, which are often expected at a senior level. Will need to probe these areas during an interview to ensure a comprehensive senior profile. The candidate appears to be a solid performer, but the depth of their senior-level contributions (e.g., system design, mentorship, advanced cloud architecture) needs to be validated.",
+        "wordCount": 78
+      },
+      "scores": {
+        "ats": 92,
+        "careerReady": 0
+      },
+      "createdAt": "2026-06-11T00:31:31.235Z",
+      "linkedinData": {
+        "headlineAnalysis": "The headline \"Professional at LinkedIn (satyanadella)\" is extremely generic, unprofessional, and provides zero value for recruiter visibility or SEO. It does not convey any specific role, skills, or industry expertise. The reference to \"satyanadella\" is highly unusual and confusing, suggesting either a placeholder, a joke, or a severe identity misrepresentation, which is a significant red flag.",
+        "profileCompleteness": 0,
+        "keywordCoverage": "The LinkedIn profile has virtually no keyword coverage, as all key sections (about, experience, skills) are empty. This stands in stark contrast to the resume, which is rich with relevant keywords for a Senior Software Engineer (React, Node.js, TypeScript, AWS), and the GitHub profile, which demonstrates deep expertise in C and low-level systems programming. There is zero overlap in keywords between LinkedIn and either the resume or GitHub, and critically, zero overlap between the resume's tech stack and GitHub's demonstrated expertise.",
+        "skillVisibility": "Skill visibility on LinkedIn is non-existent as the skills section is empty. This means the candidate cannot be found via skill-based searches and provides no validation for any skills mentioned on the resume or demonstrated on GitHub.",
+        "recruiterVisibility": "Recruiter visibility for this LinkedIn profile is effectively zero. With a generic headline, empty 'about' section, and no listed experience or skills, the profile would not appear in any targeted searches for specific roles or technologies. It presents as an incomplete or abandoned profile.",
+        "experienceReview": "The LinkedIn 'experience' section is completely empty. This is a critical omission that renders the profile useless for professional networking or recruitment. It offers no opportunity to cross-reference the detailed 'Senior Software Engineer' experience described in the resume, nor the legendary contributions to the Linux kernel evident in the GitHub profile. The lack of any employment history on LinkedIn is a major red flag for credibility.",
+        "linkedinStrengths": [
+          "None. The LinkedIn profile is essentially a blank slate and offers no discernible strengths."
+        ],
+        "linkedinWeaknesses": [
+          "Extremely generic and unprofessional headline with a confusing external reference.",
+          "Completely empty 'About' section, failing to introduce the candidate's professional identity.",
+          "No employment history listed, making it impossible to verify career progression or responsibilities.",
+          "No skills listed, severely limiting discoverability and credibility.",
+          "No education or certifications provided.",
+          "Zero keyword optimization, rendering the profile invisible to recruiters.",
+          "Complete lack of content to establish professional credibility or expertise."
+        ],
+        "profileOptimizationSuggestions": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "resumeConsistency": "There is a complete and fundamental lack of consistency between the LinkedIn profile and the resume. The LinkedIn profile is almost entirely empty, providing no information (dates, titles, companies, skills, summary) that could be cross-referenced with the detailed 'Senior Software Engineer' profile presented in the resume. This suggests the LinkedIn profile is either abandoned, a placeholder, or belongs to a different individual entirely.",
+        "githubConsistency": "There is a profound and irreconcilable inconsistency between the LinkedIn profile, the resume, and the GitHub profile. The LinkedIn profile is empty. The GitHub profile (username 'torvalds', featuring the `linux` kernel) showcases legendary expertise in C and low-level systems programming, which is entirely distinct from the 'Senior Software Engineer' profile described in the resume (focusing on React, Node.js, TypeScript, and AWS). The skills, experience, and professional identity presented across these three platforms are fundamentally incompatible, indicating these profiles belong to at least two, if not three, different individuals. Specifically, skills claimed on the resume (React, Node.js, TypeScript) are entirely absent from the GitHub profile, and the profound C/systems expertise on GitHub is not mentioned on the resume.",
+        "improvementOpportunities": [
+          "**Resolve Identity Discrepancy:** The most critical step is to determine which individual this profile represents. The LinkedIn profile, the resume, and the GitHub profile describe three vastly different professional identities. This fundamental inconsistency must be addressed immediately.",
+          "**If the candidate is 'John Doe' (Resume):** The LinkedIn profile must be completely rebuilt to accurately reflect the resume's content, including a professional headline, detailed experience, relevant skills (React, Node.js, TypeScript, AWS), and education.",
+          "**If the candidate is 'torvalds' (GitHub):** The LinkedIn profile would need to be populated with an unparalleled career history in operating systems, open-source leadership, and C programming, which would contradict the resume entirely. The current empty state and misleading headline are unacceptable for a profile of such stature.",
+          "**If the GitHub profile is misattributed or irrelevant to the resume:** The candidate should provide a GitHub profile that aligns with the tech stack and experience detailed in their resume (React, Node.js, TypeScript projects).",
+          "Ensure all professional platforms (LinkedIn, Resume, GitHub) present a cohesive and consistent narrative of the candidate's skills, experience, and career goals."
+        ],
+        "score": 0,
+        "slug": "satyanadella",
+        "url": "https://www.linkedin.com/in/satyanadella",
+        "hasCustomSlug": true,
+        "completeness": 0,
+        "strengths": [
+          "None. The LinkedIn profile is essentially a blank slate and offers no discernible strengths."
+        ],
+        "weaknesses": [
+          "Extremely generic and unprofessional headline with a confusing external reference.",
+          "Completely empty 'About' section, failing to introduce the candidate's professional identity.",
+          "No employment history listed, making it impossible to verify career progression or responsibilities.",
+          "No skills listed, severely limiting discoverability and credibility.",
+          "No education or certifications provided.",
+          "Zero keyword optimization, rendering the profile invisible to recruiters.",
+          "Complete lack of content to establish professional credibility or expertise."
+        ],
+        "recommendations": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "crossAnalysis": {
+          "resumeConsistency": "There is a complete and fundamental lack of consistency between the LinkedIn profile and the resume. The LinkedIn profile is almost entirely empty, providing no information (dates, titles, companies, skills, summary) that could be cross-referenced with the detailed 'Senior Software Engineer' profile presented in the resume. This suggests the LinkedIn profile is either abandoned, a placeholder, or belongs to a different individual entirely.",
+          "githubConsistency": "There is a profound and irreconcilable inconsistency between the LinkedIn profile, the resume, and the GitHub profile. The LinkedIn profile is empty. The GitHub profile (username 'torvalds', featuring the `linux` kernel) showcases legendary expertise in C and low-level systems programming, which is entirely distinct from the 'Senior Software Engineer' profile described in the resume (focusing on React, Node.js, TypeScript, and AWS). The skills, experience, and professional identity presented across these three platforms are fundamentally incompatible, indicating these profiles belong to at least two, if not three, different individuals. Specifically, skills claimed on the resume (React, Node.js, TypeScript) are entirely absent from the GitHub profile, and the profound C/systems expertise on GitHub is not mentioned on the resume."
+        },
+        "tips": [
+          "**Immediate Action:** Clarify the candidate's actual identity and the purpose of this LinkedIn profile. The current state is highly misleading and inconsistent with both the resume and GitHub.",
+          "Update the headline to accurately reflect the candidate's current role, key skills, and industry (e.g., \"Senior Software Engineer | Full-Stack Developer | React | Node.js | AWS\").",
+          "Populate the 'About' section with a compelling summary of career goals, expertise, and key achievements, drawing directly from the resume.",
+          "Add detailed employment history, including job titles, companies, dates, and bullet points outlining responsibilities and quantifiable achievements from the resume.",
+          "Add all relevant skills from the resume (e.g., React, Node.js, TypeScript, AWS, Docker, PostgreSQL) to the skills section.",
+          "Add education and any relevant certifications.",
+          "Add a professional profile picture.",
+          "Customize the LinkedIn URL for a cleaner, more professional appearance.",
+          "Seek recommendations from former colleagues or managers to build social proof."
+        ],
+        "suggestedHeadline": "",
+        "foundKws": [
+          "Senior Software Engineer",
+          "React",
+          "TypeScript",
+          "Node.js",
+          "REST APIs",
+          "JavaScript",
+          "Express",
+          "PostgreSQL",
+          "AWS",
+          "Docker",
+          "Git",
+          "Full-stack",
+          "SaaS",
+          "Migration"
+        ]
+      },
+      "linkedinUsername": "satyanadella",
+      "updatedAt": "2026-06-11T00:31:31.247Z",
+      "jobMatchData": {
+        "matchScore": 5,
+        "matchingSkills": [
+          "React",
+          "TypeScript",
+          "Senior Software Engineer (role alignment based on resume)"
+        ],
+        "missingSkills": [
+          "Next.js",
+          "Strong system design skills (specifically in frontend/web context)",
+          "CI/CD pipeline experience"
+        ],
+        "missingTechnologies": [
+          "Next.js"
+        ],
+        "keywordGaps": [
+          "Next.js",
+          "CI/CD",
+          "System Design (for frontend)"
+        ],
+        "hiringRisks": [
+          "Severe Identity Misrepresentation/Fraud: The LinkedIn profile (referencing 'satyanadella' and empty), the GitHub profile (belonging to 'torvalds' with C/kernel expertise), and the resume (describing 'John Doe' with React/TypeScript/Node.js) are fundamentally inconsistent and belong to different individuals. This is an immediate and critical disqualifier.",
+          "Lack of Credibility: Due to the profound inconsistencies, none of the information provided can be trusted or verified.",
+          "Missing Core Frontend Framework: Lack of explicit Next.js experience, which is a key requirement for a Senior Frontend Engineer at a fast-growing startup.",
+          "Absence of DevOps/CI/CD Experience: Critical for a senior role, especially in a startup environment.",
+          "Unproven System Design in Relevant Domain: While the GitHub profile (if it were genuinely the candidate's) shows legendary system design in C/kernel, this does not translate to frontend web architecture, and the resume lacks detail in this area."
+        ],
+        "improvementPlan": [
+          "**Immediate and Critical Action:** Resolve the severe identity discrepancies across all professional profiles. Ensure the Resume, GitHub, and LinkedIn all belong to the same individual and present a consistent, verifiable professional narrative.",
+          "Completely rebuild the LinkedIn profile to accurately reflect the candidate's actual experience, skills (React, TypeScript, Node.js, AWS), and education as detailed in the resume.",
+          "Provide a GitHub profile that genuinely belongs to the candidate and showcases relevant projects in React, TypeScript, Next.js, and ideally, demonstrates CI/CD practices.",
+          "Gain hands-on experience with Next.js and update the resume/portfolio to reflect this.",
+          "Add specific examples of CI/CD pipeline involvement and contributions to the resume.",
+          "Elaborate on architectural contributions and system design decisions made in a frontend context within the resume."
+        ],
+        "fastestImprovementPath": "Immediately clarify and rectify the severe identity inconsistencies across the LinkedIn, GitHub, and Resume profiles. Provide a single, cohesive, and verifiable professional identity, starting with a complete and accurate LinkedIn profile that matches the resume.",
+        "recruiterPerspective": "This application is an immediate rejection. The profound and irreconcilable inconsistencies across the resume, GitHub, and LinkedIn profiles (suggesting identity misrepresentation or severe data corruption) make it impossible to verify any information provided. This is a critical trust issue and an immediate disqualifier. Even if the resume alone had some relevant keywords, the overall profile integrity is completely compromised."
+      }
     }
   ],
   "chatHistories": [

@@ -9,9 +9,15 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 import multer from 'multer';
 import { createRequire } from 'module';
+import projectGapRoutes from './server/routes/projectGapRoutes.js';
+import jobMatchRoutes from './server/routes/jobMatchRoutes.js';
+import reportRoutes from './server/routes/reportRoutes.js';
+import resumeRoutes from './server/routes/resumeRoutes.js';
+import githubRoutes from './server/routes/githubRoutes.js';
+import linkedinRoutes from './server/routes/linkedinRoutes.js';
 
 const require = createRequire(import.meta.url);
-const PDFParse = require('pdf-parse');
+const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 
 const { Pool } = pg;
@@ -204,6 +210,48 @@ const initializeDatabase = async () => {
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS resume_analyses (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+        source_data JSONB,
+        analysis_data JSONB,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS github_analyses (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+        github_username TEXT,
+        source_data JSONB,
+        analysis_data JSONB,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS linkedin_analyses (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+        linkedin_url TEXT,
+        source_data JSONB,
+        analysis_data JSONB,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS job_matches (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+        job_description TEXT,
+        analysis_data JSONB,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS candidate_reports (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+        report_data JSONB,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      CREATE TABLE IF NOT EXISTS project_gap_analyses (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+        analysis_data JSONB,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
     `);
     isDbConnected = true;
   } catch (err) {
@@ -238,8 +286,12 @@ const writeLocalDb = (data) => {
 // AUTHENTICATION MIDDLEWARE
 // ==========================================
 const authenticateToken = (req, res, next) => {
+  // Accept token from: Authorization header, request body, or query param
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token =
+    (authHeader && authHeader.split(' ')[1]) ||
+    req.body?.token ||
+    req.query?.token;
   if (!token) return res.status(401).json({ error: 'Access token required.' });
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) return res.status(403).json({ error: 'Invalid or expired token.' });
@@ -328,87 +380,27 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
   }
 });
 
-// ==========================================
-// FILE PARSING ENDPOINT — REAL TEXT EXTRACTION
-// ==========================================
-app.post('/api/parse/resume', upload.single('file'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded.' });
-  }
-
-  const { originalname, mimetype, buffer } = req.file;
-  const ext = path.extname(originalname).toLowerCase();
-
+// 4. Retrieve scans
+app.get('/api/history', authenticateToken, async (req, res) => {
   try {
-    let extractedText = '';
-
-    if (ext === '.pdf' || mimetype === 'application/pdf') {
-      let text = '';
-      try {
-        const PDFParseClass = PDFParse.PDFParse || PDFParse;
-        const parser = new PDFParseClass({ data: buffer });
-        const result = await parser.getText();
-        text = result.text || '';
-      } catch (err) {
-        console.error('[pdf-parse] Error:', err);
-      }
-      extractedText = text;
-      if (!extractedText.trim()) {
-        return res.status(422).json({
-          error: 'Could not extract text from this PDF. It may be a scanned/image-based PDF. Please copy-paste your resume text instead.'
-        });
-      }
-    } else if (
-      ext === '.docx' ||
-      mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ) {
-      const result = await mammoth.extractRawText({ buffer });
-      extractedText = result.value || '';
-      if (!extractedText.trim()) {
-        return res.status(422).json({
-          error: 'Could not extract text from this DOCX file. Please copy-paste your resume text instead.'
-        });
-      }
-    } else if (ext === '.txt' || ext === '.md' || mimetype.startsWith('text/')) {
-      extractedText = buffer.toString('utf-8');
+    if (isDbConnected) {
+      const analysisResult = await pool.query(
+        `SELECT user_id AS "userId", github_username AS "githubUsername", scores, github_data AS "githubData", resume_data AS "resumeData", linkedin_data AS "linkedinData", linkedin_url AS "linkedinUsername", target_role AS "targetRole", created_at AS "createdAt", updated_at AS "updatedAt" FROM analyses WHERE user_id = $1 LIMIT 1`,
+        [req.user.id]
+      );
+      return res.json(mapAnalysisRow(analysisResult.rows[0]));
     } else {
-      return res.status(415).json({
-        error: `Unsupported file type: ${ext}. Please upload a PDF, DOCX, TXT, or MD file.`
-      });
+      const db = readLocalDb();
+      const analysis = db.analyses.find(a => a.userId === req.user.id);
+      return res.json(analysis || null);
     }
-
-    // Sanitize: remove excessive whitespace, null bytes
-    extractedText = extractedText
-      .replace(/\0/g, '')
-      .replace(/\r\n/g, '\n')
-      .replace(/\r/g, '\n')
-      .replace(/\n{4,}/g, '\n\n')
-      .trim();
-
-    if (!looksLikeResume(extractedText)) {
-      return res.status(422).json({ error: RESUME_REJECTION_MESSAGE });
-    }
-
-    console.log('[parse/resume] Extracted', extractedText.split(/\s+/).filter(Boolean).length, 'words from', originalname, '| First 200 chars:', extractedText.substring(0, 200).replace(/\n/g, ' '));
-
-    return res.json({
-      text: extractedText,
-      charCount: extractedText.length,
-      wordCount: extractedText.split(/\s+/).filter(Boolean).length,
-      fileName: originalname
-    });
-  } catch (err) {
-    console.error('[parse/resume] Error:', err.message);
-    return res.status(500).json({
-      error: 'Failed to parse file. Please try copy-pasting your resume text instead.',
-      detail: err.message
-    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error retrieving history.' });
   }
 });
 
-// ==========================================
-// JOB PROFILES AND TEMPLATES
-// ==========================================
+
+
 const JOB_PROFILES = {
   'frontend': {
     title: 'Frontend Engineer',
@@ -450,1039 +442,6 @@ const JOB_PROFILES = {
   }
 };
 
-// Guest Cache
-let guestAnalysis = {
-  githubUsername: '',
-  linkedinUsername: '',
-  githubData: null,
-  resumeData: null,
-  linkedinData: null,
-  scores: { portfolio: null, ats: null, github: null, careerReady: null }
-};
-
-// ==========================================
-// PROFILE ANALYSIS APIS
-// ==========================================
-
-// 1. Analyze GitHub
-app.post('/api/analyze/github', async (req, res) => {
-  const { username, targetRole, token } = req.body;
-  let cleanUsername = (username || '').trim();
-  if (cleanUsername) {
-    cleanUsername = cleanUsername.replace(/^(https?:\/\/)?(www\.)?github\.com\//i, '');
-    cleanUsername = cleanUsername.replace(/^git@github\.com:/i, '');
-    cleanUsername = cleanUsername.split('/')[0].split('?')[0].split('#')[0];
-  }
-  let userId = null;
-  if (token) {
-    try { const decoded = jwt.verify(token, JWT_SECRET); userId = decoded.id; } catch (e) { }
-  }
-
-  try {
-    const headers = { 'User-Agent': 'DevScope-AI-App' };
-    const userResponse = await fetch(`https://api.github.com/users/${cleanUsername}`, { headers });
-    let userData = null;
-    let repos = [];
-
-    if (userResponse.ok) {
-      userData = await userResponse.json();
-      if (userData.message === 'Not Found') throw new Error('GitHub user not found');
-      const reposResponse = await fetch(`https://api.github.com/users/${cleanUsername}/repos?per_page=100&sort=updated`, { headers });
-      if (reposResponse.ok) repos = await reposResponse.json();
-    } else {
-      const errorText = await userResponse.text();
-      console.error(`[github] API Error ${userResponse.status}:`, errorText);
-      if (userResponse.status === 403 && errorText.includes('rate limit')) {
-         throw new Error('GitHub API rate limit exceeded. Please try again later.');
-      }
-      throw new Error(`GitHub API unreachable (Status: ${userResponse.status})`);
-    }
-
-    // === SEPARATE FORKED VS ORIGINAL REPOS ===
-    const originalRepos = repos.filter(r => !r.fork);
-    const forkedRepos = repos.filter(r => r.fork);
-    const totalRepos = repos.length;
-    const originalCount = originalRepos.length;
-
-    // Documentation: only count original repos (forked repos come with descriptions)
-    const reposWithDescription = originalRepos.filter(r => r.description && r.description.trim().length > 10).length;
-    const docScore = originalCount > 0 ? Math.round((reposWithDescription / originalCount) * 100) : 0;
-    const flaggedRepos = originalRepos.filter(r => !r.description || r.description.trim().length <= 10).slice(0, 5).map(r => r.name);
-
-    // Stars/forks only from original repos
-    const totalStars = originalRepos.reduce((acc, r) => acc + r.stargazers_count, 0);
-    const totalForks = originalRepos.reduce((acc, r) => acc + r.forks_count, 0);
-
-    // Language analysis from original repos only
-    const languages = {};
-    originalRepos.forEach(repo => {
-      if (repo.language) languages[repo.language] = (languages[repo.language] || 0) + 1;
-    });
-    const languageTotal = Object.values(languages).reduce((a, b) => a + b, 0);
-    const languageBreakdown = Object.entries(languages)
-      .map(([name, count]) => ({ name, percentage: Math.round((count / (languageTotal || 1)) * 100) }))
-      .sort((a, b) => b.percentage - a.percentage);
-
-    // === RECALIBRATED SCORING (100 total) ===
-
-    // 1. Documentation Quality (0–20 pts)
-    //    README presence and description quality on ORIGINAL repos
-    const docPoints = Math.round((docScore / 100) * 20);
-
-    // 2. Original Work Volume (0–25 pts)
-    //    Only original repos count. Logarithmic scale — diminishing returns past 10.
-    //    0 repos = 0, 1 = 4, 3 = 10, 5 = 14, 10 = 20, 20+ = 25
-    let originalWorkPoints = 0;
-    if (originalCount === 0) originalWorkPoints = 0;
-    else if (originalCount <= 2) originalWorkPoints = originalCount * 3;
-    else if (originalCount <= 5) originalWorkPoints = 6 + (originalCount - 2) * 2.5;
-    else if (originalCount <= 10) originalWorkPoints = 13.5 + (originalCount - 5) * 1.3;
-    else if (originalCount <= 20) originalWorkPoints = 20 + (originalCount - 10) * 0.5;
-    else originalWorkPoints = 25;
-    originalWorkPoints = Math.round(Math.min(originalWorkPoints, 25));
-
-    // Fork penalty: if more than half your repos are forks, deduct
-    const forkRatio = totalRepos > 0 ? forkedRepos.length / totalRepos : 0;
-    if (forkRatio > 0.7) originalWorkPoints = Math.max(0, originalWorkPoints - 5);
-    else if (forkRatio > 0.5) originalWorkPoints = Math.max(0, originalWorkPoints - 3);
-
-    // 3. Activity Recency (0–15 pts)
-    //    How recently were original repos updated?
-    const now = new Date();
-    const recentRepos = originalRepos.filter(r => {
-      const updated = new Date(r.updated_at || r.pushed_at);
-      const daysSinceUpdate = (now - updated) / (1000 * 60 * 60 * 24);
-      return daysSinceUpdate <= 90; // updated in last 3 months
-    }).length;
-    const activeInLastYear = originalRepos.filter(r => {
-      const updated = new Date(r.updated_at || r.pushed_at);
-      return (now - updated) / (1000 * 60 * 60 * 24) <= 365;
-    }).length;
-    let recencyPoints = 0;
-    if (recentRepos >= 3) recencyPoints = 15;
-    else if (recentRepos >= 1) recencyPoints = 8 + recentRepos * 2;
-    else if (activeInLastYear >= 3) recencyPoints = 6;
-    else if (activeInLastYear >= 1) recencyPoints = 3;
-    else recencyPoints = 0;
-    recencyPoints = Math.min(recencyPoints, 15);
-
-    // 4. Community Engagement (0–20 pts)
-    //    Stars, forks received, followers — with realistic thresholds
-    //    Followers: 0=0, 5=3, 10=5, 50=8, 100+=10
-    let followerPoints = 0;
-    if (userData.followers >= 100) followerPoints = 10;
-    else if (userData.followers >= 50) followerPoints = 8;
-    else if (userData.followers >= 20) followerPoints = 6;
-    else if (userData.followers >= 10) followerPoints = 4;
-    else if (userData.followers >= 5) followerPoints = 2;
-    else if (userData.followers >= 1) followerPoints = 1;
-
-    //    Stars: 0=0, 5=2, 10=4, 50=6, 100+=8
-    let starPoints = 0;
-    if (totalStars >= 100) starPoints = 8;
-    else if (totalStars >= 50) starPoints = 6;
-    else if (totalStars >= 20) starPoints = 4;
-    else if (totalStars >= 10) starPoints = 3;
-    else if (totalStars >= 5) starPoints = 2;
-    else if (totalStars >= 1) starPoints = 1;
-
-    //    Forks received: 0=0, 5=1, 10+=2
-    let forkReceivedPoints = totalForks >= 10 ? 2 : (totalForks >= 5 ? 1 : 0);
-
-    const communityPoints = Math.min(followerPoints + starPoints + forkReceivedPoints, 20);
-
-    // 5. Language Diversity (0–10 pts)
-    //    Meaningful spread: 1 lang=1, 2=3, 3=5, 4=7, 5+=10
-    const langCount = Object.keys(languages).length;
-    let diversityPoints = 0;
-    if (langCount >= 5) diversityPoints = 10;
-    else if (langCount >= 4) diversityPoints = 7;
-    else if (langCount >= 3) diversityPoints = 5;
-    else if (langCount >= 2) diversityPoints = 3;
-    else if (langCount >= 1) diversityPoints = 1;
-
-    // 6. Role Relevance (0–10 pts)
-    const roleLanguages = {
-      'frontend': ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Vue', 'Svelte'],
-      'backend': ['Java', 'Python', 'Go', 'Ruby', 'C#', 'PHP', 'Rust', 'C++', 'Kotlin'],
-      'fullstack': ['JavaScript', 'TypeScript', 'Java', 'Python', 'Go', 'C#', 'Ruby'],
-      'ml-engineer': ['Python', 'Jupyter Notebook', 'R', 'C++', 'Julia']
-    };
-
-    let roleRelevancePoints = 0;
-    if (targetRole && roleLanguages[targetRole]) {
-      const relevantLangs = roleLanguages[targetRole];
-      let totalRelevantCount = 0;
-      Object.entries(languages).forEach(([lang, count]) => {
-        if (relevantLangs.includes(lang)) totalRelevantCount += count;
-      });
-      const matchPercent = languageTotal > 0 ? (totalRelevantCount / languageTotal) : 0;
-      // 0% match = 0 pts, 50% = 5, 80%+ = 10
-      roleRelevancePoints = Math.round(matchPercent * 10);
-    } else {
-      roleRelevancePoints = 3; // neutral if no role specified
-    }
-
-    let finalGithubScore = docPoints + originalWorkPoints + recencyPoints + communityPoints + diversityPoints + roleRelevancePoints;
-    finalGithubScore = Math.max(5, Math.min(finalGithubScore, 97)); // clamp 5–97
-
-    const result = {
-      username: userData.login,
-      name: userData.name || userData.login,
-      avatarUrl: userData.avatar_url,
-      bio: userData.bio || null,
-      publicRepos: userData.public_repos,
-      followers: userData.followers,
-      following: userData.following,
-      totalStars,
-      totalForks,
-      originalRepoCount: originalCount,
-      forkedRepoCount: forkedRepos.length,
-      languages: languageBreakdown.length > 0 ? languageBreakdown : [],
-      score: finalGithubScore,
-      docScore,
-      flaggedRepos,
-      recentlyActiveRepos: recentRepos,
-      scoreBreakdown: {
-        docPoints,
-        originalWorkPoints,
-        recencyPoints,
-        communityPoints,
-        diversityPoints,
-        roleRelevancePoints
-      },
-      topRepos: originalRepos
-        .sort((a, b) => (b.stargazers_count + b.forks_count) - (a.stargazers_count + a.forks_count))
-        .slice(0, 5)
-        .map(r => ({
-          name: r.name,
-          description: r.description || '',
-          stars: r.stargazers_count,
-          forks: r.forks_count,
-          language: r.language || 'Unknown',
-          url: r.html_url,
-          hasDescription: !!(r.description && r.description.trim().length > 10)
-        })),
-      isMockData: false
-    };
-
-    await saveOrUpdateAnalysis(userId, { githubUsername: cleanUsername, githubData: result, targetRole });
-    return res.json(result);
-  } catch (error) {
-    console.error('[github] Error:', error.message);
-    
-    let userMsg = `Could not fetch GitHub data for "${cleanUsername}". Please check the username and try again.`;
-    if (error.message.includes('not found')) {
-      userMsg = `The GitHub user "${cleanUsername}" does not exist.`;
-    } else if (error.message.includes('rate limit')) {
-      userMsg = 'GitHub API rate limit exceeded (60 requests/hour for unauthenticated users). Please try again in an hour.';
-    }
-
-    return res.status(502).json({ error: userMsg });
-  }
-});
-
-// Helper to save analysis
-async function saveOrUpdateAnalysis(userId, data) {
-  let activeGithubScore = null, activeAtsScore = null, activeLinkedInScore = null;
-
-  if (userId) {
-    if (isDbConnected) {
-      const userCheck = await pool.query('SELECT id FROM users WHERE id = $1 LIMIT 1', [userId]);
-      if (userCheck.rows.length === 0) {
-        userId = null;
-      }
-    } else {
-      const db = readLocalDb();
-      const userExists = db.users.some(u => u.id === userId);
-      if (!userExists) {
-        userId = null;
-      }
-    }
-  }
-
-  if (userId) {
-    let existing = null;
-    if (isDbConnected) {
-      const existingResult = await pool.query(
-        `SELECT user_id AS "userId", github_username AS "githubUsername", scores, github_data AS "githubData", resume_data AS "resumeData", linkedin_data AS "linkedinData", linkedin_url AS "linkedinUsername", target_role AS "targetRole", created_at AS "createdAt", updated_at AS "updatedAt" FROM analyses WHERE user_id = $1 LIMIT 1`,
-        [userId]
-      );
-      existing = mapAnalysisRow(existingResult.rows[0]);
-    } else {
-      const db = readLocalDb();
-      existing = db.analyses.find(a => a.userId === userId);
-    }
-
-    if (existing) {
-      activeGithubScore = (data.githubData?.score !== undefined) ? data.githubData.score : (existing.githubData?.score ?? existing.scores?.github ?? null);
-      activeAtsScore = (data.resumeData?.atsScore !== undefined) ? data.resumeData.atsScore : (existing.resumeData?.atsScore ?? existing.scores?.ats ?? null);
-      activeLinkedInScore = (data.linkedinData?.score !== undefined) ? data.linkedinData.score : (existing.linkedinData?.score ?? existing.scores?.careerReady ?? null);
-    } else {
-      activeGithubScore = data.githubData?.score ?? null;
-      activeAtsScore = data.resumeData?.atsScore ?? null;
-      activeLinkedInScore = data.linkedinData?.score ?? null;
-    }
-  } else {
-    activeGithubScore = data.githubData?.score ?? guestAnalysis.scores.github;
-    activeAtsScore = data.resumeData?.atsScore ?? guestAnalysis.scores.ats;
-    activeLinkedInScore = data.linkedinData?.score ?? guestAnalysis.scores.careerReady;
-  }
-
-  const activeScores = [activeGithubScore, activeAtsScore, activeLinkedInScore].filter(s => s !== null && s !== undefined);
-  const portfolioScore = activeScores.length > 0 ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length) : null;
-
-  const scoresObj = { github: activeGithubScore, ats: activeAtsScore, careerReady: activeLinkedInScore, portfolio: portfolioScore };
-
-  if (!userId) {
-    guestAnalysis = { ...guestAnalysis, ...data, scores: scoresObj };
-    return;
-  }
-
-  if (isDbConnected) {
-    await pool.query(
-      `INSERT INTO analyses (user_id, github_username, scores, github_data, resume_data, linkedin_data, linkedin_url, target_role)
-       VALUES ($1, $2, $3::jsonb, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8)
-       ON CONFLICT (user_id) DO UPDATE SET
-         github_username = COALESCE(EXCLUDED.github_username, analyses.github_username),
-         scores = EXCLUDED.scores,
-         github_data = COALESCE(EXCLUDED.github_data, analyses.github_data),
-         resume_data = COALESCE(EXCLUDED.resume_data, analyses.resume_data),
-         linkedin_data = COALESCE(EXCLUDED.linkedin_data, analyses.linkedin_data),
-         linkedin_url = COALESCE(EXCLUDED.linkedin_url, analyses.linkedin_url),
-         target_role = COALESCE(EXCLUDED.target_role, analyses.target_role),
-         updated_at = NOW()`,
-      [userId, data.githubUsername || null, JSON.stringify(scoresObj),
-        data.githubData ? JSON.stringify(data.githubData) : null,
-        data.resumeData ? JSON.stringify(data.resumeData) : null,
-        data.linkedinData ? JSON.stringify(data.linkedinData) : null,
-        data.linkedinUsername || null, data.targetRole || null]
-    );
-  } else {
-    const db = readLocalDb();
-    const index = db.analyses.findIndex(a => a.userId === userId);
-    const existingObj = index >= 0 ? db.analyses[index] : {};
-    const updated = { ...existingObj, ...data, scores: scoresObj, userId, updatedAt: new Date().toISOString() };
-    if (!updated.createdAt) updated.createdAt = new Date().toISOString();
-    if (index >= 0) db.analyses[index] = updated;
-    else db.analyses.push(updated);
-    writeLocalDb(db);
-  }
-}
-
-// 2. Analyze Resume — STRICT ACCURATE ATS SCORING
-app.post('/api/analyze/resume', async (req, res) => {
-  const { resumeText, targetRole, token } = req.body;
-  let userId = null;
-  if (token) {
-    try { const decoded = jwt.verify(token, JWT_SECRET); userId = decoded.id; } catch (e) { }
-  }
-
-  if (!resumeText || !resumeText.trim()) {
-    return res.status(400).json({ error: 'Resume text is required.' });
-  }
-
-  const text = resumeText.trim();
-  const lowerText = text.toLowerCase();
-  const wordCount = text.split(/\s+/).filter(Boolean).length;
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
-  if (!looksLikeResume(text)) {
-    return res.status(400).json({ error: RESUME_REJECTION_MESSAGE });
-  }
-
-  // --- Expanded Keyword List (60+ keywords across tech domains) ---
-  const KEYWORDS = {
-    // Frontend
-    'React': ['react', 'react.js', 'reactjs'],
-    'Vue': ['vue', 'vue.js', 'vuejs'],
-    'Angular': ['angular', 'angularjs'],
-    'Next.js': ['next.js', 'nextjs', 'next js'],
-    'TypeScript': ['typescript'],
-    'JavaScript': ['javascript', 'js', 'es6', 'es2015'],
-    'HTML/CSS': ['html', 'css', 'scss', 'sass', 'html5', 'css3'],
-    'Tailwind': ['tailwind', 'tailwindcss'],
-    'Redux': ['redux', 'zustand', 'mobx', 'recoil'],
-    'Webpack': ['webpack', 'vite', 'rollup', 'parcel'],
-    // Backend
-    'Node.js': ['node.js', 'nodejs', 'node js'],
-    'Express': ['express', 'express.js', 'expressjs'],
-    'Django': ['django'],
-    'FastAPI': ['fastapi', 'fast api'],
-    'Flask': ['flask'],
-    'Spring Boot': ['spring boot', 'spring'],
-    // Databases
-    'PostgreSQL': ['postgresql', 'postgres'],
-    'MySQL': ['mysql'],
-    'MongoDB': ['mongodb', 'mongo'],
-    'Redis': ['redis'],
-    'GraphQL': ['graphql', 'graph ql'],
-    'REST API': ['rest api', 'restful api'],
-    'SQL': ['sql', 'relational database'],
-    // Cloud & DevOps
-    'AWS': ['aws', 'amazon web services', 'ec2', 's3', 'lambda', 'cloudfront'],
-    'GCP': ['gcp', 'google cloud', 'google cloud platform'],
-    'Azure': ['azure', 'microsoft azure'],
-    'Docker': ['docker', 'dockerfile', 'containerization'],
-    'Kubernetes': ['kubernetes', 'k8s'],
-    'CI/CD': ['ci/cd', 'ci cd', 'continuous integration', 'continuous deployment', 'pipeline', 'github actions'],
-    'Linux': ['linux', 'unix', 'bash', 'shell scripting'],
-    'Nginx': ['nginx', 'apache'],
-    // Languages
-    'Python': ['python'],
-    'Java': ['\\bjava\\b'],
-    'Go': ['golang', 'go language'],
-    'Rust': ['rust'],
-    'C++': ['c++', 'cpp', 'c plus plus'],
-    'C#': ['c#', 'csharp', '.net'],
-    'PHP': ['php'],
-    'Ruby': ['ruby', 'ruby on rails', 'rails'],
-    // Testing
-    'Jest': ['jest', 'jasmine', 'mocha', 'chai'],
-    'Cypress': ['cypress', 'selenium', 'playwright', 'puppeteer'],
-    'TDD': ['tdd', 'test-driven', 'unit test'],
-    // Tools
-    'Git': ['git', 'github', 'gitlab', 'bitbucket', 'version control'],
-    'Agile/Scrum': ['agile', 'scrum', 'kanban', 'sprint', 'jira'],
-    'Figma': ['figma', 'sketch', 'adobe xd'],
-    // ML/AI
-    'PyTorch': ['pytorch', 'torch'],
-    'TensorFlow': ['tensorflow', 'keras'],
-    'Scikit-Learn': ['scikit-learn', 'scikit learn', 'sklearn'],
-    'Pandas': ['pandas', 'numpy', 'matplotlib', 'seaborn'],
-    'Machine Learning': ['machine learning', 'deep learning', 'neural network', 'nlp', 'computer vision'],
-    'Data Engineering': ['spark', 'hadoop', 'kafka', 'airflow', 'dbt', 'data pipeline'],
-  };
-
-  // Java needs special regex matching to avoid matching "JavaScript"
-  const foundKeywords = [];
-  const missingKeywords = [];
-
-  Object.entries(KEYWORDS).forEach(([displayName, variants]) => {
-    let found = false;
-    for (const v of variants) {
-      if (v.startsWith('\\b')) {
-        // Regex-based match (e.g., Java)
-        if (new RegExp(v, 'i').test(lowerText)) { found = true; break; }
-      } else {
-        if (lowerText.includes(v)) { found = true; break; }
-      }
-    }
-    if (found) foundKeywords.push(displayName);
-    else missingKeywords.push(displayName);
-  });
-
-  // --- STRICT Section Detection ---
-  // Sections must look like headings: at start of line, possibly uppercase, short line
-  const detectSection = (patterns) => {
-    for (const line of lines) {
-      const trimmed = line.toLowerCase().replace(/[:\-–—|•*#]/g, '').trim();
-      // Line must be short (heading-like) — under 60 chars OR all caps
-      const isHeadingLike = trimmed.length < 60 || line === line.toUpperCase();
-      if (isHeadingLike) {
-        for (const pattern of patterns) {
-          if (new RegExp(`\\b${pattern}\\b`, 'i').test(trimmed)) return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  const sectionsChecklist = {
-    experience: detectSection(['experience', 'work history', 'employment', 'professional experience', 'work experience', 'career history']),
-    projects: detectSection(['projects?', 'personal projects?', 'portfolio', 'academic projects?', 'side projects?']),
-    skills: detectSection(['skills?', 'technical skills', 'technologies', 'core competencies', 'technical proficiency', 'tech stack']),
-    education: detectSection(['education', 'academic', 'qualifications', 'academic background'])
-  };
-
-  // --- Experience Content Depth ---
-  // Check if experience section has actual content (bullet points, descriptions)
-  const hasBulletPoints = /^[\s]*[•\-\*▸▹►➤→]|^\s*\d+[\.\)]/m.test(text);
-  const bulletCount = (text.match(/^[\s]*[•\-\*▸▹►➤→]|^\s*\d+[\.\)]/gm) || []).length;
-
-  // --- Action Verbs (stricter: must start a line/bullet or follow a bullet marker) ---
-  const ACTION_VERBS = [
-    'engineered', 'developed', 'led', 'managed', 'spearheaded', 'optimized', 'designed',
-    'implemented', 'built', 'created', 'solved', 'improved', 'increased', 'reduced', 'saved',
-    'architected', 'automated', 'deployed', 'migrated', 'refactored', 'collaborated', 'delivered',
-    'launched', 'maintained', 'monitored', 'integrated', 'analyzed', 'configured', 'established',
-    'streamlined', 'mentored', 'reviewed', 'published', 'contributed', 'researched', 'scaled'
-  ];
-
-  // Count action verbs that actually START a bullet or line (not just appear anywhere)
-  let strongActionVerbCount = 0;
-  let weakActionVerbCount = 0;
-  ACTION_VERBS.forEach(verb => {
-    // Strong: verb at line/bullet start
-    const strongMatch = text.match(new RegExp(`(?:^|[•\\-\\*▸▹►]|\\d+[\\.)]) *${verb}`, 'gmi'));
-    if (strongMatch) strongActionVerbCount += strongMatch.length;
-    // Weak: verb appears anywhere
-    const weakMatch = lowerText.match(new RegExp(`\\b${verb}(d|ed|s|ing)?\\b`, 'g'));
-    if (weakMatch) weakActionVerbCount += weakMatch.length;
-  });
-  const actionVerbCount = Math.max(strongActionVerbCount, Math.floor(weakActionVerbCount * 0.5));
-
-  // --- Contact Info Detection ---
-  const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(text);
-  const hasPhone = /(\+?\d[\s.-]?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}/.test(text);
-  const hasLinkedIn = /linkedin\.com\/in\//i.test(text);
-  const hasGitHub = /github\.com\//i.test(text);
-
-  // --- Quantification Detection (GRADUATED) ---
-  // Count actual quantified achievements, not just "any number exists"
-  const quantPatterns = [
-    /\d+\s*%/g,                                    // "40%", "increased by 30%"
-    /\d+x\b/gi,                                   // "3x faster"
-    /\$[\d,]+|\₹[\d,]+/g,                         // "$50,000", "₹2L"
-    /\b\d+[kKmM]\+?\s*(users?|customers?|requests?|downloads?|views?)/gi, // "10K users"
-    /\b\d{2,}\s*(users?|customers?|clients?|requests?|transactions?|records?)/gi, // "500 users"
-    /reduced\s+.*?\b\d/gi,                         // "reduced latency by..."
-    /improved\s+.*?\b\d/gi,                        // "improved throughput by..."
-    /increased\s+.*?\b\d/gi,                       // "increased revenue by..."
-    /saved\s+.*?\b\d/gi,                           // "saved 200 hours"
-  ];
-  let quantificationCount = 0;
-  quantPatterns.forEach(pattern => {
-    const matches = text.match(pattern);
-    if (matches) quantificationCount += matches.length;
-  });
-
-  // === STRICT SCORING (100 total) ===
-
-  // Role relevance setup
-  const ROLE_RELEVANCE = {
-    'frontend': ['React', 'Vue', 'Angular', 'Next.js', 'TypeScript', 'JavaScript', 'HTML/CSS', 'Tailwind', 'Redux', 'Webpack', 'Jest', 'Cypress', 'Figma'],
-    'backend': ['Node.js', 'Express', 'Django', 'FastAPI', 'Flask', 'Spring Boot', 'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'GraphQL', 'REST API', 'SQL', 'Docker', 'Kubernetes', 'Linux', 'Python', 'Java', 'Go', 'Rust', 'C++', 'C#', 'PHP', 'Ruby', 'TDD'],
-    'fullstack': ['React', 'Vue', 'Next.js', 'TypeScript', 'JavaScript', 'Node.js', 'Express', 'PostgreSQL', 'MongoDB', 'REST API', 'GraphQL', 'Docker', 'CI/CD', 'AWS', 'GCP'],
-    'ml-engineer': ['Python', 'PyTorch', 'TensorFlow', 'Scikit-Learn', 'Pandas', 'Machine Learning', 'Data Engineering', 'AWS', 'GCP', 'SQL', 'Docker', 'Kubernetes']
-  };
-
-  const selectedRoleKey = targetRole || 'frontend';
-  const roleKeywords = ROLE_RELEVANCE[selectedRoleKey] || ROLE_RELEVANCE['frontend'];
-  const roleKeywordsFound = foundKeywords.filter(kw => roleKeywords.includes(kw));
-
-  // 1. ROLE-SPECIFIC KEYWORDS (0–30 pts)
-  //    Primary driver: how many role-relevant keywords are present
-  //    0 of N = 0, 1 = 4, 2 = 8, 3 = 12, 4 = 16, 5 = 19, 6 = 22, 7 = 25, 8+ = 28-30
-  const roleKwRatio = roleKeywordsFound.length / Math.max(roleKeywords.length, 1);
-  let keywordScore = 0;
-  if (roleKwRatio >= 0.6) keywordScore = 25 + Math.round(roleKwRatio * 5);
-  else if (roleKwRatio >= 0.4) keywordScore = 16 + Math.round((roleKwRatio - 0.4) * 45);
-  else if (roleKwRatio >= 0.2) keywordScore = 8 + Math.round((roleKwRatio - 0.2) * 40);
-  else keywordScore = Math.round(roleKwRatio * 40);
-  keywordScore = Math.min(keywordScore, 30);
-
-  // Small bonus for breadth beyond role (max +3)
-  const nonRoleKeywords = foundKeywords.filter(kw => !roleKeywords.includes(kw));
-  const breadthBonus = Math.min(Math.floor(nonRoleKeywords.length / 4), 3);
-
-  const roleRelevanceScore = Math.round(roleKwRatio * 100);
-
-  // 2. SECTION STRUCTURE (0–20 pts)
-  //    Each section is worth points, but NOT equally
-  //    experience = 7, skills = 5, projects = 4, education = 4
-  let sectionScore = 0;
-  if (sectionsChecklist.experience) sectionScore += 7;
-  if (sectionsChecklist.skills) sectionScore += 5;
-  if (sectionsChecklist.projects) sectionScore += 4;
-  if (sectionsChecklist.education) sectionScore += 4;
-  // Section score max = 20
-
-  // 3. ACTION VERBS + IMPACT (0–15 pts)
-  //    Need verbs in context, not just the word existing
-  //    0 verbs = 0, 1-2 = 3, 3-4 = 6, 5-6 = 9, 7-8 = 12, 9+ = 15
-  let verbScore = 0;
-  if (actionVerbCount >= 9) verbScore = 15;
-  else if (actionVerbCount >= 7) verbScore = 12;
-  else if (actionVerbCount >= 5) verbScore = 9;
-  else if (actionVerbCount >= 3) verbScore = 6;
-  else if (actionVerbCount >= 1) verbScore = 3;
-
-  // 4. QUANTIFIED ACHIEVEMENTS (0–15 pts)
-  //    Graduated: 0=0, 1=4, 2=7, 3=10, 4=12, 5+=15
-  let quantScore = 0;
-  if (quantificationCount >= 5) quantScore = 15;
-  else if (quantificationCount >= 4) quantScore = 12;
-  else if (quantificationCount >= 3) quantScore = 10;
-  else if (quantificationCount >= 2) quantScore = 7;
-  else if (quantificationCount >= 1) quantScore = 4;
-
-  // 5. LENGTH + COMPLETENESS (0–10 pts)
-  //    Too short = penalized, sweet spot = 400-700 words
-  let lengthScore = 0;
-  if (wordCount >= 400 && wordCount <= 900) lengthScore = 10;
-  else if (wordCount >= 300) lengthScore = 7;
-  else if (wordCount >= 200) lengthScore = 4;
-  else if (wordCount >= 100) lengthScore = 2;
-  else lengthScore = 0;
-  // Penalty for excessively long resumes (> 1200 words)
-  if (wordCount > 1200) lengthScore = Math.max(0, lengthScore - 3);
-
-  // 6. CONTACT INFO (0–5 pts)
-  const contactScore = (hasEmail ? 2 : 0) + (hasPhone ? 1 : 0) + (hasLinkedIn ? 1 : 0) + (hasGitHub ? 1 : 0);
-
-  // 7. FORMATTING QUALITY (0–5 pts)
-  //    Bullet points, structure, consistency
-  let formatScore = 0;
-  if (hasBulletPoints && bulletCount >= 5) formatScore += 3;
-  else if (hasBulletPoints) formatScore += 1;
-  // Has multiple lines (not a wall of text)
-  if (lines.length >= 15) formatScore += 1;
-  // Has some structure (short lines mixed with longer ones — indicates headings + content)
-  const shortLines = lines.filter(l => l.length > 0 && l.length < 40).length;
-  const longLines = lines.filter(l => l.length >= 40).length;
-  if (shortLines >= 3 && longLines >= 3) formatScore += 1;
-  formatScore = Math.min(formatScore, 5);
-
-  // === CALCULATE TOTAL ===
-  let atsScore = keywordScore + breadthBonus + sectionScore + verbScore + quantScore + lengthScore + contactScore + formatScore;
-  atsScore = Math.max(5, Math.min(atsScore, 97)); // clamp 5–97
-
-  // --- Fake Resume / Non-Resume Additional Check ---
-  const sectionCount = Object.values(sectionsChecklist).filter(Boolean).length;
-  if (sectionCount === 0 && foundKeywords.length < 3 && actionVerbCount < 2) {
-    return res.status(400).json({ 
-      error: RESUME_REJECTION_MESSAGE
-    });
-  }
-
-  // --- Actionable Suggestions ---
-  const suggestions = [];
-
-  if (wordCount < 200) {
-    suggestions.push(`📝 Resume Length (${wordCount} words): Your resume is very short. Aim for 400–700 words for a strong ATS profile. Add details about your responsibilities and achievements.`);
-  } else if (wordCount < 350) {
-    suggestions.push(`📝 Resume Length (${wordCount} words): Your resume could be longer. Aim for 400–700 words. Flesh out your experience descriptions with specific accomplishments.`);
-  }
-  if (!sectionsChecklist.experience) {
-    suggestions.push('🏢 Missing "Experience" Section: Add a clear "Work Experience" or "Professional Experience" heading on its own line. ATS systems look for this explicitly.');
-  }
-  if (!sectionsChecklist.projects) {
-    suggestions.push('💻 Missing "Projects" Section: A dedicated Projects section showcases practical skills. Include 2–4 projects with tech stack and measurable impact.');
-  }
-  if (!sectionsChecklist.skills) {
-    suggestions.push('🛠️ Missing "Skills" Section: Add a clear "Technical Skills" or "Skills" heading with a list of languages, frameworks, and tools. ATS systems scan this heavily.');
-  }
-  if (!sectionsChecklist.education) {
-    suggestions.push('🎓 Missing "Education" Section: Include your degree, institution, and graduation year under a clear "Education" heading.');
-  }
-  if (actionVerbCount < 5) {
-    suggestions.push(`⚡ Action Verbs (${actionVerbCount} effective uses): Start bullet points with strong action verbs — e.g., "Engineered", "Deployed", "Reduced", "Optimized". Aim for 8+ across your resume.`);
-  }
-  if (quantificationCount === 0) {
-    suggestions.push('📊 No Quantified Achievements: Recruiters want numbers. Add metrics like "Reduced load time by 40%", "Served 10,000+ users", "Saved ₹2L in costs". Aim for 3-5 quantified results.');
-  } else if (quantificationCount < 3) {
-    suggestions.push(`📊 Low Quantification (${quantificationCount} found): Add more measurable impact statements. Each project or job should have at least one metric.`);
-  }
-  if (!hasEmail) {
-    suggestions.push('📧 No Email Detected: Make sure your email address is clearly visible at the top of your resume.');
-  }
-  if (roleKeywordsFound.length < Math.ceil(roleKeywords.length * 0.3)) {
-    const missingRoleKws = roleKeywords.filter(kw => !foundKeywords.includes(kw)).slice(0, 5);
-    suggestions.push(`🔍 Low Role Keyword Match (${roleKeywordsFound.length} of ${roleKeywords.length}): For ${selectedRoleKey} roles, add: ${missingRoleKws.join(', ')}. These are what ATS filters scan for.`);
-  }
-  if (!hasBulletPoints) {
-    suggestions.push('📋 No Bullet Points Detected: Structure your experience and projects with bullet points (•, -, *). ATS systems and recruiters both prefer bulleted content over paragraphs.');
-  }
-  if (missingKeywords.includes('Git')) {
-    suggestions.push('🔗 Git Missing: Almost every tech role expects Git proficiency. Add "Git, GitHub" to your skills section if you use it.');
-  }
-
-  if (suggestions.length === 0) {
-    suggestions.push('✅ Excellent! Your resume has strong keyword coverage, clear sections, quantified impact, and good action verb density.');
-  }
-
-  const result = {
-    atsScore,
-    roleRelevanceScore,
-    foundKeywords: foundKeywords.slice(0, 20),
-    missingKeywords: missingKeywords.slice(0, 15),
-    roleKeywordsMissing: roleKeywords.filter(kw => !foundKeywords.includes(kw)).slice(0, 10),
-    suggestions,
-    sectionsChecklist,
-    actionVerbCount,
-    wordCount,
-    contactInfo: { hasEmail, hasPhone, hasLinkedIn, hasGitHub },
-    hasQuantification: quantificationCount > 0,
-    quantificationCount,
-    hasBulletPoints,
-    bulletCount,
-    scoreBreakdown: { keywordScore: keywordScore + breadthBonus, sectionScore, verbScore, quantScore, lengthScore, contactScore, formatScore }
-  };
-
-  console.log('[resume] Score:', result.atsScore, '| Words:', wordCount, '| Sections:', JSON.stringify(sectionsChecklist), '| Keywords:', foundKeywords.length, '| Verbs:', actionVerbCount, '| Quant:', quantificationCount, '| Breakdown:', JSON.stringify(result.scoreBreakdown));
-
-  await saveOrUpdateAnalysis(userId, { resumeData: result, targetRole });
-  res.json(result);
-});
-
-// 3. Analyze LinkedIn — STRICT SCORING, URL-ONLY IS LOW
-app.post('/api/analyze/linkedin', async (req, res) => {
-  const { username, targetRole, token, selfReport } = req.body;
-  let userId = null;
-  if (token) {
-    try { const decoded = jwt.verify(token, JWT_SECRET); userId = decoded.id; } catch (e) { }
-  }
-
-  const cleanUsername = parseLinkedInProfileInput(username);
-  if (!cleanUsername) {
-    return res.status(400).json({ error: LINKEDIN_REJECTION_MESSAGE });
-  }
-
-  const slug = cleanUsername;
-  const cleanUrl = `https://linkedin.com/in/${slug}`;
-
-  // URL Quality Analysis
-  const defaultUrlRegex = /-\w*\d{3,}$|^\w{10,}[\d]{4,}$/;
-  const isDefaultUrl = defaultUrlRegex.test(slug);
-  const hasCustomSlug = !isDefaultUrl && slug.length >= 3 && slug.length <= 50;
-  const slugQuality = (() => {
-    if (!slug || slug.length < 3) return 'invalid';
-    if (hasCustomSlug && !/\d{3,}/.test(slug)) return 'excellent';
-    if (hasCustomSlug) return 'good';
-    return 'default';
-  })();
-
-  // Headline Templates
-  const headlineTemplates = {
-    frontend: 'Frontend Engineer | React | TypeScript | Next.js | Building Scalable Web UIs',
-    backend: 'Backend Engineer | Node.js | Python | PostgreSQL | REST API Design',
-    fullstack: 'Full-Stack Developer | React | Node.js | AWS | Docker | Scaling SaaS Applications',
-    'ml-engineer': 'Machine Learning Engineer | Python | PyTorch | TensorFlow | MLOps'
-  };
-  const suggestedHeadline = headlineTemplates[targetRole] || headlineTemplates['frontend'];
-
-  // Self-reported data is optional. A URL-only scan should produce a LOW score.
-  const sr = selfReport && typeof selfReport === 'object' ? selfReport : {};
-  const hasSelfReport = Object.keys(sr).length > 0;
-  const hasProfilePhoto = sr.hasProfilePhoto === true;
-  const has500Connections = sr.has500Connections === true;
-  const hasHeadlineKeywords = sr.hasHeadlineKeywords === true;
-  const hasSummary = sr.hasSummary === true;
-  const hasSkillsSection = sr.hasSkillsSection === true;
-  const hasRecommendations = sr.hasRecommendations === true;
-  const suppliedHeadline = typeof sr.headline === 'string' ? sr.headline.trim() : '';
-
-  // Checklist
-  const checklist = {
-    customUrl: hasCustomSlug,
-    profilePhoto: hasProfilePhoto,
-    headlineKeywords: hasHeadlineKeywords,
-    connectionsStrength: has500Connections,
-    aboutSection: hasSummary,
-    skillsEndorsed: hasSkillsSection,
-    recommendations: hasRecommendations,
-    urlVerifiable: true,
-    photoVerifiable: false,
-    connectionsVerifiable: false,
-    headlineVerifiable: false,
-  };
-
-  // === RECALIBRATED SCORING (100 total) ===
-  // Base: 25 pts (you have a LinkedIn account)
-  // URL quality: 0-20 pts
-  // Self-report items: 0-50 pts total
-  // Role clue: 0-10 pts
-
-  let score = 25; // base: a LinkedIn handle was supplied
-
-  // 1. URL Quality (0-20 pts)
-  const slugTokens = slug
-    .toLowerCase()
-    .split(/[^a-z0-9+#.]+/)
-    .filter(Boolean);
-  const slugText = slugTokens.join(' ');
-  const digitCount = (slug.match(/\d/g) || []).length;
-  const hasLongRandomToken = slugTokens.some(token => token.length >= 14 && !/[aeiou]/i.test(token));
-  const hasReadableNameShape = slugTokens.length >= 2 || /^[a-z]+-[a-z]+$/i.test(slug);
-
-  let urlScore = 0;
-  if (slugQuality === 'excellent') urlScore += 12;
-  else if (slugQuality === 'good') urlScore += 8;
-  else urlScore += 4;
-
-  if (hasReadableNameShape) urlScore += 4;
-  if (slug.length >= 8 && slug.length <= 28) urlScore += 4;
-  if (digitCount > 0) urlScore -= Math.min(6, digitCount * 2);
-  if (hasLongRandomToken) urlScore -= 4;
-  urlScore = Math.max(0, Math.min(urlScore, 20));
-  score += urlScore;
-
-  // 2. Role Matching (0-10 pts)
-  const roleKeywords = {
-    'frontend': ['frontend', 'react', 'ui', 'web', 'javascript', 'front-end'],
-    'backend': ['backend', 'api', 'server', 'node', 'java', 'python', 'back-end'],
-    'fullstack': ['fullstack', 'full-stack', 'software engineer', 'developer', 'software developer'],
-    'ml-engineer': ['ml', 'machine learning', 'ai', 'data', 'python', 'scientist']
-  };
-
-  let roleClueScore = 0;
-  if (targetRole) {
-    const targetKeywords = roleKeywords[targetRole] || roleKeywords['frontend'];
-    const roleSource = `${suppliedHeadline} ${slugText}`.toLowerCase();
-    const headlineMatchesRole = targetKeywords.some(kw => roleSource.includes(kw));
-
-    if (headlineMatchesRole) {
-      roleClueScore = suppliedHeadline ? 10 : 5; // headline match is worth more than slug match
-    } else if (suppliedHeadline) {
-      roleClueScore = -3; // Penalty for headline that doesn't match target role
-    } else {
-      // If URL-only, we dynamically adjust the score slightly based on the target role
-      // so the user sees the score update when changing roles.
-      const roleWeights = { 'frontend': 3, 'backend': 4, 'fullstack': 5, 'ml-engineer': 6 };
-      roleClueScore = roleWeights[targetRole] || 3;
-    }
-    score += roleClueScore;
-  }
-
-  // 3. Self-Reported Profile Quality (0-50 pts)
-  if (hasSelfReport) {
-    if (hasProfilePhoto) score += 8;       
-    if (has500Connections) score += 10;     
-    if (hasHeadlineKeywords) score += 10;   
-    if (hasSummary) score += 8;            
-    if (hasSkillsSection) score += 8;      
-    if (hasRecommendations) score += 6;     
-    // Sub-total: 8+10+10+8+8+6 = 50 pts
-  }
-
-  score = Math.max(10, Math.min(score, 97));
-
-  // Actionable tips — ordered by impact
-  const tips = [];
-  if (!hasSelfReport) {
-    tips.push('⚠️ URL-only analysis: Your score is limited because LinkedIn profiles are not publicly accessible. Fill the profile checklist below or upload a LinkedIn PDF export for an accurate score.');
-  }
-  if (!hasCustomSlug) tips.push('🔗 Customize your LinkedIn URL: Go to LinkedIn → Edit Profile → Edit public profile & URL. A clean URL like linkedin.com/in/firstname-lastname is more professional and easier to share.');
-  if (!has500Connections) tips.push('🤝 Build connections to 500+: Connect with classmates, colleagues, and people in your industry. 500+ shows activity and makes your profile appear in more recruiter searches.');
-  if (!hasHeadlineKeywords) tips.push(`💡 Optimize your headline: Your headline is the most-searched field. Instead of just your job title, use: "${suggestedHeadline}"`);
-  if (!hasProfilePhoto) tips.push('📸 Add a professional profile photo: Profiles with photos get 21x more profile views. Use a clear headshot with a plain background.');
-  if (!hasSummary) tips.push('📝 Write an About/Summary section: Use 3–5 sentences describing who you are, what you do, and what you\'re looking for. Include your top 3 skills.');
-  if (!hasSkillsSection) tips.push('🛠️ Add Skills and get Endorsements: Add 10+ relevant skills. Ask colleagues to endorse you. Skills appear in recruiter keyword searches.');
-  if (!hasRecommendations) tips.push('⭐ Request Recommendations: 3+ recommendations from colleagues or managers dramatically boost credibility. Send a personalized request.');
-
-  if (tips.length === 0) {
-    tips.push('✅ Excellent LinkedIn profile setup! Focus on posting content regularly and engaging with your network to maintain visibility.');
-  }
-
-  const result = {
-    score,
-    checklist,
-    slugQuality,
-    isDefaultUrl,
-    hasCustomSlug,
-    suggestedHeadline,
-    profileHandle: slug,
-    profileUrl: cleanUrl,
-    tips,
-    scoreBreakdown: {
-      baseScore: 10,
-      urlScore,
-      roleClueScore,
-      photoScore: hasProfilePhoto ? 8 : 0,
-      connectionsScore: has500Connections ? 12 : 0,
-      headlineScore: hasHeadlineKeywords ? 12 : 0,
-      summaryScore: hasSummary ? 10 : 0,
-      skillsScore: hasSkillsSection ? 10 : 0,
-      recommendationsScore: hasRecommendations ? 8 : 0,
-    },
-    analysisNote: hasSelfReport
-      ? 'LinkedIn does not provide a public API. URL structure is verified automatically. Other profile quality items are self-reported and not independently verified.'
-      : 'LinkedIn does not provide a public API. This is a URL-only estimate and is intentionally low. Fill the profile checklist or upload a LinkedIn PDF export for a real score.',
-    selfReport: sr
-  };
-
-  await saveOrUpdateAnalysis(userId, { linkedinUsername: slug, linkedinData: result });
-  res.json(result);
-});
-
-// 3.5 Analyze LinkedIn PDF — STRICT CONTENT-BASED SCORING
-app.post('/api/analyze/linkedin-pdf', async (req, res) => {
-  const { linkedinText, targetRole, token } = req.body;
-  let userId = null;
-  if (token) {
-    try { const decoded = jwt.verify(token, JWT_SECRET); userId = decoded.id; } catch (e) { }
-  }
-
-  if (!linkedinText) return res.status(400).json({ error: 'No text provided.' });
-
-  const txt = linkedinText.toLowerCase();
-  const lines = linkedinText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  const wordCount = linkedinText.split(/\s+/).filter(Boolean).length;
-
-  // === Section Detection (strict heading check) ===
-  const detectSectionHeader = (keywords) => {
-    for (const line of lines) {
-      const clean = line.toLowerCase().replace(/[:\-–—|•*#]/g, '').trim();
-      if (clean.length < 50) {
-        for (const kw of keywords) {
-          if (new RegExp(`\\b${kw}\\b`, 'i').test(clean)) return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  const hasExperience = detectSectionHeader(['experience', 'work history', 'employment']);
-  const hasEducation = detectSectionHeader(['education', 'academic']);
-  const hasSkills = detectSectionHeader(['skills', 'competencies', 'technologies']);
-  const hasCertifications = detectSectionHeader(['certifications', 'licenses', 'credentials']);
-  const hasProjects = detectSectionHeader(['projects', 'portfolio']);
-  const hasSummary = detectSectionHeader(['summary', 'about', 'objective', 'profile']);
-  const hasVolunteering = detectSectionHeader(['volunteer', 'volunteering']);
-
-  // === Content Depth Analysis ===
-  // Count experience entries (company names, role titles with dates)
-  const datePatterns = txt.match(/\b(20\d{2}|19\d{2})\b/g) || [];
-  const experienceEntries = Math.min(Math.floor(datePatterns.length / 2), 10); // each role has ~2 dates
-
-  // Bullet points / descriptions
-  const bulletCount = (linkedinText.match(/^[\s]*[•\-\*▸▹►➤→]/gm) || []).length;
-  const hasBullets = bulletCount > 0;
-
-  // Action verbs in context
-  const ACTION_VERBS = ['developed', 'built', 'led', 'managed', 'designed', 'implemented', 'created',
-    'optimized', 'deployed', 'engineered', 'architected', 'automated', 'improved', 'reduced',
-    'launched', 'collaborated', 'delivered', 'analyzed', 'integrated', 'mentored', 'scaled'];
-  let actionVerbCount = 0;
-  ACTION_VERBS.forEach(verb => {
-    const matches = txt.match(new RegExp(`\\b${verb}\\w*\\b`, 'g'));
-    if (matches) actionVerbCount += matches.length;
-  });
-
-  // Quantified achievements
-  const quantMatches = (linkedinText.match(/\d+\s*%|\d+x\b|\$[\d,]+|₹[\d,]+|\b\d+[kKmM]\+?\s*(users?|customers?)/gi) || []).length;
-
-  // === Role Keyword Matching ===
-  const roleKeywords = {
-    'frontend': ['frontend', 'react', 'vue', 'angular', 'ui', 'css', 'html', 'javascript', 'typescript', 'next.js', 'tailwind', 'responsive'],
-    'backend': ['backend', 'api', 'server', 'node', 'java', 'python', 'go', 'sql', 'database', 'postgresql', 'mongodb', 'redis', 'express'],
-    'fullstack': ['fullstack', 'full-stack', 'software engineer', 'developer', 'react', 'node', 'typescript', 'database', 'api'],
-    'ml-engineer': ['ml', 'machine learning', 'ai', 'data', 'python', 'pytorch', 'tensorflow', 'model', 'deep learning', 'nlp', 'pandas']
-  };
-  const targetKws = roleKeywords[targetRole] || roleKeywords['frontend'];
-  let foundKws = [];
-  let missingKws = [];
-  targetKws.forEach(kw => {
-    if (txt.includes(kw)) foundKws.push(kw);
-    else missingKws.push(kw);
-  });
-
-  const kwRatio = foundKws.length / targetKws.length;
-
-  // === SCORING (100 total, all start from 0) ===
-
-  // 1. Keyword Match (0-30 pts) — role-relevant keywords present
-  let kwScore = Math.round(kwRatio * 30);
-
-  // 2. Experience Depth (0-25 pts) — not just "has experience" but how rich it is
-  let expDepth = 0;
-  if (hasExperience) {
-    expDepth += 5; // has section
-    expDepth += Math.min(experienceEntries * 3, 9); // entries (max 3 roles = 9)
-    if (hasBullets && bulletCount >= 3) expDepth += 4;
-    else if (hasBullets) expDepth += 2;
-    if (actionVerbCount >= 5) expDepth += 4;
-    else if (actionVerbCount >= 2) expDepth += 2;
-    if (quantMatches >= 2) expDepth += 3;
-    else if (quantMatches >= 1) expDepth += 1;
-  }
-  expDepth = Math.min(expDepth, 25);
-
-  // 3. Profile Completeness (0-25 pts) — how many sections are filled
-  let completeness = 0;
-  if (hasExperience) completeness += 6;
-  if (hasEducation) completeness += 4;
-  if (hasSkills) completeness += 5;
-  if (hasCertifications) completeness += 3;
-  if (hasProjects) completeness += 4;
-  if (hasSummary) completeness += 3;
-  completeness = Math.min(completeness, 25);
-
-  // 4. Content Quality (0-20 pts) — length, depth, specificity
-  let contentQuality = 0;
-  if (wordCount >= 500) contentQuality += 6;
-  else if (wordCount >= 300) contentQuality += 4;
-  else if (wordCount >= 150) contentQuality += 2;
-
-  if (actionVerbCount >= 8) contentQuality += 5;
-  else if (actionVerbCount >= 4) contentQuality += 3;
-  else if (actionVerbCount >= 1) contentQuality += 1;
-
-  if (quantMatches >= 3) contentQuality += 5;
-  else if (quantMatches >= 1) contentQuality += 2;
-
-  if (lines.length >= 30) contentQuality += 4;
-  else if (lines.length >= 15) contentQuality += 2;
-  contentQuality = Math.min(contentQuality, 20);
-
-  const overall = Math.max(5, Math.min(kwScore + expDepth + completeness + contentQuality, 97));
-
-  // Quick Wins — actionable, specific
-  const quickWins = [];
-  if (!hasExperience) quickWins.push('🏢 Add a detailed Experience section with company names, roles, dates, and bullet points describing your responsibilities.');
-  if (!hasSkills) quickWins.push('🛠️ Add a dedicated Skills section listing your technical and professional skills.');
-  if (!hasProjects) quickWins.push('💻 Link or describe 1-2 major projects to show practical hands-on experience.');
-  if (!hasSummary) quickWins.push('📝 Add a Summary/About section at the top describing your professional identity and goals.');
-  if (actionVerbCount < 4) quickWins.push('⚡ Use more action verbs (Developed, Built, Led, Optimized) to describe your achievements.');
-  if (quantMatches === 0) quickWins.push('📊 Add quantified achievements: "Improved performance by 40%", "Managed team of 5", etc.');
-  if (missingKws.length > 0) quickWins.push(`🔍 Add missing role keywords: ${missingKws.slice(0, 4).join(', ')}`);
-  if (quickWins.length === 0) quickWins.push('✅ Great profile! Keep engaging and posting content.');
-
-  const result = {
-    score: overall,
-    metrics: {
-      skillMatch: Math.round(kwRatio * 100),
-      expDepth: Math.round((expDepth / 25) * 100),
-      completeness: Math.round((completeness / 25) * 100),
-      kwScore: Math.round(kwRatio * 100),
-      overall
-    },
-    sections: {
-      hasExperience,
-      hasEducation,
-      hasSkills,
-      hasCertifications,
-      hasProjects,
-      hasSummary
-    },
-    contentStats: {
-      wordCount,
-      lineCount: lines.length,
-      experienceEntries,
-      bulletCount,
-      actionVerbCount,
-      quantifiedAchievements: quantMatches
-    },
-    foundKws,
-    missingKws,
-    quickWins,
-    isPdfParsed: true
-  };
-
-  await saveOrUpdateAnalysis(userId, { linkedinData: result, targetRole });
-  res.json(result);
-});
-
-// 4. Retrieve scans
-app.get('/api/history', authenticateToken, async (req, res) => {
-  try {
-    if (isDbConnected) {
-      const analysisResult = await pool.query(
-        `SELECT user_id AS "userId", github_username AS "githubUsername", scores, github_data AS "githubData", resume_data AS "resumeData", linkedin_data AS "linkedinData", linkedin_url AS "linkedinUsername", target_role AS "targetRole", created_at AS "createdAt", updated_at AS "updatedAt" FROM analyses WHERE user_id = $1 LIMIT 1`,
-        [req.user.id]
-      );
-      return res.json(mapAnalysisRow(analysisResult.rows[0]));
-    } else {
-      const db = readLocalDb();
-      const analysis = db.analyses.find(a => a.userId === req.user.id);
-      return res.json(analysis || null);
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Server error retrieving history.' });
-  }
-});
-
 // 5. Get dynamic roadmaps
 app.get('/api/roadmap', async (req, res) => {
   const roleKey = req.query.role || 'frontend';
@@ -1494,9 +453,9 @@ app.get('/api/roadmap', async (req, res) => {
     try { const decoded = jwt.verify(token, JWT_SECRET); userId = decoded.id; } catch (e) { }
   }
 
-  let activeGithub = guestAnalysis.githubData;
-  let activeResume = guestAnalysis.resumeData;
-  let activeLinkedin = guestAnalysis.linkedinData;
+  let activeGithub = null;
+  let activeResume = null;
+  let activeLinkedin = null;
 
   if (userId) {
     if (isDbConnected) {
@@ -1514,9 +473,10 @@ app.get('/api/roadmap', async (req, res) => {
   }
 
   const userSkills = new Set();
-  if (activeGithub) activeGithub.languages.forEach(l => userSkills.add(l.name));
-  if (activeResume) activeResume.foundKeywords.forEach(kw => userSkills.add(kw));
-  if (activeLinkedin?.foundKws) activeLinkedin.foundKws.forEach(kw => userSkills.add(kw));
+  if (activeGithub?.languages) activeGithub.languages.forEach(l => l && l.name && userSkills.add(l.name));
+  if (activeGithub?.topLanguages) activeGithub.topLanguages.forEach(l => l && userSkills.add(typeof l === 'string' ? l : l.name));
+  if (activeResume?.foundKeywords) activeResume.foundKeywords.forEach(kw => kw && userSkills.add(kw));
+  if (activeLinkedin?.foundKws) activeLinkedin.foundKws.forEach(kw => kw && userSkills.add(kw));
   if (activeLinkedin?.metrics?.skillMatch >= 70) userSkills.add('LinkedIn Profile Optimization');
   if (userSkills.size === 0) ['React', 'JavaScript', 'HTML', 'CSS', 'Git'].forEach(s => userSkills.add(s));
 
@@ -1527,7 +487,7 @@ app.get('/api/roadmap', async (req, res) => {
       const usL = us.toLowerCase().replace(/[^a-z0-9]/g, '');
       const skL = skill.toLowerCase().split('/')[0].split('(')[0].replace(/[^a-z0-9]/g, '');
       const skL2 = skill.toLowerCase().includes('/') ? skill.toLowerCase().split('/')[1].split('(')[0].replace(/[^a-z0-9]/g, '') : null;
-      
+
       if (usL === skL || usL.includes(skL) || skL.includes(usL)) {
         hasSkill = true;
       }
@@ -1738,10 +698,10 @@ app.post('/api/chat', async (req, res) => {
       `${getDynamicProjectIdeas(signals, roleKey)}\n\n` +
       `Open the **Project Ideas** tab for scoped builds with stacks and learning goals.`;
   } else if (userMessage.includes('skill gap') || userMessage.includes('weakness')) {
-      const missingList = signals.missingSkills.map(s => `- ${s}`).join('\n');
-      responseText = `🔍 **Your Detected Skill Gaps for ${signals.roleTitle}:**\n\n` +
-        `${missingList ? missingList : '- You have great coverage!'}\n\n` +
-        `Your weakest channel is **${signals.weakChannels[0] || 'none'}**. I recommend focusing your efforts there next.`;
+    const missingList = signals.missingSkills.map(s => `- ${s}`).join('\n');
+    responseText = `🔍 **Your Detected Skill Gaps for ${signals.roleTitle}:**\n\n` +
+      `${missingList ? missingList : '- You have great coverage!'}\n\n` +
+      `Your weakest channel is **${signals.weakChannels[0] || 'none'}**. I recommend focusing your efforts there next.`;
   } else {
     responseText = `🤖 I'm your AI Career Coach! Here are things I can help you with:\n\n` +
       `- 📊 **GitHub review** — "How do I improve my GitHub score?"\n` +
@@ -1791,9 +751,215 @@ app.get('/api/chat/history', authenticateToken, async (req, res) => {
   }
 });
 
+const checkDbConnected = () => isDbConnected;
+
+app.use('/api/analyze/resume', resumeRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
+app.use('/api/analyze/github', githubRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
+app.use('/api/analyze/linkedin', linkedinRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
+app.use('/api/analyze/project-gap', projectGapRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
+app.use('/api/analyze/job-match', jobMatchRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
+app.use('/api/analyze/report', reportRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
+app.use('/api/analyze/candidate-report', reportRoutes(pool, authenticateToken, checkDbConnected, readLocalDb, writeLocalDb));
+
+// LinkedIn PDF upload — accepts JSON body { linkedinText } OR multipart file upload
+app.post('/api/analyze/linkedin-pdf', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    let extractedText = '';
+
+    // Priority 1: JSON body with pre-extracted text (how the frontend sends it after /api/parse/resume)
+    if (req.body.linkedinText && req.body.linkedinText.trim().length > 20) {
+      extractedText = req.body.linkedinText.trim();
+    } else if (req.file) {
+      // Priority 2: Actual file upload
+      const { buffer, mimetype, originalname } = req.file;
+      const ext = (originalname || '').split('.').pop().toLowerCase();
+
+      if (ext === 'pdf' || mimetype === 'application/pdf') {
+        try {
+          const pdfData = await pdfParse(buffer);
+          extractedText = pdfData.text || '';
+        } catch (e) {
+          return res.status(422).json({ success: false, error: 'Could not extract text from the LinkedIn PDF.' });
+        }
+      } else if (ext === 'txt' || (mimetype && mimetype.startsWith('text/'))) {
+        extractedText = buffer.toString('utf-8');
+      } else {
+        return res.status(400).json({ success: false, error: 'Please upload a PDF or text file.' });
+      }
+    } else {
+      return res.status(400).json({ success: false, error: 'No LinkedIn text or PDF file provided.' });
+    }
+
+    if (!extractedText.trim()) {
+      return res.status(422).json({ success: false, error: 'The file appears to be empty or image-based.' });
+    }
+
+
+    // Treat the PDF text as a mock LinkedIn profile for analysis
+    const userId = req.user.id;
+    let resumeData = null;
+    let githubData = null;
+
+    if (isDbConnected) {
+      const profileResult = await pool.query(
+        `SELECT resume_data, github_data FROM analyses WHERE user_id = $1 LIMIT 1`, [userId]
+      );
+      if (profileResult.rows.length > 0) {
+        resumeData = profileResult.rows[0].resume_data;
+        githubData = profileResult.rows[0].github_data;
+      }
+    }
+
+    const { analyzeLinkedin } = await import('./server/services/linkedinService.js');
+    const rawProfileData = {
+      pdfText: extractedText.substring(0, 3000),
+      source: 'linkedin_pdf',
+      _resumeKeywords: resumeData?.foundKeywords || [],
+      _githubLanguages: githubData?.languages?.map(l => l.name || l) || [],
+    };
+
+    const { source_data, analysis_result } = await analyzeLinkedin(rawProfileData, resumeData, githubData);
+
+    const normalized = {
+      ...analysis_result,
+      score: Math.max(45, Math.min(100, Number(analysis_result.profileCompleteness ?? 60) || 60)),
+      source: 'linkedin_pdf',
+      strengths: analysis_result.linkedinStrengths || [],
+      weaknesses: analysis_result.linkedinWeaknesses || [],
+      recommendations: analysis_result.profileOptimizationSuggestions || [],
+      crossAnalysis: {
+        resumeConsistency: analysis_result.resumeConsistency || '',
+        githubConsistency: analysis_result.githubConsistency || '',
+      },
+      tips: analysis_result.profileOptimizationSuggestions || [],
+      foundKws: resumeData?.foundKeywords || [],
+    };
+
+    if (isDbConnected) {
+      await pool.query(
+        `INSERT INTO linkedin_analyses (user_id, linkedin_url, source_data, analysis_data)
+         VALUES ($1, $2, $3::jsonb, $4::jsonb)`,
+        [userId, 'linkedin_pdf_upload', JSON.stringify(source_data), JSON.stringify(normalized)]
+      );
+      await pool.query(
+        `INSERT INTO analyses (user_id, linkedin_data, scores) VALUES ($1, $2::jsonb, $3::jsonb)
+         ON CONFLICT (user_id) DO UPDATE SET
+           linkedin_data = EXCLUDED.linkedin_data,
+           scores = COALESCE(analyses.scores, '{}'::jsonb) || jsonb_build_object('careerReady', $4::int),
+           updated_at = NOW()`,
+        [userId, JSON.stringify(normalized), JSON.stringify({ careerReady: normalized.score }), normalized.score]
+      );
+    }
+
+    return res.json({ success: true, data: normalized });
+  } catch (err) {
+    console.error('[linkedin-pdf] Error:', err);
+    return res.status(500).json({ success: false, error: err.message || 'LinkedIn PDF analysis failed.' });
+  }
+});
+
+
+
+// ── FILE PARSING ENDPOINT ─────────────────────────────────────────────────────
+// Accepts multipart/form-data with a 'file' field (PDF, DOCX, TXT, MD)
+// Returns { text: string } on success or { error: string } on failure
+app.post('/api/parse/resume', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded. Please attach a file with field name "file".' });
+    }
+
+    const { originalname, buffer, mimetype } = req.file;
+    const ext = (originalname || '').split('.').pop().toLowerCase();
+    let text = '';
+
+    if (ext === 'txt' || ext === 'md' || mimetype === 'text/plain' || mimetype === 'text/markdown') {
+      text = buffer.toString('utf-8');
+    } else if (ext === 'pdf' || mimetype === 'application/pdf') {
+      try {
+        const pdfData = await pdfParse(buffer);
+        text = pdfData.text || '';
+      } catch (pdfErr) {
+        console.error('[parse/resume] PDF parse error:', pdfErr.message);
+        return res.status(422).json({ error: 'Could not extract text from this PDF. It may be a scanned image. Please paste your resume text instead.' });
+      }
+    } else if (ext === 'docx' || mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      try {
+        const result = await mammoth.extractRawText({ buffer });
+        text = result.value || '';
+      } catch (docxErr) {
+        console.error('[parse/resume] DOCX parse error:', docxErr.message);
+        return res.status(422).json({ error: 'Could not extract text from this DOCX file. Please paste your resume text instead.' });
+      }
+    } else {
+      return res.status(400).json({ error: `Unsupported file type ".${ext}". Please upload a PDF, DOCX, TXT, or MD file.` });
+    }
+
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+
+    if (!text || text.length < 30) {
+      return res.status(422).json({ error: 'Could not extract meaningful text from this file. Please paste your resume text instead.' });
+    }
+
+    res.json({ text, wordCount: text.split(/\s+/).filter(Boolean).length, filename: originalname });
+  } catch (err) {
+    console.error('[parse/resume] Unexpected error:', err);
+    res.status(500).json({ error: 'Server error while parsing file. Please paste your resume text instead.' });
+  }
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', database: isDbConnected ? 'PostgreSQL' : 'JSON File Fallback', allowedOrigins });
 });
 
-export default app;
+// AI Engine Status endpoint - tests Gemini connectivity
+app.get('/api/ai-status', async (req, res) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey.includes('your_')) {
+    return res.json({ 
+      status: 'not_configured', 
+      message: 'Gemini API key not configured',
+      usingFallback: true
+    });
+  }
 
+  try {
+    const testRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'Reply with just: OK' }] }],
+          generationConfig: { maxOutputTokens: 5 }
+        })
+      }
+    );
+
+    if (testRes.status === 200) {
+      return res.json({ status: 'online', message: 'Gemini AI is active', usingFallback: false });
+    } else if (testRes.status === 429) {
+      return res.json({ 
+        status: 'quota_exceeded', 
+        message: 'Gemini AI quota exceeded. Analysis running on fallback engine.',
+        usingFallback: true
+      });
+    } else {
+      return res.json({ 
+        status: 'error', 
+        message: `Gemini AI returned status ${testRes.status}`,
+        usingFallback: true
+      });
+    }
+  } catch (e) {
+    return res.json({ 
+      status: 'offline', 
+      message: 'Cannot reach Gemini AI. Using fallback intelligence engine.',
+      usingFallback: true
+    });
+  }
+});
+
+
+export default app;

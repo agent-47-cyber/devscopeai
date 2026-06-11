@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from './config.js';
+import LoginPage from './components/LoginPage.jsx';
 import LandingPage from './components/LandingPage.jsx';
 import InputForm from './components/InputForm.jsx';
 import Dashboard from './components/Dashboard.jsx';
-import AuthModal from './components/AuthModal.jsx';
 
 const getResponseJson = async (response) => response.json().catch(() => ({}));
 
-function App() {
-  const [currentView, setCurrentView] = useState('landing'); // 'landing', 'input', 'dashboard'
+function AppRoutes() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const [profileData, setProfileData] = useState({
     githubUsername: '',
@@ -36,7 +36,7 @@ function App() {
   useEffect(() => {
     const savedToken = localStorage.getItem('devscope_token');
     const savedUser = localStorage.getItem('devscope_user');
-    
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
@@ -58,11 +58,10 @@ function App() {
             linkedinUsername: data.linkedinUsername || '',
             targetRole: data.targetRole || 'frontend'
           });
-          setScores(data.scores);
-          setGithubAnalysis(data.githubData);
-          setResumeAnalysis(data.resumeData);
-          setLinkedinAnalysis(data.linkedinData);
-          setCurrentView('dashboard');
+          setScores(data.scores || { portfolio: null, ats: null, github: null, careerReady: null });
+          setGithubAnalysis(data.githubData || null);
+          setResumeAnalysis(data.resumeData || null);
+          setLinkedinAnalysis(data.linkedinData || null);
         }
       }
     } catch (err) {
@@ -74,6 +73,7 @@ function App() {
     setUser(authUser);
     setToken(authToken);
     loadUserHistory(authToken);
+    navigate('/dashboard');
   };
 
   const handleLogout = () => {
@@ -82,14 +82,22 @@ function App() {
     setUser(null);
     setToken(null);
     setLinkedinAnalysis(null);
-    resetApp();
+    setProfileData({
+      githubUsername: '',
+      resumeText: '',
+      linkedinUsername: '',
+      targetRole: 'frontend'
+    });
+    setGithubAnalysis(null);
+    setResumeAnalysis(null);
+    navigate('/');
   };
 
   // Handle Form Submission - Triggers API calls
   const handleStartAnalysis = async (formData) => {
     setIsLoading(true);
     setProfileData(formData);
-    
+
     try {
       let ghResult = null;
       let resumeResult = null;
@@ -99,20 +107,24 @@ function App() {
       if (formData.githubUsername) {
         const ghResponse = await fetch(`${API_BASE_URL}/api/analyze/github`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
             username: formData.githubUsername,
             targetRole: formData.targetRole,
             token: token
           })
         });
         if (ghResponse.ok) {
-          ghResult = await getResponseJson(ghResponse);
+          const raw = await getResponseJson(ghResponse);
+          ghResult = raw.data || raw;  // unwrap { success, data } envelope
           setGithubAnalysis(ghResult);
         } else {
           const errorResult = await getResponseJson(ghResponse);
           setGithubAnalysis(null);
-          alert(errorResult.error || 'Failed to analyze GitHub username. Please verify the profile exists and try again.');
+          alert(errorResult.error || 'Failed to analyze GitHub username.');
         }
       }
 
@@ -120,20 +132,24 @@ function App() {
       if (formData.resumeText) {
         const resumeResponse = await fetch(`${API_BASE_URL}/api/analyze/resume`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
             resumeText: formData.resumeText,
             targetRole: formData.targetRole,
             token: token
           })
         });
         if (resumeResponse.ok) {
-          resumeResult = await getResponseJson(resumeResponse);
+          const raw = await getResponseJson(resumeResponse);
+          resumeResult = raw.data || raw;  // unwrap { success, data } envelope
           setResumeAnalysis(resumeResult);
         } else {
           const errorResult = await getResponseJson(resumeResponse);
           setResumeAnalysis(null);
-          alert(errorResult.error || 'This file is not a resume. Please upload a resume file or paste your resume text.');
+          alert(errorResult.error || 'This file is not a resume.');
         }
       }
 
@@ -141,15 +157,19 @@ function App() {
       if (formData.linkedinUsername) {
         const liResponse = await fetch(`${API_BASE_URL}/api/analyze/linkedin`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
             username: formData.linkedinUsername,
             targetRole: formData.targetRole,
             token: token
           })
         });
         if (liResponse.ok) {
-          liResult = await getResponseJson(liResponse);
+          const raw = await getResponseJson(liResponse);
+          liResult = raw.data || raw;  // unwrap { success, data } envelope
           setLinkedinAnalysis(liResult);
         } else {
           const errorResult = await getResponseJson(liResponse);
@@ -164,92 +184,79 @@ function App() {
         ats: resumeResult ? resumeResult.atsScore : null,
         careerReady: liResult ? liResult.score : null,
       };
-      
+
       const activeScores = [];
       if (newScores.github !== null) activeScores.push(newScores.github);
       if (newScores.ats !== null) activeScores.push(newScores.ats);
       if (newScores.careerReady !== null) activeScores.push(newScores.careerReady);
 
-      newScores.portfolio = activeScores.length > 0 
+      newScores.portfolio = activeScores.length > 0
         ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length)
         : null;
 
       if (activeScores.length === 0) {
-        setCurrentView('input');
+        setIsLoading(false);
         return;
       }
-      
+
       setScores(newScores);
-      setCurrentView('dashboard');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Analysis failed:', error);
-      setCurrentView('dashboard');
+      navigate('/dashboard');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const resetApp = () => {
-    setCurrentView('landing');
-    setProfileData({
-      githubUsername: '',
-      resumeText: '',
-      linkedinUsername: '',
-      targetRole: 'frontend'
-    });
-    setGithubAnalysis(null);
-    setResumeAnalysis(null);
-    setLinkedinAnalysis(null);
-  };
-
-  const triggerGetStarted = () => {
-    if (user) {
-      setCurrentView('input');
-    } else {
-      setShowAuthModal(true);
-    }
+  const dashboardProps = {
+    profileData,
+    scores,
+    githubAnalysis,
+    resumeAnalysis,
+    linkedinAnalysis,
+    onHome: handleLogout,
+    user
   };
 
   return (
-    <div className="app-wrapper">
-      {currentView === 'landing' && (
-        <LandingPage 
-          onGetStarted={triggerGetStarted} 
-          scores={scores}
-          onLoginClick={() => setShowAuthModal(true)}
-          user={user}
-          onLogout={handleLogout}
-        />
-      )}
-
-      {currentView === 'input' && (
-        <InputForm 
-          onSubmit={handleStartAnalysis} 
-          onBack={() => setCurrentView('landing')}
-          isLoading={isLoading}
-        />
-      )}
-
-      {currentView === 'dashboard' && (
-        <Dashboard 
-          profileData={profileData}
-          scores={scores}
-          githubAnalysis={githubAnalysis}
-          resumeAnalysis={resumeAnalysis}
-          linkedinAnalysis={linkedinAnalysis}
-          onHome={handleLogout} // Logs out and returns to landing
-          user={user}
-        />
-      )}
-
-      {showAuthModal && (
-        <AuthModal 
-          onClose={() => setShowAuthModal(false)} 
-          onAuthSuccess={handleAuthSuccess}
-        />
-      )}
-    </div>
+    <Routes>
+      {/* Root route: if logged in go to dashboard, else show login */}
+      <Route
+        path="/"
+        element={token ? <Navigate to="/dashboard" /> : <LoginPage onAuthSuccess={handleAuthSuccess} />}
+      />
+      {/* Also expose /login explicitly */}
+      <Route
+        path="/login"
+        element={token ? <Navigate to="/dashboard" /> : <LoginPage onAuthSuccess={handleAuthSuccess} />}
+      />
+      {/* Landing page (marketing) - accessible always */}
+      <Route
+        path="/home"
+        element={<LandingPage onGetStarted={() => navigate('/login')} scores={scores} onLoginClick={() => navigate('/login')} user={user} onLogout={handleLogout} />}
+      />
+      <Route
+        path="/input"
+        element={token ? <InputForm onSubmit={handleStartAnalysis} onBack={() => navigate('/dashboard')} isLoading={isLoading} /> : <Navigate to="/" />}
+      />
+      <Route path="/dashboard" element={token ? <Dashboard {...dashboardProps} /> : <Navigate to="/" />} />
+      <Route path="/resume" element={token ? <Dashboard {...dashboardProps} /> : <Navigate to="/" />} />
+      <Route path="/github" element={token ? <Dashboard {...dashboardProps} /> : <Navigate to="/" />} />
+      <Route path="/linkedin" element={token ? <Dashboard {...dashboardProps} /> : <Navigate to="/" />} />
+      <Route path="/job-match" element={token ? <Dashboard {...dashboardProps} /> : <Navigate to="/" />} />
+      <Route path="/project-gap" element={token ? <Dashboard {...dashboardProps} /> : <Navigate to="/" />} />
+      <Route path="/report" element={token ? <Dashboard {...dashboardProps} /> : <Navigate to="/" />} />
+      <Route path="/settings" element={token ? <Dashboard {...dashboardProps} /> : <Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
+}

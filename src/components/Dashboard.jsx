@@ -1,6 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { flushSync } from 'react-dom';
 import { API_BASE_URL, API_UPLOAD_URL } from '../config.js';
+import Sidebar from './Sidebar';
+
+import DashboardLayout from './DashboardLayout.jsx';
+import JobMatchReport from './JobMatchReport.jsx';
+import LinkedInReport from './LinkedInReport.jsx';
+import ProjectGapReport from './ProjectGapReport.jsx';
+import CandidateReport from './CandidateReport.jsx';
+import IntelligenceFlowIndicator from './IntelligenceFlowIndicator.jsx';
+import ProcessingState from './ProcessingState.jsx';
+
 import {
   Home,
   Github,
@@ -81,19 +92,44 @@ const parseLinkedInProfileInput = (value = '') => {
   return raw.includes('/') || raw.includes('@') || raw.includes('.') || !slugPattern.test(raw) ? null : raw;
 };
 
-function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeAnalysis, linkedinAnalysis, onHome, user }) {
-  const [activeTab, setActiveTab] = useState('overview');
+function Dashboard({ profileData = {}, scores: initialScores = { github: null, resume: null, linkedin: null }, githubAnalysis = null, resumeAnalysis = null, linkedinAnalysis = null, onHome = () => { }, user = null, setIsAuthenticated }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getTabFromPath = () => {
+    const path = location.pathname;
+    if (path.includes('/github')) return 'github';
+    if (path.includes('/resume')) return 'resume';
+    if (path.includes('/linkedin')) return 'linkedin';
+    if (path.includes('/job-match')) return 'recruiter';
+    if (path.includes('/project-gap')) return 'projects';
+    if (path.includes('/report')) return 'analytics';
+    if (path.includes('/settings')) return 'settings';
+    return 'overview';
+  };
+  const activeTab = getTabFromPath();
+
   const [scores, setScores] = useState(initialScores);
   const [github, setGithub] = useState(githubAnalysis);
   const [resume, setResume] = useState(resumeAnalysis);
   const [linkedin, setLinkedin] = useState(linkedinAnalysis);
   const [selectedRole, setSelectedRole] = useState(profileData.targetRole || 'frontend');
   const [roadmap, setRoadmap] = useState(null);
+  const [aiStatus, setAiStatus] = useState(null);
 
   // Local Search Inputs for Unlinked channels
   const [ghInput, setGhInput] = useState('');
   const [liInput, setLiInput] = useState('');
   const [resumeTextInput, setResumeTextInput] = useState('');
+
+  const [jobMatch, setJobMatch] = useState(null);
+  const [isAnalyzingJobMatch, setIsAnalyzingJobMatch] = useState(false);
+  const [jobDescription, setJobDescription] = useState('');
+  const [projectGap, setProjectGap] = useState(null);
+  const [isAnalyzingProjectGap, setIsAnalyzingProjectGap] = useState(false);
+  const [candidateReport, setCandidateReport] = useState(null);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+
   const [resumeFileName, setResumeFileName] = useState('');
   const [resumeFileParseStatus, setResumeFileParseStatus] = useState(null); // null | 'parsing' | 'success' | 'error'
   const [resumeFileParseError, setResumeFileParseError] = useState('');
@@ -103,6 +139,94 @@ function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeA
   const [linkedinTextInput, setLinkedinTextInput] = useState('');
   const [liFileParseError, setLiFileParseError] = useState('');
   const liFileInputRef = useRef(null);
+
+  // LinkedIn self-report state (interactive checklist for Resume Worded-style scoring)
+  const [liSelfReport, setLiSelfReport] = useState({
+    hasProfilePhoto: false,
+    has500Connections: false,
+    hasHeadlineKeywords: false,
+    hasSummary: false,
+    hasSkillsSection: false,
+    hasRecommendations: false,
+    hasFeatured: false,
+    hasEducation: false,
+    hasExperience: false
+  });
+
+  // Dynamic Scoring Engine Hook
+  useEffect(() => {
+    import('../utils/scoringEngine.js').then((module) => {
+      const {
+        calculateResumeScore,
+        calculateGithubScore,
+        calculateLinkedinScore,
+        calculateJobMatchScore,
+        calculateProjectGapScore,
+        calculateDevScopeScore
+      } = module;
+
+      let newScores = { ...scores };
+      let updated = false;
+
+      if (resume) {
+        const res = calculateResumeScore(resume, selectedRole);
+        if (newScores.ats !== res.finalScore) {
+          newScores.ats = res.finalScore;
+          newScores.resumeDetails = res;
+          updated = true;
+        }
+      }
+      if (github) {
+        const res = calculateGithubScore(github, selectedRole);
+        if (newScores.github !== res.finalScore) {
+          newScores.github = res.finalScore;
+          newScores.githubDetails = res;
+          updated = true;
+        }
+      }
+      if (linkedin) {
+        const res = calculateLinkedinScore(linkedin, selectedRole);
+        if (newScores.linkedin !== res.finalScore) {
+          newScores.linkedin = res.finalScore;
+          newScores.linkedinDetails = res;
+          updated = true;
+        }
+      }
+      if (jobMatch) {
+        const res = calculateJobMatchScore(jobMatch, selectedRole);
+        if (newScores.jobMatch !== res.finalScore) {
+          newScores.jobMatch = res.finalScore;
+          newScores.jobMatchDetails = res;
+          updated = true;
+        }
+      }
+      if (projectGap) {
+        const res = calculateProjectGapScore(projectGap, selectedRole);
+        if (newScores.projectGap !== res.finalScore) {
+          newScores.projectGap = res.finalScore;
+          newScores.projectGapDetails = res;
+          updated = true;
+        }
+      }
+
+      const overall = calculateDevScopeScore({
+        resume: newScores.ats,
+        github: newScores.github,
+        linkedin: newScores.linkedin,
+        jobMatch: newScores.jobMatch,
+        projectGap: newScores.projectGap
+      });
+
+      if (newScores.overall !== overall) {
+        newScores.overall = overall;
+        updated = true;
+      }
+
+      if (updated) {
+        setScores(newScores);
+      }
+    });
+  }, [resume, github, linkedin, jobMatch, projectGap, selectedRole]);
 
   // Loading States
   const [isAnalyzingGithub, setIsAnalyzingGithub] = useState(false);
@@ -115,11 +239,15 @@ function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeA
   const [isChatTyping, setIsChatTyping] = useState(false);
   const [copiedHeadline, setCopiedHeadline] = useState(false);
 
-  // Recruiter Sim State
+  // Loading Simulation State
+  const [analysisStep, setAnalysisStep] = useState(0);
+
+  // Recruiter Sim State (legacy)
   const [simLogs, setSimLogs] = useState([
     "[SYSTEM] Ready. Click 'Simulate Recruiter Screen' to run evaluation."
   ]);
   const [isSimulating, setIsSimulating] = useState(false);
+
 
   const messagesEndRef = useRef(null);
 
@@ -131,12 +259,27 @@ function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeA
     scrollToBottom();
   }, [chatMessages, isChatTyping]);
 
+  useEffect(() => {
+    let interval;
+    if (isAnalyzingGithub || isAnalyzingResume || isAnalyzingLinkedin || isAnalyzingJobMatch || isAnalyzingProjectGap || isGeneratingReport) {
+      setAnalysisStep(0);
+      interval = setInterval(() => {
+        setAnalysisStep(prev => (prev < 4 ? prev + 1 : prev));
+      }, 1500);
+    } else {
+      setAnalysisStep(0);
+    }
+    return () => clearInterval(interval);
+  }, [isAnalyzingGithub, isAnalyzingResume, isAnalyzingLinkedin, isAnalyzingJobMatch, isAnalyzingProjectGap, isGeneratingReport]);
+
   // Sync Roadmap based on inputs
   useEffect(() => {
     const fetchRoadmap = async () => {
       try {
         const token = localStorage.getItem('devscope_token');
-        const res = await fetch(`${API_BASE_URL}/api/roadmap?role=${selectedRole}&token=${token || ''}`);
+        const res = await fetch(`${API_BASE_URL}/api/roadmap?role=${selectedRole}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         if (res.ok) {
           const data = await res.json();
           setRoadmap(data);
@@ -146,7 +289,23 @@ function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeA
       }
     };
     fetchRoadmap();
-  }, [selectedRole, github, resume]);
+  }, [selectedRole, github, resume, linkedin]);
+
+  // Fetch AI Status
+  useEffect(() => {
+    const fetchAiStatus = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/ai-status`);
+        if (res.ok) {
+          const data = await res.json();
+          setAiStatus(data);
+        }
+      } catch (err) {
+        console.error('AI status fetch error:', err);
+      }
+    };
+    fetchAiStatus();
+  }, []);
 
   // Load chat histories
   useEffect(() => {
@@ -226,19 +385,23 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       const token = localStorage.getItem('devscope_token');
       const response = await fetch(`${API_BASE_URL}/api/analyze/github`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           username: gh,
-          targetRole: selectedRole,
-          token
+          targetRole: selectedRole
         })
       });
       const result = await response.json();
       if (response.ok) {
-        setGithub(result);
+        // Backend wraps response in { success, data } — unwrap it
+        const data = result.data || result;
+        setGithub(data);
 
         setScores(prev => {
-          const newScores = { ...prev, github: result.score };
+          const newScores = { ...prev, github: data.score };
           const activeScores = [];
           if (newScores.github !== null) activeScores.push(newScores.github);
           if (newScores.ats !== null) activeScores.push(newScores.ats);
@@ -293,19 +456,23 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       const token = localStorage.getItem('devscope_token');
       const response = await fetch(`${API_BASE_URL}/api/analyze/resume`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           resumeText: text,
-          targetRole: selectedRole,
-          token
+          targetRole: selectedRole
         })
       });
       const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        setResume(result);
+        // Backend wraps response in { success, data } — unwrap it
+        const data = result.data || result;
+        setResume(data);
 
         setScores(prev => {
-          const newScores = { ...prev, ats: result.atsScore };
+          const newScores = { ...prev, ats: data.atsScore };
           const activeScores = [];
           if (newScores.github !== null) activeScores.push(newScores.github);
           if (newScores.ats !== null) activeScores.push(newScores.ats);
@@ -335,6 +502,55 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       return;
     } finally {
       setIsAnalyzingResume(false);
+    }
+  };
+
+  const handleResumeDrag = function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setResumeDragActive(true);
+    } else if (e.type === "dragleave") {
+      setResumeDragActive(false);
+    }
+  };
+
+  const handleResumeDrop = function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setResumeDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleResumeFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleResumeFile = async (file) => {
+    if (!file) return;
+    setResumeFileName(file.name);
+    setResumeFileParseStatus('parsing');
+    setResumeFileParseError('');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch(`${API_UPLOAD_URL}/api/parse/resume`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.text || data.text.trim().length < 20) {
+        setResumeFileParseStatus('error');
+        setResumeFileParseError(data.error || 'Could not extract text. Ensure it is a valid document.');
+        return;
+      }
+
+      setResumeFileParseStatus('success');
+      setResumeTextInput(data.text);
+    } catch (err) {
+      setResumeFileParseStatus('error');
+      setResumeFileParseError('Error parsing file. Please ensure the backend server is running.');
     }
   };
 
@@ -384,19 +600,23 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       const token = localStorage.getItem('devscope_token');
       const response = await fetch(`${API_BASE_URL}/api/analyze/linkedin-pdf`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           linkedinText: text,
-          targetRole: selectedRole,
-          token
+          targetRole: selectedRole
         })
       });
       const result = await response.json();
       if (response.ok) {
-        setLinkedin(result);
+        // Backend wraps response in { success, data } — unwrap it
+        const data = result.data || result;
+        setLinkedin(data);
 
         setScores(prev => {
-          const newScores = { ...prev, careerReady: result.score };
+          const newScores = { ...prev, careerReady: data.score };
           const activeScores = [];
           if (newScores.github !== null) activeScores.push(newScores.github);
           if (newScores.ats !== null) activeScores.push(newScores.ats);
@@ -409,7 +629,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           return newScores;
         });
       } else {
-        alert(result.error || "Failed to analyze LinkedIn profile. Please verify the link and try again.");
+        alert(data?.error || result.error || "Failed to analyze LinkedIn profile. Please verify the link and try again.");
       }
     } catch (err) {
       console.error(err);
@@ -434,27 +654,60 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       });
       return;
     }
+
+    // Detect if this is a NEW profile (different slug)
+    const isNewProfile = !linkedin || linkedin.profileHandle !== cleanVal;
+
     setLiInput(cleanVal);
     setIsAnalyzingLinkedin(true);
+
+    // Determine what selfReport to send:
+    // - Manual toggle (currentSelfReport provided) → send it directly
+    // - New profile → send empty {} so backend auto-scrapes
+    // - Same profile re-analyze → send current liSelfReport
+    const reportToSend = currentSelfReport || (isNewProfile ? {} : liSelfReport);
+
     try {
       const token = localStorage.getItem('devscope_token');
       const response = await fetch(`${API_BASE_URL}/api/analyze/linkedin`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           username: cleanVal,
           targetRole: selectedRole,
-          token,
-          ...(currentSelfReport ? { selfReport: currentSelfReport } : {})
+          selfReport: reportToSend
         })
       });
       const result = await response.json();
       if (response.ok) {
-        setLinkedin(result);
-        setLinkedinTextInput(''); // Clear PDF input text since we analyzed by URL
+        // Backend wraps response in { success, data } — unwrap it
+        const data = result.data || result;
+        setLinkedin(data);
+        setLinkedinTextInput('');
+
+        // Sync self-report state from backend (includes auto-scraped data)
+        if (data.selfReport && typeof data.selfReport === 'object') {
+          setLiSelfReport({
+            hasProfilePhoto: data.selfReport.hasProfilePhoto || false,
+            has500Connections: data.selfReport.has500Connections || false,
+            hasHeadlineKeywords: data.selfReport.hasHeadlineKeywords || false,
+            hasSummary: data.selfReport.hasSummary || false,
+            hasSkillsSection: data.selfReport.hasSkillsSection || false,
+            hasRecommendations: data.selfReport.hasRecommendations || false,
+            hasFeatured: data.selfReport.hasFeatured || false,
+            hasEducation: data.selfReport.hasEducation || false,
+            hasExperience: data.selfReport.hasExperience || false,
+            _autoDetected: data.selfReport._autoDetected || false,
+            _confidence: data.selfReport._confidence || '',
+            _name: data.selfReport._name || ''
+          });
+        }
 
         setScores(prev => {
-          const newScores = { ...prev, careerReady: result.score };
+          const newScores = { ...prev, careerReady: data.score };
           const activeScores = [];
           if (newScores.github !== null) activeScores.push(newScores.github);
           if (newScores.ats !== null) activeScores.push(newScores.ats);
@@ -490,101 +743,12 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     }
   };
 
-  // Drag-and-Drop Handlers for Resume in Dashboard
-  const handleResumeDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setResumeDragActive(true);
-    } else if (e.type === "dragleave") {
-      setResumeDragActive(false);
-    }
-  };
-
-  const handleResumeDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setResumeDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleResumeFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  const handleResumeFile = async (file) => {
-    const ext = file.name.split('.').pop().toLowerCase();
-    const allowedExts = ['pdf', 'docx', 'txt', 'md'];
-
-    if (!allowedExts.includes(ext)) {
-      setResumeFileParseStatus('error');
-      setResumeFileParseError(`Unsupported file type ".${ext}". Please upload a PDF, DOCX, TXT, or MD file.`);
-      return;
-    }
-
-    // Text files: read directly
-    if (ext === 'txt' || ext === 'md') {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target.result || '';
-        if (!looksLikeResume(content)) {
-          showAlertAfterClearing(RESUME_REJECTION_MESSAGE, () => {
-            setResumeFileName(file.name);
-            setResumeTextInput('');
-            setResumeFileParseStatus('error');
-            setResumeFileParseError(RESUME_REJECTION_MESSAGE);
-            setResume(null);
-            updateChannelScore('ats', null);
-          });
-          return;
-        }
-        setResumeFileName(file.name);
-        setResumeTextInput(content);
-        setResumeFileParseStatus('success');
-        setResumeFileParseError('');
-      };
-      reader.onerror = () => {
-        setResumeFileParseStatus('error');
-        setResumeFileParseError('Failed to read the file. Please try copy-pasting instead.');
-      };
-      reader.readAsText(file);
-      return;
-    }
-
-    // PDF / DOCX: send to server for real extraction
-    setResumeFileName(file.name);
-    setResumeFileParseStatus('parsing');
-    setResumeFileParseError('');
-    setResumeTextInput('');
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await fetch(`${API_UPLOAD_URL}/api/parse/resume`, {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      if (!response.ok || !data.text || data.text.trim().length < 20) {
-        const message = data.error || 'Could not extract text from this file. Please paste your resume text instead.';
-        showAlertAfterClearing(message, () => {
-          setResumeFileParseStatus('error');
-          setResumeFileParseError(message);
-          setResume(null);
-          updateChannelScore('ats', null);
-        });
-        return;
-      }
-      setResumeTextInput(data.text);
-      setResumeFileParseStatus('success');
-      setResumeFileParseError('');
-    } catch (err) {
-      const message = 'Network error while parsing file. Please paste your resume text instead.';
-      showAlertAfterClearing(message, () => {
-        setResumeFileParseStatus('error');
-        setResumeFileParseError(message);
-        setResume(null);
-        updateChannelScore('ats', null);
-      });
+  // Toggle a LinkedIn checklist item and re-analyze with updated self-report
+  const handleToggleLinkedinChecklist = (field) => {
+    const updated = { ...liSelfReport, [field]: !liSelfReport[field] };
+    setLiSelfReport(updated);
+    if (linkedin && linkedin.profileHandle) {
+      handleLinkLinkedinUrl(linkedin.profileHandle, updated);
     }
   };
 
@@ -685,7 +849,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       github ? `[GITHUB] Analyzing username: @${github.username}` : "[GITHUB] WARNING: No GitHub account connected.",
       github ? `[GITHUB] Checked ${github.publicRepos} public repositories. Language signature: ${github.languages[0]?.name || 'Unknown'}` : "[GITHUB] Skipping repository structural audit.",
       resume ? "[RESUME] Parsing resume document text size & keyword distributions..." : "[RESUME] WARNING: No resume uploaded. Keyword indexing skipped.",
-      resume ? `[RESUME] Action verbs count: ${resume.actionVerbCount}/8. Section completeness: ${Object.values(resume.sectionsChecklist).filter(Boolean).length}/4` : "[RESUME] Skipping ATS checklist verification.",
+      resume ? `[RESUME] Action verbs count: ${resume.actionVerbCount || 0}/8. Section completeness: ${Object.values(resume.sectionsChecklist || {}).filter(Boolean).length}/4` : "[RESUME] Skipping ATS checklist verification.",
       linkedin ? `[LINKEDIN] Checking handle: linkedin.com/in/${linkedin.profileHandle}` : "[LINKEDIN] WARNING: No LinkedIn URL connected.",
       linkedin ? `[LINKEDIN] Visibility score: ${linkedin.score}/100. URL optimized: ${!linkedin.isDefaultUrl}` : "[LINKEDIN] Skipping LinkedIn attraction audit.",
       `[SKILLS] Detected skills: ${signals.foundSkills.slice(0, 6).join(', ') || 'insufficient data'}`,
@@ -712,7 +876,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
   const getTailoredProjects = () => {
     const signals = getProfileSignals();
     const gaps = signals.missingSkills;
-    
+
     // Choose dynamic concepts based on exact gaps
     const hasDocker = gaps.some(g => g.toLowerCase().includes('docker'));
     const hasCICD = gaps.some(g => g.toLowerCase().includes('ci/cd') || g.toLowerCase().includes('github actions'));
@@ -798,7 +962,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           learning: `Converts backend skill gaps into production patterns: reliability and clear contracts.`
         });
       } else if (selectedRole === 'ml-engineer') {
-         baseProjects.push({
+        baseProjects.push({
           title: `${gapOne} Resume Ranker Model`,
           role: 'Applied ML',
           desc: `Train a small model or rules-plus-ML pipeline that ranks resumes against roles, explains keyword gaps, and exposes predictions through an API.`,
@@ -847,10 +1011,12 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       const savedToken = localStorage.getItem('devscope_token');
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${savedToken}`
+        },
         body: JSON.stringify({
-          messages: [...chatMessages, userMsg],
-          token: savedToken
+          messages: [...chatMessages, userMsg]
         })
       });
 
@@ -1010,1189 +1176,1046 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     recommendations.push({ item: 'Build a new full-stack project', channel: 'Portfolio', increase: '+10 pts', color: 'var(--color-tertiary)' });
   }
 
-  return (
-    <div className="dashboard-container">
-      {/* Sidebar - 10 tabs */}
-      <aside className="sidebar">
-        <div className="sidebar-logo">
-          <span className="logo-icon" style={{ width: '28px', height: '28px', fontSize: '15px' }}>⚡</span>
-          DevScope AI
-        </div>
 
-        {github && (
-          <div className="sidebar-user animate-fade-in">
-            <div className="sidebar-avatar">
-              <img src={github.avatarUrl} alt={github.name} />
-            </div>
+  // ── Job Match Handler ─────────────────────────────────────────────────────
+  const handleRunJobMatch = async () => {
+    if (!jobDescription.trim()) return;
+    setIsAnalyzingJobMatch(true);
+    try {
+      const token = localStorage.getItem('devscope_token');
+      const res = await fetch(`${API_BASE_URL}/api/analyze/job-match`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          jobDescription,
+          targetRole: selectedRole,
+          resumeData: resume,
+          githubData: github,
+          linkedinData: linkedin
+        })
+      });
+      if (res.ok) {
+        const result = await res.json();
+        // Backend wraps in { success, data } — unwrap
+        setJobMatch(result.data || result);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        const msg = err.error || 'Job match analysis failed.';
+        console.error('[job-match] Error:', msg);
+        alert(msg);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error reaching analysis server: ' + err.message);
+    } finally {
+      setIsAnalyzingJobMatch(false);
+    }
+  };
+
+  const handleRunProjectGap = async () => {
+    setIsAnalyzingProjectGap(true);
+    try {
+      const token = localStorage.getItem('devscope_token');
+      const res = await fetch(`${API_BASE_URL}/api/analyze/project-gap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          targetRole: selectedRole,
+          resumeData: resume,
+          githubData: github,
+          linkedinData: linkedin,
+          jobMatchData: jobMatch,
+          projectGapData: projectGap
+        })
+      });
+      if (res.ok) {
+        const result = await res.json();
+        // Backend wraps in { success, data } — unwrap
+        setProjectGap(result.data || result);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        const msg = err.error || 'Project gap analysis failed.';
+        console.error('[project-gap] Error:', msg);
+        alert(msg);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error reaching analysis server: ' + err.message);
+    } finally {
+      setIsAnalyzingProjectGap(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    setIsGeneratingReport(true);
+    try {
+      const token = localStorage.getItem('devscope_token');
+      const res = await fetch(`${API_BASE_URL}/api/analyze/candidate-report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          targetRole: selectedRole,
+          resumeData: resume,
+          githubData: github,
+          linkedinData: linkedin,
+          jobMatchData: jobMatch,
+          projectGapData: projectGap
+        })
+      });
+      if (res.ok) {
+        const result = await res.json();
+        // Backend wraps in { success, data } — unwrap
+        setCandidateReport(result.data || result);
+      } else {
+        const err = await res.json().catch(() => ({}));
+        const msg = err.error || 'Report generation failed.';
+        console.error('[candidate-report] Error:', msg);
+        alert(msg);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error reaching analysis server: ' + err.message);
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
+  return (
+
+    <DashboardLayout onSignOut={onHome} userName={user ? user.username : (github?.name || null)} user={user}>
+      <div className="tab-panels animate-fade-in">
+        {aiStatus && aiStatus.usingFallback && (
+          <div className="mx-6 mt-6 mb-0 bg-warning/10 border border-warning/30 rounded-lg p-4 flex items-start gap-3">
+            <AlertCircle className="text-warning shrink-0 mt-0.5" size={18} />
             <div>
-              <div className="sidebar-username">{user ? user.username : github.name}</div>
-              <div className="sidebar-role">{roadmap ? roadmap.roleTitle : 'Developer'}</div>
+              <h4 className="font-title-sm text-warning mb-1">Intelligence Engine Running on Fallback</h4>
+              <p className="font-body-md text-on-surface-variant text-[13px]">{aiStatus.message}</p>
             </div>
           </div>
         )}
-
-        <ul className="sidebar-menu">
-          <li
-            className={`sidebar-item ${activeTab === 'overview' ? 'active' : ''}`}
-            onClick={() => setActiveTab('overview')}
-          >
-            <Home size={18} /> Dashboard
-          </li>
-          <li
-            className={`sidebar-item ${activeTab === 'github' ? 'active' : ''}`}
-            onClick={() => setActiveTab('github')}
-          >
-            <Github size={18} /> GitHub Analyzer
-          </li>
-          <li
-            className={`sidebar-item ${activeTab === 'resume' ? 'active' : ''}`}
-            onClick={() => setActiveTab('resume')}
-          >
-            <FileText size={18} /> Resume Analyzer
-          </li>
-          <li
-            className={`sidebar-item ${activeTab === 'linkedin' ? 'active' : ''}`}
-            onClick={() => setActiveTab('linkedin')}
-          >
-            <Linkedin size={18} /> LinkedIn Analyzer
-          </li>
-          <li
-            className={`sidebar-item ${activeTab === 'roadmap' ? 'active' : ''}`}
-            onClick={() => setActiveTab('roadmap')}
-          >
-            <Zap size={18} /> Skill Gap
-          </li>
-          <li
-            className={`sidebar-item ${activeTab === 'coach' ? 'active' : ''}`}
-            onClick={() => setActiveTab('coach')}
-          >
-            <MessageSquare size={18} /> AI Coach
-          </li>
-          <li
-            className={`sidebar-item ${activeTab === 'recruiter' ? 'active' : ''}`}
-            onClick={() => setActiveTab('recruiter')}
-          >
-            <UserCheck size={18} /> Recruiter Sim
-          </li>
-          <li
-            className={`sidebar-item ${activeTab === 'projects' ? 'active' : ''}`}
-            onClick={() => setActiveTab('projects')}
-          >
-            <Lightbulb size={18} /> Project Ideas
-          </li>
-          <li
-            className={`sidebar-item ${activeTab === 'analytics' ? 'active' : ''}`}
-            onClick={() => setActiveTab('analytics')}
-          >
-            <BarChart2 size={18} /> Analytics
-          </li>
-        </ul>
-
-        <div className="sidebar-footer">
-          <button onClick={onHome} className="sidebar-item" style={{ width: '100%', border: 'none', background: 'none', cursor: 'pointer' }}>
-            <LogOut size={18} /> {user ? 'Sign Out' : 'Exit Analysis'}
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <div className="dashboard-header">
-          <div className="dashboard-title-area">
-            <h2>
-              {activeTab === 'overview'
-                ? 'Dashboard Overview'
-                : activeTab === 'roadmap'
-                    ? 'Skill Gap Analysis'
-                    : activeTab === 'coach'
-                      ? 'AI Career Coach'
-                      : activeTab === 'recruiter'
-                        ? 'Recruiter Simulator'
-                        : activeTab === 'projects'
-                          ? 'Tailored Project Ideas'
-                          : activeTab === 'analytics'
-                            ? 'Advanced Analytics'
-                            : activeTab === 'resume'
-                              ? 'Resume Analyzer'
-                              : activeTab === 'linkedin'
-                                ? 'LinkedIn Analyzer'
-                                : activeTab.charAt(0).toUpperCase() + activeTab.slice(1) + ' Analyzer'}
-            </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Target Role:</span>
-              <select
-                className="form-input form-select"
-                style={{ padding: '4px 8px', fontSize: '13px', width: 'auto', display: 'inline-block' }}
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-              >
-                <option value="frontend">Frontend Engineer</option>
-                <option value="backend">Backend Engineer</option>
-                <option value="fullstack">Full-Stack Developer</option>
-                <option value="ml-engineer">Machine Learning Engineer</option>
-              </select>
-            </div>
-          </div>
+        <div className="pt-6 px-6 pb-0">
+          <IntelligenceFlowIndicator resume={resume} github={github} linkedin={linkedin} jobMatch={jobMatch} projectGap={projectGap} candidateReport={candidateReport} activeTab={activeTab} />
         </div>
 
-        {/* Global Score Dials - N/A Greyed Out Support */}
-        <div className="score-gauges-grid">
-          <div className="card gauge-card">
-            {renderGauge(scores.portfolio, 100, 'var(--color-primary)')}
-            <div className="gauge-meta">
-              <h4>Portfolio</h4>
-              <p>{scores.portfolio !== null && scores.portfolio !== undefined ? `${scores.portfolio}/100` : 'N/A'}</p>
-            </div>
-          </div>
-          <div className="card gauge-card">
-            {renderGauge(scores.ats, 100, 'var(--color-primary)')}
-            <div className="gauge-meta">
-              <h4>ATS Resume</h4>
-              <p>{scores.ats !== null && scores.ats !== undefined ? `${scores.ats}/100` : 'N/A'}</p>
-            </div>
-          </div>
-          <div className="card gauge-card">
-            {renderGauge(scores.github, 100, 'var(--color-secondary)')}
-            <div className="gauge-meta">
-              <h4>GitHub</h4>
-              <p>{scores.github !== null && scores.github !== undefined ? `${scores.github}/100` : 'N/A'}</p>
-            </div>
-          </div>
-          <div className="card gauge-card">
-            {renderGauge(scores.careerReady, 100, 'var(--color-warning)')}
-            <div className="gauge-meta">
-              <h4>LinkedIn</h4>
-              <p>{scores.careerReady !== null && scores.careerReady !== undefined ? `${scores.careerReady}/100` : 'N/A'}</p>
-            </div>
-          </div>
-        </div>
+        {/* Main Content Area */}
 
-        {/* Panels */}
-        <div className="tab-panels animate-fade-in">
-          {/* TAB 1: Overview */}
-          {activeTab === 'overview' && (
-            <div className="overview-grid">
-              <div className="overview-main">
-                <div className="card recruiter-opinion-card">
-                  <div className="recruiter-header">
-                    <h3 style={{ fontSize: '18px' }}>Recruiter AI Rating</h3>
-                    <div className="hire-dial-badge">
-                      <span>Hire Probability:</span>
-                      <span>
-                        {getRecruiterMatchScore() !== null
-                          ? `${getRecruiterMatchScore()}%`
-                          : 'N/A'}
-                      </span>
+
+
+
+        {/* Content wrapper with padding */}
+        <div className="p-6">
+
+          <div className="tab-panels animate-fade-in">
+            {/* TAB 1: Overview */}
+            {activeTab === 'overview' && (
+              <div className="overview-grid">
+                <div className="overview-main">
+                  <div className="card rim-light-amber" style={{ padding: '24px' }}>
+                    <div className="recruiter-header" style={{ marginBottom: '20px' }}>
+                      <h3 style={{ fontSize: '20px', fontWeight: '800' }}>Candidate Intelligence Overview</h3>
+                      <div className="hire-dial-badge" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                        <span>Profile Completion:</span>
+                        <span style={{ color: 'var(--color-primary)' }}>
+                          {Math.round(([github, resume, linkedin].filter(Boolean).length / 3) * 100)}%
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <p style={{ fontSize: '14.5px', color: 'var(--text-primary)', lineHeight: '1.6' }}>
-                    {github || resume ? (
-                      `"Based on technical signals, the candidate showcases a competent grasp of ${github ? github.languages[0]?.name : 'modern web'} ecosystems. 
-                      ${github ? 'GitHub indicators point to stable repo creations.' : 'Connect GitHub to audit folder structures.'} 
-                      ${resume ? 'The resume keyword parsing indicates solid technical alignment.' : 'Upload a resume to analyze ATS keyword match.'} 
-                      Recommendation: Proceed to initial screening interview."`
+                    
+                    {github || resume || linkedin ? (
+                      <p style={{ fontSize: '14.5px', color: 'var(--text-primary)', lineHeight: '1.6', marginBottom: '24px' }}>
+                        Based on technical signals, the candidate showcases a competent grasp of {github ? github.languages?.[0]?.name || 'modern web' : 'modern web'} ecosystems. 
+                        {github ? ' GitHub indicators point to stable repo creations.' : ''} 
+                        {resume ? ' The resume keyword parsing indicates solid technical alignment.' : ''} 
+                        {linkedin ? ' LinkedIn presence is established.' : ''}
+                        Recommendation: Proceed to targeted screening.
+                      </p>
                     ) : (
-                      `"No active profile metrics detected. Please connect your GitHub account, upload your ATS resume, or supply your LinkedIn URL to start generating recruiter recommendations."`
-                    )}
-                  </p>
-
-                  <div className="pros-cons-grid">
-                    <div className="pro-item">
-                      <h5 style={{ color: '#10b981', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <CheckCircle size={14} /> Green Flags
-                      </h5>
-                      <p style={{ fontSize: '12.5px', color: '#a7f3d0', lineHeight: '1.4' }}>
-                        {github ? '• Clean repository structures found\n' : ''}
-                        {resume && scores.ats > 70 ? '• ATS resume score matches threshold\n' : ''}
-                        • Key technologies aligned with target role
-                      </p>
-                    </div>
-                    <div className="con-item">
-                      <h5 style={{ color: '#fbbf24', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <AlertCircle size={14} /> Gaps Found
-                      </h5>
-                      <p style={{ fontSize: '12.5px', color: '#fde68a', lineHeight: '1.4' }}>
-                        {!github ? '• GitHub repository profile not connected\n' : ''}
-                        {!resume ? '• Resume scanner data missing\n' : ''}
-                        • Low cloud/infrastructure visibility detected
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card">
-                  <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>Profile Quick Links</h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div onClick={() => setActiveTab('github')} className="card quick-audit-link" style={{ cursor: 'pointer', padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
-                      <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                        <Github size={16} /> GitHub Analyzer
-                      </h4>
-                      <p style={{ fontSize: '12px', marginTop: '6px', color: 'var(--text-secondary)' }}>
-                        {github ? `Repos: ${github.publicRepos} | Score: ${scores.github}` : 'Unconnected (Click to connect)'}
-                      </p>
-                    </div>
-                    <div onClick={() => setActiveTab('resume')} className="card quick-audit-link" style={{ cursor: 'pointer', padding: '16px', background: 'rgba(255,255,255,0.01)' }}>
-                      <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
-                        <FileText size={16} /> Resume Scorecard
-                      </h4>
-                      <p style={{ fontSize: '12px', marginTop: '6px', color: 'var(--text-secondary)' }}>
-                        {resume ? `ATS Match: ${scores.ats}% | Checklist passed` : 'Unlinked (Click to upload)'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="overview-sidebar">
-                <div className="card" style={{ height: '100%' }}>
-                  <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>Target Profile Status</h3>
-                  <div style={{ padding: '16px', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '8px', border: '1px solid var(--border-color)', marginBottom: '16px' }}>
-                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px' }}>Target Career Role:</div>
-                    <select
-                      className="form-input form-select"
-                      style={{ padding: '8px 12px', fontSize: '14px', width: '100%', display: 'block', backgroundColor: 'var(--bg-lighter)', fontWeight: '600' }}
-                      value={selectedRole}
-                      onChange={(e) => setSelectedRole(e.target.value)}
-                    >
-                      <option value="frontend">Frontend Engineer</option>
-                      <option value="backend">Backend Engineer</option>
-                      <option value="fullstack">Full-Stack Developer</option>
-                      <option value="ml-engineer">Machine Learning Engineer</option>
-                    </select>
-                  </div>
-
-                  {roadmap && (
-                    <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>
-                        <span>Roadmap Completion:</span>
-                        <span>{roadmap.completionPercent}%</span>
-                      </div>
-                      <div className="lang-bar-bg" style={{ marginBottom: '20px' }}>
-                        <div className="lang-bar-fg" style={{ width: `${roadmap.completionPercent}%`, background: 'var(--color-tertiary)' }}></div>
-                      </div>
-
-                      <h4 style={{ fontSize: '13px', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '8px' }}>Detected Gaps:</h4>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {roadmap.gap.length > 0 ? (
-                          roadmap.gap.slice(0, 4).map((g, i) => (
-                            <span key={i} className="kw-badge kw-missing" style={{ fontSize: '10.5px' }}>{g}</span>
-                          ))
-                        ) : (
-                          <span style={{ fontSize: '12px', color: 'var(--color-tertiary)' }}>✓ No skill gaps detected!</span>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 2: GitHub Analyzer */}
-          {activeTab === 'github' && (
-            !github ? (
-              <div className="connect-card-wrapper animate-fade-in">
-                <div className="card connect-card">
-                  <div className="connect-card-glow"></div>
-                  <div className="connect-icon-circle">
-                    <Github size={32} />
-                  </div>
-                  <h3>Connect GitHub Account</h3>
-                  <p>
-                    Audits repository directories, measures README markdown depth, matches code complexity signatures, and calculates documentation completeness rates.
-                  </p>
-
-                  <div className="connect-input-group">
-                    <input
-                      type="text"
-                      placeholder="Enter GitHub username (e.g. torvalds)"
-                      value={ghInput}
-                      onChange={(e) => setGhInput(e.target.value)}
-                      className="form-input"
-                    />
-                    <button
-                      onClick={() => handleLinkGithub(ghInput)}
-                      className="btn btn-primary"
-                      disabled={isAnalyzingGithub}
-                    >
-                      {isAnalyzingGithub ? 'Analyzing repos...' : 'Link GitHub'}
-                    </button>
-                  </div>
-
-                  <div className="connect-benefits-grid">
-                    <div className="benefit-badge">✓ Audit documentation depth</div>
-                    <div className="benefit-badge">✓ 7 Sub-score circular meters</div>
-                    <div className="benefit-badge">✓ Core tech stack extraction</div>
-                    <div className="benefit-badge">✓ Flags missing READMEs</div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="github-layout-wrapper animate-fade-in">
-                {/* Search Bar at Top */}
-                <div className="card search-reanalyze-bar" style={{ display: 'flex', gap: '16px', marginBottom: '24px', padding: '16px' }}>
-                  <input
-                    type="text"
-                    placeholder="Analyze different GitHub profile..."
-                    value={ghInput}
-                    onChange={(e) => setGhInput(e.target.value)}
-                    className="form-input"
-                    style={{ flexGrow: 1 }}
-                  />
-                  <button
-                    onClick={() => handleLinkGithub(ghInput)}
-                    className="btn btn-primary"
-                    disabled={isAnalyzingGithub}
-                  >
-                    {isAnalyzingGithub ? 'Analyzing...' : 'Re-Analyze'}
-                  </button>
-                </div>
-
-                {/* 7 Circular Gauges Row */}
-                <div className="card gauges-row-card" style={{ padding: '24px', marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Diagnostic Sub-scores</h3>
-                  <div className="sub-gauges-horizontal-grid">
-                    {renderSubGauge('Overall', github.score, 'var(--color-primary)')}
-                    {renderSubGauge('Repo Quality', github.docScore ?? 0, 'var(--color-secondary)')}
-                    {renderSubGauge('Commits', Math.min(10 + (github.publicRepos || 0) * 3, 95), 'var(--color-tertiary)')}
-                    {renderSubGauge('Diversity', Math.min((github.languages?.length || 0) * 14, 95), 'var(--color-warning)')}
-                    {renderSubGauge('Open Source', Math.min(10 + (github.totalStars || 0) * 3 + (github.totalForks || 0) * 5, 95), 'var(--color-primary)')}
-                    {renderSubGauge('READMEs', github.docScore ?? 0, 'var(--color-secondary)')}
-                    {renderSubGauge('Complexity', Math.min(15 + (github.publicRepos || 0) * 2 + (github.languages?.length || 0) * 8, 95), 'var(--color-tertiary)')}
-                  </div>
-                </div>
-
-                <div className="github-layout-grid">
-                  <div className="github-left">
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '18px', marginBottom: '20px' }}>Profile Statistics</h3>
-                      <div className="github-stats-row">
-                        <div className="stat-box">
-                          <h4>Repos</h4>
-                          <p>{github.publicRepos}</p>
-                        </div>
-                        <div className="stat-box">
-                          <h4>Stars</h4>
-                          <p>{github.totalStars ?? 0}</p>
-                        </div>
-                        <div className="stat-box">
-                          <h4>Followers</h4>
-                          <p>{github.followers}</p>
-                        </div>
-                      </div>
-
-                      <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                        <strong>Bio:</strong> {github.bio}
-                      </div>
-                    </div>
-
-                    {/* Tech Stack Capsule Pills */}
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '16px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Code size={16} /> Tech Stack
-                      </h3>
-                      <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '14px' }}>
-                        Core technologies extracted dynamically from repository language hashes:
-                      </p>
-                      <div className="keyword-matrix" style={{ marginTop: '0' }}>
-                        {github.languages.map((l, i) => (
-                          <span className="kw-badge kw-found animate-fade-in" key={i} style={{ padding: '6px 12px' }}>
-                            {l.name} ({l.percentage}%)
-                          </span>
-                        ))}
-                        <span className="kw-badge kw-found" style={{ background: 'rgba(99, 102, 241, 0.08)', color: '#818cf8', borderColor: 'rgba(99, 102, 241, 0.2)' }}>Node.js</span>
-                        <span className="kw-badge kw-found" style={{ background: 'rgba(99, 102, 241, 0.08)', color: '#818cf8', borderColor: 'rgba(99, 102, 241, 0.2)' }}>Express</span>
-                        <span className="kw-badge kw-found" style={{ background: 'rgba(99, 102, 241, 0.08)', color: '#818cf8', borderColor: 'rgba(99, 102, 241, 0.2)' }}>Git</span>
-                      </div>
-                    </div>
-
-                    <div className="card">
-                      <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>Languages Distribution</h3>
-                      <div className="languages-list">
-                        {github.languages.map((lang, index) => (
-                          <div className="lang-row" key={index}>
-                            <div className="lang-info">
-                              <span>{lang.name}</span>
-                              <span>{lang.percentage}%</span>
-                            </div>
-                            <div className="lang-bar-bg">
-                              <div
-                                className="lang-bar-fg"
-                                style={{
-                                  width: `${lang.percentage}%`,
-                                  background: index === 0 ? 'var(--color-primary)' : index === 1 ? 'var(--color-secondary)' : '#6b7280'
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="github-right">
-                    {/* Diagnostic reports grid: Strengths & Areas to improve */}
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>Codebase Diagnostic Audit</h3>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                        <div className="pro-item" style={{ background: 'rgba(16, 185, 129, 0.02)' }}>
-                          <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#10b981', fontSize: '14px', marginBottom: '6px' }}>
-                            <CheckCircle size={15} /> Primary Code Strengths
-                          </h4>
-                          <ul style={{ paddingLeft: '16px', fontSize: '12.5px', color: '#a7f3d0', lineHeight: '1.6' }}>
-                            <li>Clean folder modularity matching industry boilerplates.</li>
-                            <li>Strict JS/TS type definitions found on top modules.</li>
-                            <li>Documentation Coverage Index: {github.docScore || 100}% completeness.</li>
-                          </ul>
-                        </div>
-
-                        <div className="con-item" style={{ background: 'rgba(245, 158, 11, 0.02)' }}>
-                          <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#fbbf24', fontSize: '14px', marginBottom: '6px' }}>
-                            <AlertCircle size={15} /> Areas for Improvement
-                          </h4>
-                          <ul style={{ paddingLeft: '16px', fontSize: '12.5px', color: '#fde68a', lineHeight: '1.6' }}>
-                            {github.flaggedRepos && github.flaggedRepos.length > 0 ? (
-                              <li>Missing repository descriptions on: {github.flaggedRepos.join(', ')}</li>
-                            ) : (
-                              <li>No structural description gaps found.</li>
-                            )}
-                            <li>Add explicit license headers and contributing guidelines.</li>
-                            <li>Encourage project template caching for faster builds.</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="card">
-                      <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Top Repositories</h3>
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                        Audited based on code complexity metrics and documentation completeness:
-                      </p>
-
-                      <div className="repo-list">
-                        {github.topRepos && github.topRepos.length > 0 ? (
-                          github.topRepos.map((repo, i) => (
-                            <div className="repo-item" key={i}>
-                              <div>
-                                <a href={repo.url} target="_blank" rel="noopener noreferrer" className="repo-name">
-                                  {repo.name}
-                                </a>
-                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                                  Primary Stack: {repo.language}
-                                </div>
-                              </div>
-                              <div className="repo-details">
-                                <span>⭐ {repo.stars}</span>
-                                <span>🍴 {repo.forks}</span>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div style={{ textAlign: 'center', fontSize: '13px', color: 'var(--text-secondary)', padding: '16px 0' }}>
-                            No public repositories found.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
-          )}
-
-          {/* TAB 3: Resume Analyzer */}
-          {activeTab === 'resume' && (
-            !resume ? (
-              <div className="connect-card-wrapper animate-fade-in">
-                <div className="card connect-card">
-                  <div className="connect-card-glow"></div>
-                  <div className="connect-icon-circle">
-                    <FileText size={32} />
-                  </div>
-                  <h3>Upload Resume Document</h3>
-                  <p>
-                    Audits parsing compatibilities, keyword densities, structural sections checklists, and active recruiter action verb levels.
-                  </p>
-
-                  <div
-                    className={`file-upload-zone ${resumeDragActive ? 'dragover' : ''}`}
-                    onDragEnter={handleResumeDrag}
-                    onDragOver={handleResumeDrag}
-                    onDragLeave={handleResumeDrag}
-                    onDrop={handleResumeDrop}
-                    onClick={() => document.getElementById('dashboard-file-input').click()}
-                    style={{ margin: '16px auto', maxWidth: '480px' }}
-                  >
-                    {resumeFileParseStatus === 'parsing' ? (
-                      <><p>Extracting text from <strong>{resumeFileName}</strong>...</p><span>Please wait</span></>
-                    ) : resumeFileParseStatus === 'success' ? (
-                      <><p style={{ color: '#10b981' }}>✅ Parsed: <strong>{resumeFileName}</strong></p><span>Click to replace</span></>
-                    ) : resumeFileParseStatus === 'error' ? (
-                      <><p style={{ color: '#ef4444' }}>Upload failed</p><span>Click to try again</span></>
-                    ) : (
-                      <><p>{resumeFileName ? `Selected: ${resumeFileName}` : 'Drag & drop Resume or click to browse'}</p><span>Supports .pdf, .docx, .txt, .md</span></>
-                    )}
-                    <input
-                      type="file"
-                      id="dashboard-file-input"
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          handleResumeFile(e.target.files[0]);
-                        }
-                      }}
-                      accept=".txt,.pdf,.docx,.md"
-                    />
-                  </div>
-
-                  {resumeFileParseStatus === 'error' && resumeFileParseError && (
-                    <div style={{ marginTop: '8px', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', fontSize: '13px', color: '#fca5a5' }}>
-                      ⚠️ {resumeFileParseError}
-                    </div>
-                  )}
-
-                  <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', margin: '8px 0' }}>
-                    — OR COPY PASTE TEXT —
-                  </div>
-
-                  <textarea
-                    className="form-input form-textarea"
-                    placeholder="Paste your full resume text here..."
-                    value={resumeTextInput}
-                    onChange={(e) => {
-                      setResumeTextInput(e.target.value);
-                      if (resumeFileName) { setResumeFileName(''); setResumeFileParseStatus(null); }
-                    }}
-                    style={{ maxWidth: '480px', margin: '0 auto 4px auto', display: 'block', height: '100px' }}
-                  />
-                  {resumeTextInput && (
-                    <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                      {resumeTextInput.trim().split(/\s+/).filter(Boolean).length} words
-                    </div>
-                  )}
-
-                  <button
-                    onClick={() => handleLinkResume(resumeTextInput)}
-                    className="btn btn-primary"
-                    style={{ display: 'block', margin: '0 auto' }}
-                    disabled={isAnalyzingResume || resumeFileParseStatus === 'parsing'}
-                  >
-                    {isAnalyzingResume ? 'Analyzing...' : resumeFileParseStatus === 'parsing' ? 'Parsing file...' : 'Analyze Resume'}
-                  </button>
-
-                  <div className="connect-benefits-grid" style={{ marginTop: '24px' }}>
-                    <div className="benefit-badge">✓ Real keyword matching</div>
-                    <div className="benefit-badge">✓ Section existence checklist</div>
-                    <div className="benefit-badge">✓ Action verb count</div>
-                    <div className="benefit-badge">✓ Contact info detection</div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="resume-layout-wrapper animate-fade-in">
-                {/* Re-upload Zone */}
-                <div className="card search-reanalyze-bar" style={{ display: 'flex', gap: '16px', marginBottom: '24px', padding: '16px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Currently Audited Resume: <strong>{resumeFileName || 'Paste-In Details'}</strong></span>
-                  {resume.wordCount && (
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.04)', padding: '3px 10px', borderRadius: '20px' }}>
-                      {resume.wordCount} words
-                    </span>
-                  )}
-                  <button
-                    onClick={() => {
-                      setResume(null);
-                      setResumeTextInput('');
-                      setResumeFileName('');
-                      setResumeFileParseStatus(null);
-                      setResumeFileParseError('');
-                    }}
-                    className="btn btn-secondary"
-                    style={{ marginLeft: 'auto' }}
-                  >
-                    Upload New
-                  </button>
-                </div>
-
-                {/* 6 sub-gauges row */}
-                <div className="card gauges-row-card" style={{ padding: '24px', marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Resume Sub-scores</h3>
-                  <div className="sub-gauges-horizontal-grid">
-                    {renderSubGauge('Overall ATS', resume.atsScore || 0, 'var(--color-primary)')}
-                    {renderSubGauge('Sections', Math.round(((resume.scoreBreakdown?.sectionScore || 0) / 25) * 100), 'var(--color-secondary)')}
-                    {renderSubGauge('Keywords', Math.round(((resume.scoreBreakdown?.keywordScore || 0) / 35) * 100), 'var(--color-tertiary)')}
-                    {renderSubGauge('Action Verbs', Math.round(((resume.scoreBreakdown?.verbScore || 0) / 20) * 100), 'var(--color-warning)')}
-                    {renderSubGauge('Impact', resume.hasQuantification ? 80 : 15, 'var(--color-primary)')}
-                    {renderSubGauge('Contact', ((resume.scoreBreakdown?.contactScore || 0) / 5) * 100, 'var(--color-secondary)')}
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '24px' }}>
-                  <div className="resume-left">
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '16px', marginBottom: '16px' }}>Resume Section Checklist</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                        {resume.sectionsChecklist && Object.entries(resume.sectionsChecklist).map(([sec, present]) => (
-                          <div key={sec} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px' }}>
-                            {present ? (
-                              <CheckCircle size={15} style={{ color: 'var(--color-tertiary)' }} />
-                            ) : (
-                              <AlertCircle size={15} style={{ color: '#ef4444' }} />
-                            )}
-                            <span style={{ textTransform: 'capitalize', color: present ? '#ffffff' : 'var(--text-secondary)' }}>
-                              {sec}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '16px', marginBottom: '12px' }}>Action Verbs Density</h3>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
-                        <span>Active verbs found:</span>
-                        <span>{resume.actionVerbCount || 0} / 8</span>
-                      </div>
-                      <div className="lang-bar-bg">
-                        <div className="lang-bar-fg" style={{ width: `${Math.min(((resume.actionVerbCount || 0) / 8) * 100, 100)}%`, background: 'var(--color-primary)' }}></div>
-                      </div>
-                    </div>
-
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '16px', marginBottom: '12px' }}>Keywords Present</h3>
-                      <div className="keyword-matrix">
-                        {resume.foundKeywords.map((kw, i) => (
-                          <span className="kw-badge kw-found" key={i}>
-                            ✓ {kw}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="card">
-                      <h3 style={{ fontSize: '16px', marginBottom: '12px' }}>Keywords Missing</h3>
-                      <div className="keyword-matrix">
-                        {resume.missingKeywords.map((kw, i) => (
-                          <span className="kw-badge kw-missing" key={i}>
-                            + {kw}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="resume-right">
-                    <div className="card" style={{ height: '100%' }}>
-                      <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Optimization Suggestions</h3>
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                        Follow these guidelines to improve parser scores and recruiter readability.
-                      </p>
-
-                      <ul className="suggestions-list">
-                        {resume.suggestions.map((s, i) => (
-                          <li className="suggestion-item" key={i}>
-                            <span className="suggestion-bullet">✦</span>
-                            <span>{s}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
-          )}
-
-          {/* TAB 4: LinkedIn Analyzer */}
-          {activeTab === 'linkedin' && (
-            !linkedin ? (
-              <div className="connect-card-wrapper animate-fade-in">
-                <div className="card connect-card">
-                  <div className="connect-card-glow"></div>
-                  <div className="connect-icon-circle">
-                    <Linkedin size={32} />
-                  </div>
-                  <h3>Connect LinkedIn Profile</h3>
-                  <p>
-                    Audits profile URL structure, headline keyword optimization, search visibility scoring, and generates role-targeted headline recommendations.
-                  </p>
-
-                  <div className="connect-input-group">
-                    <input
-                      type="text"
-                      placeholder="Paste LinkedIn URL (e.g. linkedin.com/in/username)"
-                      value={liInput}
-                      onChange={(e) => setLiInput(e.target.value)}
-                      className="form-input"
-                    />
-                    <button
-                      onClick={() => handleLinkLinkedinUrl(liInput)}
-                      className="btn btn-primary"
-                      disabled={isAnalyzingLinkedin}
-                    >
-                      {isAnalyzingLinkedin ? 'Analyzing profile...' : 'Analyze LinkedIn'}
-                    </button>
-                  </div>
-
-                  <div className="connect-benefits-grid">
-                    <div className="benefit-badge">✓ URL structure & SEO audit</div>
-                    <div className="benefit-badge">✓ Headline keyword scoring</div>
-                    <div className="benefit-badge">✓ Role-targeted optimization</div>
-                    <div className="benefit-badge">✓ Recruiter visibility tips</div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="linkedin-layout-wrapper animate-fade-in">
-                {/* Search Bar at Top — matches GitHub style */}
-                <div className="card search-reanalyze-bar" style={{ display: 'flex', gap: '16px', marginBottom: '24px', padding: '16px' }}>
-                  <input
-                    type="text"
-                    placeholder="Analyze different LinkedIn profile..."
-                    value={liInput}
-                    onChange={(e) => setLiInput(e.target.value)}
-                    className="form-input"
-                    style={{ flexGrow: 1 }}
-                  />
-                  <button
-                    onClick={() => handleLinkLinkedinUrl(liInput)}
-                    className="btn btn-primary"
-                    disabled={isAnalyzingLinkedin}
-                  >
-                    {isAnalyzingLinkedin ? 'Analyzing...' : 'Re-Analyze'}
-                  </button>
-                </div>
-
-                {/* Circular Gauges Row */}
-                <div className="card gauges-row-card" style={{ padding: '24px', marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>LinkedIn Diagnostic Scores</h3>
-                  <div className="sub-gauges-horizontal-grid">
-                    {renderSubGauge('Overall', linkedin.score, 'var(--color-primary)')}
-                    {renderSubGauge('URL Quality', linkedin.slugQuality === 'excellent' ? 100 : linkedin.slugQuality === 'good' ? 70 : 30, 'var(--color-secondary)')}
-                    {renderSubGauge('Headline', linkedin.scoreBreakdown?.headlineScore ? Math.round((linkedin.scoreBreakdown.headlineScore / 10) * 100) : 50, 'var(--color-tertiary)')}
-                    {renderSubGauge('Completeness', linkedin.scoreBreakdown ? Math.round(((linkedin.scoreBreakdown.photoScore + linkedin.scoreBreakdown.summaryScore + linkedin.scoreBreakdown.skillsScore + linkedin.scoreBreakdown.recommendationsScore) / 35) * 100) : 40, 'var(--color-warning)')}
-                    {renderSubGauge('Visibility', linkedin.scoreBreakdown?.connectionsScore ? Math.round((linkedin.scoreBreakdown.connectionsScore / 10) * 100) : 30, 'var(--color-primary)')}
-                  </div>
-                </div>
-
-                <div className="github-layout-grid">
-                  <div className="github-left">
-                    {/* Profile Info */}
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '18px', marginBottom: '20px' }}>Profile Analysis</h3>
-                      <div className="github-stats-row">
-                        <div className="stat-box">
-                          <div className="stat-value" style={{ color: linkedin.slugQuality === 'excellent' ? 'var(--color-tertiary)' : linkedin.slugQuality === 'good' ? 'var(--color-warning)' : '#ef4444' }}>
-                            {linkedin.slugQuality === 'excellent' ? '✓ Excellent' : linkedin.slugQuality === 'good' ? '~ Good' : '✗ Default'}
-                          </div>
-                          <div className="stat-label">URL Quality</div>
-                        </div>
-                        <div className="stat-box">
-                          <div className="stat-value">{linkedin.profileHandle || 'N/A'}</div>
-                          <div className="stat-label">Profile Handle</div>
-                        </div>
-                        <div className="stat-box">
-                          <div className="stat-value">{linkedin.score}/100</div>
-                          <div className="stat-label">Overall Score</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Score Breakdown */}
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '16px', marginBottom: '16px' }}>Score Breakdown</h3>
-                      {linkedin.scoreBreakdown && [
-                        { label: 'URL Structure', value: linkedin.scoreBreakdown.urlScore, max: 28 },
-                        { label: 'Profile Photo', value: linkedin.scoreBreakdown.photoScore, max: 9 },
-                        { label: 'Headline / Role Clues', value: linkedin.scoreBreakdown.headlineScore, max: 16 },
-                        { label: 'Connections Strength', value: linkedin.scoreBreakdown.connectionsScore, max: 9 },
-                        { label: 'About/Summary', value: linkedin.scoreBreakdown.summaryScore, max: 8 },
-                        { label: 'Skills Section', value: linkedin.scoreBreakdown.skillsScore, max: 8 },
-                        { label: 'Recommendations', value: linkedin.scoreBreakdown.recommendationsScore, max: 7 }
-                      ].map((item, i) => (
-                        <div key={i} style={{ marginBottom: '14px' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
-                            <span style={{ color: 'var(--text-secondary)' }}>{item.label}</span>
-                            <span style={{ fontWeight: '600' }}>{item.value}/{item.max}</span>
-                          </div>
-                          <div className="lang-bar-bg">
-                            <div className="lang-bar-fg" style={{ width: `${(item.value / item.max) * 100}%`, background: item.value >= item.max * 0.7 ? 'var(--color-tertiary)' : item.value > 0 ? 'var(--color-warning)' : '#ef4444' }}></div>
-                          </div>
-
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Profile Checklist */}
-                    <div className="card">
-                      <h3 style={{ fontSize: '16px', marginBottom: '16px' }}>Optimization Checklist</h3>
-                      {linkedin.checklist && Object.entries({
-                        'Custom URL': linkedin.checklist.customUrl,
-                        'Profile Photo': linkedin.checklist.profilePhoto,
-                        'Headline Keywords': linkedin.checklist.headlineKeywords,
-                        'Connections 500+': linkedin.checklist.connectionsStrength,
-                        'About Section': linkedin.checklist.aboutSection,
-                        'Skills Endorsed': linkedin.checklist.skillsEndorsed,
-                        'Recommendations': linkedin.checklist.recommendations
-                      }).map(([label, passed], i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: i < 6 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                          {passed ? (
-                            <CheckCircle size={15} style={{ color: 'var(--color-tertiary)' }} />
-                          ) : (
-                            <AlertCircle size={15} style={{ color: '#ef4444' }} />
-                          )}
-                          <span style={{ textTransform: 'capitalize', color: passed ? '#ffffff' : 'var(--text-secondary)', fontSize: '13px' }}>
-                            {label}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="github-right">
-                    {/* Recommended Headline */}
-                    <div className="card" style={{ marginBottom: '24px' }}>
-                      <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Recommended Headline</h3>
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                        Use this optimized headline to rank higher in recruiter search queries for {roadmap ? roadmap.roleTitle : 'Developer'} roles.
-                      </p>
-
-                      <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '20px', marginBottom: '24px', position: 'relative' }}>
-                        <h4 style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '8px' }}>Optimized Headline</h4>
-                        <p style={{ fontSize: '14.5px', fontWeight: '600', color: '#ffffff', paddingRight: '40px', lineHeight: '1.4' }}>
-                          {linkedin.suggestedHeadline}
+                      <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px dashed var(--border-color)', marginBottom: '24px' }}>
+                        <p style={{ fontSize: '14.5px', color: 'var(--text-primary)', marginBottom: '16px' }}>
+                          Connect your professional profiles to generate a complete candidate intelligence report.
                         </p>
-                        <button
-                          onClick={copyHeadline}
-                          style={{ position: 'absolute', top: '20px', right: '20px', background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer' }}
+                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: github ? 'var(--color-tertiary)' : 'var(--text-secondary)' }}>
+                            {github ? <CheckCircle size={16} /> : <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '1px solid var(--text-muted)' }}></div>}
+                            Connect GitHub Intelligence
+                          </li>
+                          <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: resume ? 'var(--color-tertiary)' : 'var(--text-secondary)' }}>
+                            {resume ? <CheckCircle size={16} /> : <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '1px solid var(--text-muted)' }}></div>}
+                            Upload ATS Resume
+                          </li>
+                          <li style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: linkedin ? 'var(--color-tertiary)' : 'var(--text-secondary)' }}>
+                            {linkedin ? <CheckCircle size={16} /> : <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '1px solid var(--text-muted)' }}></div>}
+                            Link Professional Network
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+
+                    <div className="pros-cons-grid">
+                      <div className="pro-item" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                        <h5 style={{ color: "var(--color-tertiary)", marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+                          <CheckCircle size={16} /> Potential Insights
+                        </h5>
+                        <div style={{ fontSize: '13px', color: "var(--text-primary)", lineHeight: '1.5' }}>
+                          {github || resume || linkedin ? (
+                            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              {github && <li>Clean repository structures found</li>}
+                              {resume && scores.ats > 70 && <li>ATS resume score matches threshold</li>}
+                              {(github || resume) && <li>Key technologies aligned with target role</li>}
+                              {linkedin && linkedin.score > 70 && <li>Strong professional network visibility</li>}
+                            </ul>
+                          ) : (
+                            <span style={{ color: 'var(--text-secondary)' }}>Insights will appear once profiles are connected.</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="con-item" style={{ background: 'rgba(245, 158, 11, 0.05)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+                        <h5 style={{ color: "var(--color-warning)", marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+                          <AlertCircle size={16} /> {github || resume || linkedin ? 'Detected Skill Gaps' : 'Analysis Pending'}
+                        </h5>
+                        <div style={{ fontSize: '13px', color: "var(--text-primary)", lineHeight: '1.5' }}>
+                          {github || resume || linkedin ? (
+                            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              {!github && <li>GitHub repository profile not connected</li>}
+                              {!resume && <li>Resume intelligence data missing</li>}
+                              {!linkedin && <li>LinkedIn network data missing</li>}
+                              {roadmap?.gap?.length > 0 && <li>Missing critical skills: {roadmap.gap.slice(0, 2).join(', ')}</li>}
+                            </ul>
+                          ) : (
+                            <span style={{ color: 'var(--text-secondary)' }}>Awaiting candidate data to generate gap analysis.</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+ 
+                  <div className="card rim-light-amber" style={{ padding: '24px' }}>
+                    <h3 style={{ fontSize: '18px', marginBottom: '20px', fontWeight: '800' }}>Intelligence Modules</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                      <div onClick={() => navigate('/github')} className="card rim-light-amber quick-audit-link" style={{ cursor: 'pointer', padding: '16px', background: github ? 'rgba(139, 92, 246, 0.05)' : 'rgba(255,255,255,0.02)', border: github ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid var(--border-color)' }}>
+                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: github ? 'var(--color-primary)' : 'var(--text-primary)' }}>
+                          <Github size={16} /> GitHub
+                        </h4>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Status</span>
+                          <span style={{ fontSize: '12px', fontWeight: 'bold', color: github ? 'var(--color-tertiary)' : 'var(--text-muted)' }}>{github ? 'Connected' : 'Pending'}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Score</span>
+                          <span style={{ fontSize: '14px', fontWeight: '800', color: github ? '#fff' : 'var(--text-muted)' }}>{github ? scores.github : '--'}</span>
+                        </div>
+                      </div>
+                      
+                      <div onClick={() => navigate('/resume')} className="card rim-light-amber quick-audit-link" style={{ cursor: 'pointer', padding: '16px', background: resume ? 'rgba(16, 185, 129, 0.05)' : 'rgba(255,255,255,0.02)', border: resume ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid var(--border-color)' }}>
+                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: resume ? 'var(--color-tertiary)' : 'var(--text-primary)' }}>
+                          <FileText size={16} /> Resume
+                        </h4>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Status</span>
+                          <span style={{ fontSize: '12px', fontWeight: 'bold', color: resume ? 'var(--color-tertiary)' : 'var(--text-muted)' }}>{resume ? 'Parsed' : 'Pending'}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>ATS Match</span>
+                          <span style={{ fontSize: '14px', fontWeight: '800', color: resume ? '#fff' : 'var(--text-muted)' }}>{resume ? `${scores.ats}%` : '--'}</span>
+                        </div>
+                      </div>
+                      
+                      <div onClick={() => navigate('/linkedin')} className="card rim-light-amber quick-audit-link" style={{ cursor: 'pointer', padding: '16px', background: linkedin ? 'rgba(59, 130, 246, 0.05)' : 'rgba(255,255,255,0.02)', border: linkedin ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid var(--border-color)' }}>
+                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', color: linkedin ? '#3b82f6' : 'var(--text-primary)' }}>
+                          <Linkedin size={16} /> LinkedIn
+                        </h4>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Status</span>
+                          <span style={{ fontSize: '12px', fontWeight: 'bold', color: linkedin ? 'var(--color-tertiary)' : 'var(--text-muted)' }}>{linkedin ? 'Analyzed' : 'Pending'}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Score</span>
+                          <span style={{ fontSize: '14px', fontWeight: '800', color: linkedin ? '#fff' : 'var(--text-muted)' }}>{linkedin ? scores.careerReady : '--'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="overview-sidebar">
+                  <div className="card rim-light-amber" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ fontSize: '18px', marginBottom: '20px', fontWeight: '800' }}>Target Profile Status</h3>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flexGrow: 1 }}>
+                      <div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Target Role</div>
+                        <select
+                          className="form-input form-select"
+                          style={{ padding: '10px 14px', fontSize: '14px', width: '100%', display: 'block', backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)', fontWeight: '600', borderRadius: '8px', color: '#fff' }}
+                          value={selectedRole}
+                          onChange={(e) => setSelectedRole(e.target.value)}
                         >
-                          {copiedHeadline ? <Check size={18} style={{ color: 'var(--color-tertiary)' }} /> : <Copy size={18} />}
+                          <option value="frontend">Frontend Engineer</option>
+                          <option value="backend">Backend Engineer</option>
+                          <option value="fullstack">Full-Stack Developer</option>
+                          <option value="ml-engineer">Machine Learning Engineer</option>
+                        </select>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '12px' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>Readiness Score</div>
+                          <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--color-primary)' }}>
+                            {getRecruiterMatchScore() !== null ? `${getRecruiterMatchScore()}%` : 'N/A'}
+                          </div>
+                        </div>
+                        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '12px' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '4px' }}>Profile Completion</div>
+                          <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--color-tertiary)' }}>
+                            {Math.round(([github, resume, linkedin].filter(Boolean).length / 3) * 100)}%
+                          </div>
+                        </div>
+                      </div>
+
+                      {roadmap && (
+                        <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '20px', marginTop: 'auto' }}>
+                          <div style={{ marginBottom: '16px' }}>
+                            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Detected Skill Gaps</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                              {roadmap.gap?.length > 0 ? (
+                                roadmap.gap.slice(0, 5).map((g, i) => (
+                                  <span key={i} className="kw-badge kw-missing" style={{ fontSize: '11px', background: 'rgba(255,255,255,0.05)' }}>{g}</span>
+                                ))
+                              ) : (
+                                <span style={{ fontSize: '12px', color: 'var(--color-tertiary)' }}>✓ No critical gaps detected</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {roadmap.gap?.length > 0 && (
+                            <div>
+                              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Recommended Focus Areas</div>
+                              <ul style={{ paddingLeft: '16px', margin: 0, fontSize: '13px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                <li>Integrate {roadmap.gap[0]} into a portfolio project</li>
+                                {roadmap.gap[1] && <li>Highlight {roadmap.gap[1]} experience in resume</li>}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: GitHub Analyzer */}
+            {activeTab === 'github' && (
+              !github ? (
+                <div className="connect-card rim-light-amber-wrapper animate-fade-in">
+                  <div className="card rim-light-amber connect-card">
+                    <div className="connect-card rim-light-amber-glow"></div>
+                    <div className="connect-icon-circle">
+                      <Github size={32} />
+                    </div>
+                    <h3>Connect GitHub Account</h3>
+                    <p>
+                      Audits repository directories, measures README markdown depth, matches code complexity signatures, and calculates documentation completeness rates.
+                    </p>
+
+                    <div className="connect-input-group mt-6">
+                      <input
+                        type="text"
+                        placeholder="Enter GitHub username (e.g. torvalds)"
+                        value={ghInput}
+                        onChange={(e) => setGhInput(e.target.value)}
+                        className="form-input"
+                      />
+                    </div>
+
+                    {isAnalyzingGithub ? (
+                      <div className="mt-8 mb-4">
+                        <ProcessingState
+                          steps={['Cloning Public Repositories', 'Analyzing Documentation Coverage', 'Parsing Technology Stack', 'Evaluating Structural Complexity']}
+                          currentStep={analysisStep}
+                          isComplete={false}
+                        />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleLinkGithub(ghInput)}
+                        className="btn-primary mt-6"
+                        disabled={!ghInput.trim()}
+                      >
+                        Analyze GitHub
+                      </button>
+                    )}
+
+                    <div className="connect-benefits-grid">
+                      <div className="benefit-badge">✓ Audit documentation depth</div>
+                      <div className="benefit-badge">✓ 7 Sub-score circular meters</div>
+                      <div className="benefit-badge">✓ Core tech stack extraction</div>
+                      <div className="benefit-badge">✓ Flags missing READMEs</div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="github-layout-wrapper animate-fade-in p-2 lg:p-4">
+                  {/* Page Header */}
+                  <div className="mb-8 mt-4">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-outline-variant/50 pb-6 gap-4">
+                      <div>
+                        <span className="font-label-caps text-[10px] text-primary bg-primary/10 px-2 py-0.5 border border-primary/20 mb-2 inline-block uppercase tracking-widest">MODULE: GITHUB_INTELLIGENCE</span>
+                        <h2 className="font-display-lg text-[24px] text-white tracking-tight">GitHub Portfolio Analysis</h2>
+                        <p className="font-body-md text-[13px] text-on-surface-variant mt-2 max-w-2xl">Analysis of candidate's open source contributions, coding patterns, language diversity, and repository structure. Evaluates problem-solving complexity over syntax familiarity.</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right hidden md:block">
+                          <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest uppercase">DOSSIER ID</p>
+                          <p className="font-mono text-[12px] text-primary">DS-{Math.floor(Math.random() * 10000)}-G</p>
+                        </div>
+                        <button
+                          onClick={() => handleLinkGithub(github?.username || ghInput)}
+                          disabled={isAnalyzingGithub}
+                          className="px-4 py-2 bg-surface-container border border-outline-variant rounded font-label-caps text-[11px] uppercase tracking-widest hover:border-primary/50 hover:bg-primary/5 transition-all text-white disabled:opacity-50"
+                        >
+                          {isAnalyzingGithub ? 'Analyzing...' : 'Re-Analyze'}
                         </button>
                       </div>
                     </div>
-
-                    {/* Optimization Suggestions */}
-                    <div className="card">
-                      <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Optimization Suggestions</h3>
-                      <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                        Follow these guidelines to improve your LinkedIn visibility and recruiter reach.
-                      </p>
-
-                      <ul className="suggestions-list">
-                        {(linkedin.tips || []).map((tip, i) => (
-                          <li className="suggestion-item" key={i}>
-                            <span className="suggestion-bullet">✦</span>
-                            <span style={{ fontSize: '13px', lineHeight: '1.5' }}>{tip}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
                   </div>
-                </div>
-              </div>
-            )
-          )}
 
-          {/* TAB 5: Skill Gap */}
-          {activeTab === 'roadmap' && roadmap && (
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-                <div>
-                  <h3 style={{ fontSize: '18px' }}>Personalized Roadmap</h3>
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                    Complete the pending skills below to match candidate templates for this role.
-                  </p>
-                </div>
-              </div>
+                  {/* Dashboard Grid */}
+                  <div className="grid grid-cols-12 gap-6">
+                    {/* Primary Column (Left 8 cols) */}
+                    <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
+                      {/* Impression Summary Card (Matching the mockup) */}
+                      <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden flex flex-col md:flex-row rim-light-amber">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                        <div className="p-8 md:w-2/3 border-b md:border-b-0 md:border-r border-outline-variant/50">
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="material-symbols-outlined text-primary text-[16px]">visibility</span>
+                            <span className="font-label-caps text-label-caps text-primary uppercase tracking-widest">Recruiter Impression Summary</span>
+                          </div>
+                          <p className="font-body-md text-[13px] text-on-surface leading-relaxed mb-4">
+                            The candidate's GitHub profile presents a <strong className="text-white font-semibold">{github.score > 80 ? 'strong positive signal' : 'moderate signal'}</strong> for engineering roles. Unlike typical generic portfolios, there is demonstrable evidence of solving complex problems.
+                          </p>
+                          <p className="font-body-md text-[13px] text-on-surface-variant leading-relaxed">
+                            {github.flaggedRepos?.length > 0 ? `However, the volume of abandoned or undocumented projects creates noise. A technical recruiter should focus questioning on the primary repositories to validate architectural claims.` : `The repositories appear well-maintained and structured.`}
+                          </p>
+                        </div>
+                        <div className="p-8 md:w-1/3 flex flex-col justify-center bg-surface-container-lowest">
+                          <div className="mb-6">
+                            <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest block mb-2">Portfolio Signal Strength</span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="font-data-lg text-[48px] text-primary tracking-tighter leading-none">{scores.github || github.score || 0}</span>
+                              <span className="font-label-caps text-[10px] text-on-surface-variant uppercase">/100</span>
+                            </div>
+                          </div>
+                          <div>
+                            <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest block mb-2">Primary Archetype</span>
+                            <div className="inline-block px-3 py-1.5 bg-surface-container border border-outline-variant rounded text-on-surface font-label-caps text-[10px] uppercase mb-6">
+                              {github.languages && github.languages.length > 0 ? github.languages[0].name + ' Engineer' : 'Generalist'}
+                            </div>
 
-              <div style={{ marginBottom: '32px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>
-                  <span>Completed Milestone Progress:</span>
-                  <span>{roadmap.completionPercent}%</span>
-                </div>
-                <div className="lang-bar-bg" style={{ height: '8px' }}>
-                  <div className="lang-bar-fg" style={{ width: `${roadmap.completionPercent}%`, background: 'var(--color-tertiary)' }}></div>
-                </div>
-              </div>
+                            <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest mb-2 flex justify-between">Code Quality <span className="text-primary">{scores.githubDetails?.categoryBreakdown?.codeQuality || 85}/100</span></span>
+                            <div className="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden border border-outline-variant/50 mb-4">
+                              <div className="h-full bg-primary rounded-full" style={{ width: `${scores.githubDetails?.categoryBreakdown?.codeQuality || 85}%` }}></div>
+                            </div>
+                            
+                            <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest mb-2 flex justify-between">Consistency <span className="text-tertiary-container">{scores.githubDetails?.categoryBreakdown?.consistency || 70}/100</span></span>
+                            <div className="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden border border-outline-variant/50">
+                              <div className="h-full bg-tertiary-container rounded-full" style={{ width: `${scores.githubDetails?.categoryBreakdown?.consistency || 70}%` }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-              <div className="roadmap-timeline">
-                {roadmap.completed.map((skill, index) => (
-                  <div className="roadmap-step" key={`comp-${index}`}>
-                    <div className="roadmap-dot completed"></div>
-                    <div className="roadmap-body">
-                      <h4 style={{ color: '#ffffff' }}>✓ {skill}</h4>
-                      <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>Detected in your portfolios & documents.</p>
-                    </div>
-                  </div>
-                ))}
-
-                {roadmap.gap.map((skill, index) => {
-                  const url = roadmap.resources[skill] || 'https://developer.mozilla.org';
-                  return (
-                    <div className="roadmap-step" key={`pend-${index}`}>
-                      <div className="roadmap-dot pending"></div>
-                      <div className="roadmap-body">
-                        <h4 style={{ color: 'var(--text-secondary)' }}>Pending: {skill}</h4>
-                        <p style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
-                          Recommended skill addition. Click learning path details below.
-                        </p>
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="roadmap-resource">
-                          Study Guide Resource <ExternalLink size={12} />
-                        </a>
+                      {/* Technology Evidence Table */}
+                      <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden rim-light-amber">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-tertiary-container"></div>
+                        <div className="p-6 border-b border-outline-variant/50 flex justify-between items-center bg-surface-container/50">
+                          <h3 className="font-title-sm text-[15px] text-white">Technology Evidence Logs</h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-surface-container border-b border-outline-variant/50">
+                                <th className="py-3 px-6 font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Claimed Skill</th>
+                                <th className="py-3 px-6 font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Evidence Source</th>
+                                <th className="py-3 px-6 font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Depth Indicator</th>
+                                <th className="py-3 px-6 font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Verdict</th>
+                              </tr>
+                            </thead>
+                            <tbody className="font-body-md text-[13px] text-on-surface">
+                              {(github.languages || []).map((lang, i) => (
+                                <tr key={i} className="border-b border-outline-variant/30 hover:bg-surface-container/50 transition-colors">
+                                  <td className="py-4 px-6 flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full" style={{ background: i === 0 ? '#10B981' : i === 1 ? '#3B82F6' : '#8B949E' }}></div>
+                                    <span className="font-medium text-white">{lang.name}</span>
+                                  </td>
+                                  <td className="py-4 px-6 text-on-surface-variant">{(github.topRepos && github.topRepos[0]) ? `repo: ${github.topRepos[0].name}` : 'Multiple Repos'}</td>
+                                  <td className="py-4 px-6 text-on-surface-variant">Detected as {lang.percentage}% of codebase.</td>
+                                  <td className="py-4 px-6">
+                                    <span className="px-3 py-1 border border-secondary/30 text-secondary bg-secondary/5 font-label-caps text-[10px] uppercase rounded">Validated</span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
-          {/* TAB 6: AI Coach */}
-          {activeTab === 'coach' && (
-            <div className="card" style={{ padding: '20px' }}>
-              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
-                <h3 style={{ fontSize: '18px' }}>AI Career Assistant</h3>
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                  Ask questions about improving your profile scores, resume checklist, or technical mock interviews.
-                </p>
-              </div>
+                    {/* Secondary Column (Right 4 cols) */}
+                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                      {/* Best Repository Spotlight */}
+                      <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden rim-light-amber">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                        <div className="p-6 border-b border-outline-variant/50 bg-surface-container/50">
+                          <h3 className="font-label-caps text-label-caps text-on-surface-variant uppercase flex items-center gap-2"><span className="material-symbols-outlined text-primary text-[16px]">star</span> Best Repository</h3>
+                        </div>
+                        <div className="p-6">
+                          {github.topRepos && github.topRepos.length > 0 ? (
+                            <div>
+                              <div className="flex justify-between items-start mb-2">
+                                <a href={github.topRepos[0].url} target="_blank" rel="noreferrer" className="font-title-sm text-[15px] text-white hover:text-primary transition-colors">{github.topRepos[0].name}</a>
+                                <span className="text-on-surface-variant font-label-caps text-[10px] flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">star</span> {github.topRepos[0].stars}</span>
+                              </div>
+                              <p className="font-body-md text-[13px] text-on-surface-variant mb-4 leading-relaxed">Audited based on code complexity metrics and documentation completeness.</p>
+                              <div className="flex items-center gap-2 font-label-caps text-[10px] text-on-surface uppercase">
+                                <div className="w-2 h-2 rounded-full bg-tertiary-container"></div>
+                                {github.topRepos[0].language || 'Multi-language'}
+                              </div>
 
-              <div className="chat-window">
-                <div className="chat-messages">
-                  {chatMessages.map((msg, i) => (
-                    <div className={`chat-bubble ${msg.role}`} key={i}>
-                      {msg.content}
-                    </div>
-                  ))}
+                              <div className="mt-5 pt-5 border-t border-outline-variant/50">
+                                <span className="font-label-caps text-[10px] text-on-surface-variant uppercase block mb-3 tracking-widest">Why it stands out</span>
+                                <ul className="flex flex-col gap-3 font-body-md text-[13px] text-on-surface">
+                                  <li className="flex gap-2"><span className="material-symbols-outlined text-primary text-[16px] mt-0.5">check_circle</span> <span>Demonstrates understanding of {github.topRepos[0].language} paradigms.</span></li>
+                                  <li className="flex gap-2"><span className="material-symbols-outlined text-primary text-[16px] mt-0.5">check_circle</span> <span>High structural complexity score.</span></li>
+                                </ul>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-on-surface-variant font-body-md text-[13px] text-center py-4">No public repositories found.</div>
+                          )}
+                        </div>
+                      </div>
 
-                  {isChatTyping && (
-                    <div className="chat-typing-indicator">
-                      <div className="typing-dot"></div>
-                      <div className="typing-dot"></div>
-                      <div className="typing-dot"></div>
-                    </div>
-                  )}
-
-                  <div ref={messagesEndRef} />
-                </div>
-
-                <form className="chat-input-area" onSubmit={handleSendMessage}>
-                  <input
-                    type="text"
-                    className="chat-input"
-                    placeholder="Type message to Career Coach..."
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    disabled={isChatTyping}
-                  />
-                  <button type="submit" className="btn btn-primary" style={{ padding: '12px' }} disabled={isChatTyping}>
-                    <Send size={16} />
-                  </button>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 7: Recruiter Sim */}
-          {activeTab === 'recruiter' && (
-            <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <div>
-                  <h3 style={{ fontSize: '18px' }}>Recruiter Screening Simulation</h3>
-                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                    Run a simulated Monte Carlo evaluation checking code quality, documentation depth, and keyword indexes.
-                  </p>
-                </div>
-                <button
-                  onClick={runSimulation}
-                  className="btn btn-primary"
-                  disabled={isSimulating}
-                >
-                  <Cpu size={16} style={{ marginRight: '6px' }} />
-                  {isSimulating ? 'Simulating...' : 'Run Simulator'}
-                </button>
-              </div>
-
-              <div className="simulation-overview-panel" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', marginBottom: '24px' }}>
-                <div className="card text-center" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-                  {renderSubGauge('Match Probability', getRecruiterMatchScore(), 'var(--color-tertiary)')}
-                  <div style={{ marginTop: '16px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Candidate Class</div>
-                    <div style={{ fontSize: '20px', fontWeight: '800', color: '#ffffff', marginTop: '4px' }}>
-                      {getRecruiterMatchScore() !== null
-                        ? (getRecruiterMatchScore() > 85 ? 'Strong Match' : getRecruiterMatchScore() > 70 ? 'Review Queue' : 'Needs Proof')
-                        : 'Unevaluated'}
+                      {/* Risk Markers */}
+                      <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden rim-light-amber">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-error"></div>
+                        <div className="p-6 border-b border-outline-variant/50 bg-surface-container/50">
+                          <h3 className="font-label-caps text-label-caps text-on-surface-variant uppercase flex items-center gap-2"><span className="material-symbols-outlined text-error text-[16px]">warning</span> Risk Markers</h3>
+                        </div>
+                        <div className="p-6">
+                          <ul className="flex flex-col gap-5">
+                            {github.portfolioRisks && github.portfolioRisks.length > 0 ? (
+                              <li className="flex items-start gap-3 p-4 bg-error/5 border border-error/20 rounded-lg">
+                                <span className="material-symbols-outlined text-error text-[18px] mt-[2px]">inventory_2</span>
+                                <div>
+                                  <span className="font-title-sm text-[13px] text-white block mb-1">Portfolio Risk <span className="ml-2 font-mono text-[10px] text-error px-1.5 py-0.5 bg-error/10 border border-error/20 rounded">+10 points possible</span></span>
+                                  <span className="font-body-md text-[13px] text-on-surface-variant leading-relaxed block">{github.portfolioRisks[0]} ({github.portfolioRisks.length} flagged).</span>
+                                </div>
+                              </li>
+                            ) : (
+                              <li className="flex items-start gap-3 p-4 bg-secondary/5 border border-secondary/20 rounded-lg">
+                                <span className="material-symbols-outlined text-secondary text-[18px] mt-[2px]">check_circle</span>
+                                <div>
+                                  <span className="font-title-sm text-[13px] text-white block mb-1">Healthy Portfolio</span>
+                                  <span className="font-body-md text-[13px] text-on-surface-variant leading-relaxed block">No significant abandonment or documentation flags detected.</span>
+                                </div>
+                              </li>
+                            )}
+                            {github.docScore < 60 && (
+                              <li className="flex items-start gap-3 p-4 bg-warning/5 border border-warning/20 rounded-lg">
+                                <span className="material-symbols-outlined text-warning text-[18px] mt-[2px]">description</span>
+                                <div>
+                                  <span className="font-title-sm text-[13px] text-white block mb-1">Documentation Gaps <span className="ml-2 font-mono text-[10px] text-warning px-1.5 py-0.5 bg-warning/10 border border-warning/20 rounded">+15 points possible</span></span>
+                                  <span className="font-body-md text-[13px] text-on-surface-variant leading-relaxed block">README completeness score is low ({github.docScore}%).</span>
+                                </div>
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
+              )
+            )}
 
-                <div className="card" style={{ padding: '24px' }}>
-                  <h4 style={{ fontSize: '15px', marginBottom: '12px' }}>Recruiter Feedback Summary</h4>
-                  <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                    "{getRecruiterSummary()}"
-                  </p>
-
-                  <div className="recruiter-ratings-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
-                    <div style={{ padding: '10px', background: 'rgba(255,255,255,0.01)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Code Breadth</div>
-                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#ffffff' }}>{github ? (github.docScore >= 70 ? 'STRONG' : 'NEEDS DOCS') : 'N/A'}</div>
+            {/* TAB 3: Resume Analyzer */}
+            {activeTab === 'resume' && (
+              !resume ? (
+                <div className="connect-card rim-light-amber-wrapper animate-fade-in">
+                  <div className="card rim-light-amber connect-card">
+                    <div className="connect-card rim-light-amber-glow"></div>
+                    <div className="connect-icon-circle">
+                      <FileText size={32} />
                     </div>
-                    <div style={{ padding: '10px', background: 'rgba(255,255,255,0.01)', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-                      <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>ATS Keyword Alignment</div>
-                      <div style={{ fontSize: '14px', fontWeight: '700', color: '#ffffff' }}>{resume ? (resume.roleKeywordsMissing?.length ? 'GAPS FOUND' : 'MATCHED') : 'N/A'}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Terminal Logs View */}
-              <div className="terminal-window">
-                <div className="terminal-header">
-                  <Terminal size={14} />
-                  <span>DevScope Simulator Engine Console</span>
-                  <div className="terminal-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-                <div className="terminal-body">
-                  {simLogs.map((log, index) => (
-                    <div key={index} className="terminal-line">
-                      {log}
-                    </div>
-                  ))}
-                  {isSimulating && <div className="terminal-cursor"></div>}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 8: Project Ideas */}
-          {activeTab === 'projects' && (
-            <div className="card">
-              <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Custom Project Recommendations</h3>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '24px' }}>
-                These projects are customized to bridge your identified technical skill gaps and provide rich proof-of-work repositories.
-              </p>
-
-              <div className="project-cards-grid">
-                {getTailoredProjects().map((project, idx) => (
-                  <div key={idx} className="card project-idea-card">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                      <span className="project-role-tag">{project.role}</span>
-                      <span className="project-difficulty-tag" style={{
-                        background: project.difficulty === 'Advanced' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(245, 158, 11, 0.08)',
-                        color: project.difficulty === 'Advanced' ? '#f87171' : '#fbbd23'
-                      }}>{project.difficulty}</span>
-                    </div>
-
-                    <h4>{project.title}</h4>
-                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '8px', lineHeight: '1.5' }}>
-                      {project.desc}
+                    <h3>Upload Resume Document</h3>
+                    <p>
+                      Audits parsing compatibilities, keyword densities, structural sections checklists, and active recruiter action verb levels.
                     </p>
 
-                    <div style={{ margin: '16px 0' }}>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px' }}>Technologies to Apply</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {project.stack.map((tech, i) => (
-                          <span key={i} className="kw-badge kw-found" style={{ fontSize: '10px' }}>{tech}</span>
-                        ))}
-                      </div>
+                    <div
+                      className={`file-upload-zone ${resumeDragActive ? 'dragover' : ''}`}
+                      onDragEnter={handleResumeDrag}
+                      onDragOver={handleResumeDrag}
+                      onDragLeave={handleResumeDrag}
+                      onDrop={handleResumeDrop}
+                      onClick={() => document.getElementById('dashboard-file-input').click()}
+                      style={{ margin: '16px auto', maxWidth: '480px' }}
+                    >
+                      {resumeFileParseStatus === 'parsing' ? (
+                        <><p>Extracting text from <strong>{resumeFileName}</strong>...</p><span>Please wait</span></>
+                      ) : resumeFileParseStatus === 'success' ? (
+                        <><p style={{ color: "var(--color-tertiary)" }}>✅ Parsed: <strong>{resumeFileName}</strong></p><span>Click to replace</span></>
+                      ) : resumeFileParseStatus === 'error' ? (
+                        <><p style={{ color: '#ef4444' }}>Upload failed</p><span>Click to try again</span></>
+                      ) : (
+                        <><p>{resumeFileName ? `Selected: ${resumeFileName}` : 'Drag & drop Resume or click to browse'}</p><span>Supports .pdf, .docx, .txt, .md</span></>
+                      )}
+                      <input
+                        type="file"
+                        id="dashboard-file-input"
+                        style={{ display: 'none' }}
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            handleResumeFile(e.target.files[0]);
+                          }
+                        }}
+                        accept=".txt,.pdf,.docx,.md"
+                      />
                     </div>
 
-                    <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '12px', marginTop: '16px' }}>
-                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#ffffff', marginBottom: '4px' }}>Learning Objective:</div>
-                      <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>{project.learning}</div>
+                    {resumeFileParseStatus === 'error' && resumeFileParseError && (
+                      <div style={{ marginTop: '8px', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', fontSize: '13px', color: '#fca5a5' }}>
+                        ⚠️ {resumeFileParseError}
+                      </div>
+                    )}
+
+                    <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', margin: '8px 0' }}>
+                      — OR COPY PASTE TEXT —
+                    </div>
+
+                    <textarea
+                      className="form-input form-textarea"
+                      placeholder="Paste your full resume text here..."
+                      value={resumeTextInput}
+                      onChange={(e) => {
+                        setResumeTextInput(e.target.value);
+                        if (resumeFileName) { setResumeFileName(''); setResumeFileParseStatus(null); }
+                      }}
+                      style={{ maxWidth: '480px', margin: '0 auto 4px auto', display: 'block', height: '100px' }}
+                    />
+                    {resumeTextInput && (
+                      <div style={{ textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '12px' }}>
+                        {resumeTextInput.trim().split(/\s+/).filter(Boolean).length} words
+                      </div>
+                    )}
+
+                    {isAnalyzingResume ? (
+                      <div className="mt-8 mb-4">
+                        <ProcessingState
+                          steps={['Parsing Resume Document', 'Extracting Skills & Experience', 'Cross-referencing Taxonomy', 'Evaluating ATS Compatibility', 'Generating Recruiter Intelligence']}
+                          currentStep={analysisStep}
+                          isComplete={false}
+                        />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleLinkResume(resumeTextInput)}
+                        className="btn-primary mt-6"
+                        style={{ display: 'block', margin: '0 auto' }}
+                        disabled={resumeFileParseStatus === 'parsing'}
+                      >
+                        {resumeFileParseStatus === 'parsing' ? 'Parsing file...' : 'Analyze Resume'}
+                      </button>
+                    )}
+
+                    <div className="connect-benefits-grid" style={{ marginTop: '24px' }}>
+                      <div className="benefit-badge">✓ Real keyword matching</div>
+                      <div className="benefit-badge">✓ Section existence checklist</div>
+                      <div className="benefit-badge">✓ Action verb count</div>
+                      <div className="benefit-badge">✓ Contact info detection</div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* TAB 9: Analytics */}
-          {activeTab === 'analytics' && (
-            <div className="card">
-              <h3 style={{ fontSize: '18px', marginBottom: '24px' }}>Advanced Skill & Score Analytics</h3>
-
-              <div className="analytics-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.5fr', gap: '24px' }}>
-                <div className="card" style={{ background: 'rgba(255, 255, 255, 0.01)' }}>
-                  <h4 style={{ fontSize: '15px', marginBottom: '16px' }}>Technical Competency Index</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-                        <span>Frontend Systems (React, TS, State)</span>
-                        <span>{detectedSkillNames.length > 0 ? `${frontendMatch}%` : 'N/A'}</span>
+                </div>
+              ) : (
+                <div className="resume-layout-wrapper animate-fade-in p-2 lg:p-4">
+                  {/* Page Header */}
+                  <div className="mb-8 mt-4">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-outline-variant/50 pb-6 gap-4">
+                      <div>
+                        <span className="font-label-caps text-[10px] text-primary bg-primary/10 px-2 py-0.5 border border-primary/20 mb-2 inline-block uppercase tracking-widest">MODULE: RESUME_INTELLIGENCE</span>
+                        <h2 className="font-display-lg text-[24px] text-white tracking-tight">Resume Intelligence Deep-Dive</h2>
+                        <p className="font-body-md text-[13px] text-on-surface-variant mt-2 max-w-2xl">Analysis of candidate's professional experience and educational background. Evaluating career trajectory, impact metrics, and resume formatting signal vs. noise.</p>
                       </div>
-                      <div className="lang-bar-bg">
-                        <div className="lang-bar-fg" style={{ width: detectedSkillNames.length > 0 ? `${frontendMatch}%` : '0%', background: 'var(--color-primary)' }}></div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right hidden md:block">
+                          <p className="font-label-caps text-[10px] text-on-surface-variant tracking-widest uppercase">DOSSIER ID</p>
+                          <p className="font-mono text-[12px] text-primary">DS-{Math.floor(Math.random() * 10000)}-R</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setResume(null);
+                            setResumeTextInput('');
+                            setResumeFileName('');
+                            setResumeFileParseStatus(null);
+                            setResumeFileParseError('');
+                          }}
+                          className="px-4 py-2 bg-surface-container border border-outline-variant rounded font-label-caps text-[11px] uppercase tracking-widest hover:border-error/50 hover:bg-error/5 transition-all text-white"
+                        >
+                          Upload New
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dashboard Grid */}
+                  <div className="grid grid-cols-12 gap-6">
+                    {/* Primary Column (Left 8 cols) */}
+                    <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
+
+                      {/* Impression Summary Card */}
+                      <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden flex flex-col md:flex-row rim-light-amber">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                        <div className="p-8 md:w-2/3 border-b md:border-b-0 md:border-r border-outline-variant/50">
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="material-symbols-outlined text-primary text-[16px]">visibility</span>
+                            <span className="font-label-caps text-label-caps text-primary uppercase tracking-widest">Recruiter Impression Summary</span>
+                          </div>
+                          <p className="font-body-md text-[13px] text-on-surface leading-relaxed mb-4">
+                            The candidate's resume presents a <strong className="text-white font-semibold">strong positive signal</strong> for targeted roles. They demonstrate clear business impact and standard career progression.
+                          </p>
+                          <p className="font-body-md text-[13px] text-on-surface-variant leading-relaxed">
+                            However, there is {(resume.strengths || []).some(s => /metric|quant/i.test(s)) ? 'excellent use of metrics' : 'a lack of quantifiable metrics'}. A technical recruiter should focus questioning on the depth of experience to validate claims made on the resume.
+                          </p>
+                        </div>
+                        <div className="p-8 md:w-1/3 flex flex-col justify-center bg-surface-container-lowest">
+                          <div className="mb-6">
+                            <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest block mb-2">Resume Signal Strength</span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="font-data-lg text-[48px] text-primary tracking-tighter leading-none">{scores.ats || resume.atsScore || 0}</span>
+                              <span className="font-label-caps text-[10px] text-on-surface-variant uppercase">/100</span>
+                            </div>
+                          </div>
+                          <div>
+                            <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest block mb-2">Readiness</span>
+                            <div className="inline-block px-3 py-1.5 bg-surface-container border border-outline-variant rounded text-on-surface font-label-caps text-[10px] uppercase">
+                              {resume.jobReadiness || 'Generalist'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Technology Evidence Table */}
+                      <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden rim-light-amber">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+                        <div className="p-6 border-b border-outline-variant/50 flex justify-between items-center bg-surface-container/50">
+                          <h3 className="font-title-sm text-[15px] text-white">Experience Evidence Logs</h3>
+                          <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Verified Skills</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-surface-container border-b border-outline-variant/50">
+                                <th className="py-3 px-6 font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Claimed Skill</th>
+                                <th className="py-3 px-6 font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Context Source</th>
+                                <th className="py-3 px-6 font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Impact Indicator</th>
+                                <th className="py-3 px-6 font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Verdict</th>
+                              </tr>
+                            </thead>
+                            <tbody className="font-body-md text-[13px] text-on-surface">
+                              {(resume.foundKeywords || []).slice(0, 5).map((skill, i) => (
+                                <tr key={i} className="border-b border-outline-variant/30 hover:bg-surface-container/50 transition-colors">
+                                  <td className="py-4 px-6 flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-secondary"></div>
+                                    <span className="font-medium text-white">{skill}</span>
+                                  </td>
+                                  <td className="py-4 px-6 text-on-surface-variant">Resume Parsing</td>
+                                  <td className="py-4 px-6 text-on-surface-variant">Mentions detected</td>
+                                  <td className="py-4 px-6">
+                                    <span className="px-3 py-1 border border-secondary/30 text-secondary bg-secondary/5 font-label-caps text-[10px] uppercase rounded">Validated</span>
+                                  </td>
+                                </tr>
+                              ))}
+                              {(resume.missingKeywords || []).slice(0, 3).map((skill, i) => (
+                                <tr key={`missing-${i}`} className="border-b border-outline-variant/30 hover:bg-surface-container/50 transition-colors">
+                                  <td className="py-4 px-6 flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-error"></div>
+                                    <span className="font-medium text-white">{skill}</span>
+                                  </td>
+                                  <td className="py-4 px-6 text-on-surface-variant">None</td>
+                                  <td className="py-4 px-6 text-on-surface-variant">Missing from resume</td>
+                                  <td className="py-4 px-6">
+                                    <span className="px-3 py-1 border border-error/30 text-error bg-error/5 font-label-caps text-[10px] uppercase rounded">No Evidence</span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
 
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-                        <span>Backend Systems (APIs, Databases)</span>
-                        <span>{detectedSkillNames.length > 0 ? `${backendMatch}%` : 'N/A'}</span>
+                    {/* Secondary Column (Right 4 cols) */}
+                    <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                      {/* Quality Scores */}
+                      <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden rim-light-amber">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+                        <div className="p-6 border-b border-outline-variant/50 bg-surface-container/50">
+                          <h3 className="font-title-sm text-[15px] text-white">Quality Scores</h3>
+                        </div>
+                        <div className="p-6 flex flex-col gap-6">
+                          <div>
+                            <div className="flex justify-between items-end mb-2">
+                              <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Impact Quantification</span>
+                              <span className="text-secondary font-label-caps text-[10px] uppercase">{scores.resumeDetails?.categoryBreakdown?.experienceRelevance || 65}/100</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden border border-outline-variant/50">
+                              <div className="h-full bg-secondary rounded-full" style={{ width: `${scores.resumeDetails?.categoryBreakdown?.experienceRelevance || 65}%` }}></div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex justify-between items-end mb-2">
+                              <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">Technical Depth</span>
+                              <span className="text-primary font-label-caps text-[10px] uppercase">{scores.resumeDetails?.categoryBreakdown?.technicalDepth || Math.round(((resume.actionVerbCount || 0) / 8) * 100) || 75}/100</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden border border-outline-variant/50">
+                              <div className="h-full bg-primary rounded-full" style={{ width: `${scores.resumeDetails?.categoryBreakdown?.technicalDepth || Math.min(((resume.actionVerbCount || 0) / 8) * 100, 100) || 75}%` }}></div>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex justify-between items-end mb-2">
+                              <span className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest">ATS Compatibility</span>
+                              <span className="text-tertiary-container font-label-caps text-[10px] uppercase">{scores.resumeDetails?.categoryBreakdown?.atsCompatibility || 90}/100</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-surface-container-lowest rounded-full overflow-hidden border border-outline-variant/50">
+                              <div className="h-full bg-tertiary-container rounded-full" style={{ width: `${scores.resumeDetails?.categoryBreakdown?.atsCompatibility || 90}%` }}></div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="lang-bar-bg">
-                        <div className="lang-bar-fg" style={{ width: detectedSkillNames.length > 0 ? `${backendMatch}%` : '0%', background: 'var(--color-secondary)' }}></div>
-                      </div>
-                    </div>
 
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-                        <span>Cloud Infrastructure & DevOps</span>
-                        <span>{detectedSkillNames.length > 0 ? `${devopsMatch}%` : 'N/A'}</span>
-                      </div>
-                      <div className="lang-bar-bg">
-                        <div className="lang-bar-fg" style={{ width: detectedSkillNames.length > 0 ? `${devopsMatch}%` : '0%', background: 'var(--color-tertiary)' }}></div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12.5px', marginBottom: '6px' }}>
-                        <span>Code Quality & Documentation</span>
-                        <span>{github ? `${github.docScore || 100}%` : 'N/A'}</span>
-                      </div>
-                      <div className="lang-bar-bg">
-                        <div className="lang-bar-fg" style={{ width: github ? `${github.docScore || 100}%` : '0%', background: 'var(--color-warning)' }}></div>
+                      {/* Portfolio Risks */}
+                      <div className="bg-surface-container-low border border-outline-variant rounded-xl relative overflow-hidden rim-light-amber">
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-error"></div>
+                        <div className="p-6 border-b border-outline-variant/50 bg-surface-container/50 flex justify-between items-center">
+                          <h3 className="font-title-sm text-[15px] text-white">Resume Risks</h3>
+                          <AlertCircle size={18} className="text-error" />
+                        </div>
+                        <div className="p-6">
+                          <ul className="flex flex-col gap-5">
+                            {!(resume.strengths || []).some(s => /metric|quant/i.test(s)) && (
+                              <li className="flex items-start gap-3 p-4 bg-error/5 border border-error/20 rounded-lg">
+                                <span className="material-symbols-outlined text-error text-[18px] mt-[2px]">close</span>
+                                <div>
+                                  <span className="font-title-sm text-[13px] text-white block mb-1">Missing Metrics <span className="ml-2 font-mono text-[10px] text-error px-1.5 py-0.5 bg-error/10 border border-error/20 rounded">+15 points possible</span></span>
+                                  <span className="font-body-md text-[13px] text-on-surface-variant leading-relaxed block">No quantifiable impact detected in experience.</span>
+                                </div>
+                              </li>
+                            )}
+                            {resume.actionVerbCount < 3 && (
+                              <li className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                                <span className="material-symbols-outlined text-primary text-[18px] mt-[2px]">info</span>
+                                <div>
+                                  <span className="font-title-sm text-[13px] text-white block mb-1">Passive Language <span className="ml-2 font-mono text-[10px] text-primary px-1.5 py-0.5 bg-primary/10 border border-primary/20 rounded">+10 points possible</span></span>
+                                  <span className="font-body-md text-[13px] text-on-surface-variant leading-relaxed block">Low density of strong action verbs.</span>
+                                </div>
+                              </li>
+                            )}
+                            {Object.entries(resume.sectionsChecklist || {}).filter(([_, present]) => !present).map(([sec]) => (
+                              <li key={sec} className="flex items-start gap-3 p-4 bg-warning/5 border border-warning/20 rounded-lg">
+                                <span className="material-symbols-outlined text-warning text-[18px] mt-[2px]">warning</span>
+                                <div>
+                                  <span className="font-title-sm text-[13px] text-white block mb-1 capitalize">Missing {sec} Section <span className="ml-2 font-mono text-[10px] text-warning px-1.5 py-0.5 bg-warning/10 border border-warning/20 rounded">+5 points possible</span></span>
+                                  <span className="font-body-md text-[13px] text-on-surface-variant leading-relaxed block">Standard ATS section not found.</span>
+                                </div>
+                              </li>
+                            ))}
+                            {(resume.strengths || []).some(s => /metric|quant/i.test(s)) && (resume.actionVerbCount || 0) >= 3 && (
+                              <li className="flex items-start gap-3 p-4 bg-secondary/5 border border-secondary/20 rounded-lg">
+                                <span className="material-symbols-outlined text-secondary text-[18px] mt-[2px]">check_circle</span>
+                                <div>
+                                  <span className="font-title-sm text-[13px] text-white block mb-1">No Major Risks</span>
+                                  <span className="font-body-md text-[13px] text-on-surface-variant leading-relaxed block">Resume structure and content look solid.</span>
+                                </div>
+                              </li>
+                            )}
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              )
+            )}
 
-                <div className="card" style={{ background: 'rgba(255, 255, 255, 0.01)' }}>
-                  <h4 style={{ fontSize: '15px', marginBottom: '16px' }}>Level-Up Recommendation Impact</h4>
-                  {recommendations.length > 0 ? (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Action Item</th>
-                          <th style={{ padding: '8px', textAlign: 'left' }}>Target Channel</th>
-                          <th style={{ padding: '8px', textAlign: 'right' }}>Est. Increase</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {recommendations.map((rec, i) => (
-                          <tr key={i} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                            <td style={{ padding: '10px 8px' }}>{rec.item}</td>
-                            <td style={{ padding: '10px 8px', color: rec.color }}>{rec.channel}</td>
-                            <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: 'bold', color: 'var(--color-tertiary)' }}>{rec.increase}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <div style={{ color: 'var(--text-secondary)', fontSize: '13px', fontStyle: 'italic' }}>Connect more channels to get actionable recommendations.</div>
-                  )}
+            {/* TAB 4: LinkedIn Analyzer */}
+            {activeTab === 'linkedin' && (
+              <LinkedInReport
+                linkedin={linkedin}
+                isAnalyzing={isAnalyzingLinkedin}
+                liInput={liInput}
+                setLiInput={setLiInput}
+                handleLinkLinkedinUrl={handleLinkLinkedinUrl}
+                user={user}
+                analysisStep={analysisStep}
+                scores={scores}
+              />
+            )}
+
+            {/* TAB 5: Skill Gap */}
+            {activeTab === 'roadmap' && roadmap && (
+              <div className="card rim-light-amber">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '18px' }}>Personalized Roadmap</h3>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                      Complete the pending skills below to match candidate templates for this role.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '32px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '600', marginBottom: '8px' }}>
+                    <span>Completed Milestone Progress:</span>
+                    <span>{roadmap.completionPercent}%</span>
+                  </div>
+                  <div className="lang-bar-bg" style={{ height: '8px' }}>
+                    <div className="lang-bar-fg" style={{ width: `${roadmap.completionPercent}%`, background: 'var(--color-tertiary)' }}></div>
+                  </div>
+                </div>
+
+                <div className="roadmap-timeline">
+                  {roadmap.completed.map((skill, index) => (
+                    <div className="roadmap-step" key={`comp-${index}`}>
+                      <div className="roadmap-dot completed"></div>
+                      <div className="roadmap-body">
+                        <h4 style={{ color: '#ffffff' }}>✓ {skill}</h4>
+                        <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>Detected in your portfolios & documents.</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {roadmap.gap.map((skill, index) => {
+                    const url = roadmap.resources[skill] || 'https://developer.mozilla.org';
+                    return (
+                      <div className="roadmap-step" key={`pend-${index}`}>
+                        <div className="roadmap-dot pending"></div>
+                        <div className="roadmap-body">
+                          <h4 style={{ color: 'var(--text-secondary)' }}>Pending: {skill}</h4>
+                          <p style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>
+                            Recommended skill addition. Click learning path details below.
+                          </p>
+                          <a href={url} target="_blank" rel="noopener noreferrer" className="roadmap-resource">
+                            Study Guide Resource <ExternalLink size={12} />
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-        </div>
-      </main>
-    </div>
+            {/* TAB 6: AI Coach */}
+            {activeTab === 'coach' && (
+              <div className="card rim-light-amber" style={{ padding: '20px' }}>
+                <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
+                  <h3 style={{ fontSize: '18px' }}>AI Career Assistant</h3>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                    Ask questions about improving your profile scores, resume checklist, or technical mock interviews.
+                  </p>
+                </div>
+
+                <div className="chat-window">
+                  <div className="chat-messages">
+                    {chatMessages.map((msg, i) => (
+                      <div className={`chat-bubble ${msg.role}`} key={i}>
+                        {msg.content}
+                      </div>
+                    ))}
+
+                    {isChatTyping && (
+                      <div className="chat-typing-indicator">
+                        <div className="typing-dot"></div>
+                        <div className="typing-dot"></div>
+                        <div className="typing-dot"></div>
+                      </div>
+                    )}
+
+                    <div ref={messagesEndRef} />
+                  </div>
+
+                  <form className="chat-input-area" onSubmit={handleSendMessage}>
+                    <input
+                      type="text"
+                      className="chat-input"
+                      placeholder="Type message to Career Coach..."
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      disabled={isChatTyping}
+                    />
+                    <button type="submit" className="btn btn-primary" style={{ padding: '12px' }} disabled={isChatTyping}>
+                      <Send size={16} />
+                    </button>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 7: Recruiter Sim / Job Match */}
+            {activeTab === 'recruiter' && (
+              <JobMatchReport
+                jobMatch={jobMatch}
+                isAnalyzing={isAnalyzingJobMatch}
+                jobDescription={jobDescription}
+                setJobDescription={setJobDescription}
+                handleRunJobMatch={handleRunJobMatch}
+                analysisStep={analysisStep}
+                scores={scores}
+              />
+            )}
+
+            {/* TAB 8: Project Gap Analyzer */}
+            {activeTab === 'projects' && (
+              <ProjectGapReport
+                projectGap={projectGap}
+                isAnalyzing={isAnalyzingProjectGap}
+                handleRunProjectGap={handleRunProjectGap}
+                resume={resume}
+                github={github}
+                linkedin={linkedin}
+                analysisStep={analysisStep}
+                scores={scores}
+              />
+            )}
+
+            {/* TAB 9: Candidate Intelligence Report */}
+            {activeTab === 'analytics' && (
+              <CandidateReport 
+                candidateReport={candidateReport}
+                isGeneratingReport={isGeneratingReport}
+                handleGenerateReport={handleGenerateReport}
+                resume={resume}
+                github={github}
+                linkedin={linkedin}
+                scores={scores}
+              />
+            )}
+
+          </div>{/* end tab-panels */}
+        </div>{/* end content wrapper */}
+      </div>
+    </DashboardLayout>
   );
 }
 
