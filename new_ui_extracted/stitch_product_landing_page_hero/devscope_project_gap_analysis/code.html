@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Project Gap Analysis - DevScope AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#690005",
+                        "inverse-surface": "#e0e3e6",
+                        "on-secondary": "#2e3135",
+                        "primary-fixed": "#ffdbca",
+                        "background": "#101416",
+                        "inverse-on-surface": "#2d3133",
+                        "on-secondary-fixed": "#191c20",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary-fixed": "#001d32",
+                        "surface-bright": "#363a3c",
+                        "on-tertiary-container": "#003554",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#272a2d",
+                        "surface-container-highest": "#323538",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0b0f11",
+                        "surface-container-low": "#191c1e",
+                        "outline": "#a78b7d",
+                        "secondary": "#c5c6cc",
+                        "on-surface": "#e0e3e6",
+                        "secondary-fixed": "#e1e2e8",
+                        "on-tertiary-fixed-variant": "#004b74",
+                        "on-primary": "#552100",
+                        "surface": "#101416",
+                        "tertiary": "#93ccff",
+                        "surface-tint": "#ffb690",
+                        "tertiary-container": "#00a2f4",
+                        "on-primary-container": "#582200",
+                        "surface-dim": "#101416",
+                        "primary-container": "#f97316",
+                        "on-background": "#e0e3e6",
+                        "primary": "#ffb690",
+                        "outline-variant": "#584237",
+                        "surface-container": "#1d2022",
+                        "secondary-fixed-dim": "#c5c6cc",
+                        "on-surface-variant": "#e0c0b1",
+                        "tertiary-fixed": "#cde5ff",
+                        "on-primary-fixed": "#341100",
+                        "on-secondary-fixed-variant": "#44474c",
+                        "secondary-container": "#44474c",
+                        "on-tertiary": "#003351",
+                        "error-container": "#93000a",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-secondary-container": "#b3b5ba",
+                        "inverse-primary": "#9d4300",
+                        "tertiary-fixed-dim": "#93ccff",
+                        "surface-variant": "#323538"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "body-base": ["Geist"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-display": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-base": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-mono": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-sm": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "headline-display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #090B0F; /* Floor token */
+            color: theme('colors.on-background');
+        }
+        .card-surface {
+            background-color: #111418; /* Surface token */
+            border: 1px solid #252A33;
+        }
+        .elevated-surface {
+            background-color: #171B22; /* Elevated token */
+            border: 1px solid #252A33;
+        }
+        .matrix-cell {
+            background-color: #090B0F;
+            border: 1px dashed #252A33;
+        }
+        /* Hide scrollbar for clean look in data tables */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="font-body-base text-body-base bg-background text-on-background h-screen flex overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<nav class="bg-surface dark:bg-surface h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-outline-variant flex flex-col py-margin-desktop z-50">
+<!-- Brand Header -->
+<div class="px-6 mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">DevScope AI</h1>
+<p class="font-label-mono text-label-mono text-on-surface-variant mt-1">Intelligence Platform</p>
+</div>
+<!-- Navigation Links -->
+<ul class="flex flex-col flex-1 px-4 space-y-1">
+<li>
+<a class="flex items-center space-x-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono" data-icon="dashboard">dashboard</span>
+<span class="font-label-mono text-label-mono">Overview</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono" data-icon="description">description</span>
+<span class="font-label-mono text-label-mono">Resume Analyzer</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono" data-icon="terminal">terminal</span>
+<span class="font-label-mono text-label-mono">GitHub Analyzer</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono" data-icon="person_search">person_search</span>
+<span class="font-label-mono text-label-mono">LinkedIn Analyzer</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono" data-icon="rule">rule</span>
+<span class="font-label-mono text-label-mono">Job Match</span>
+</a>
+</li>
+<!-- Active State -->
+<li>
+<a class="flex items-center space-x-3 px-3 py-2 rounded-DEFAULT text-primary dark:text-primary font-bold border-r-2 border-primary bg-[#171B22] transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono" data-icon="analytics" data-weight="fill" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-label-mono text-label-mono">Project Gap Analysis</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono" data-icon="assignment">assignment</span>
+<span class="font-label-mono text-label-mono">Candidate Report</span>
+</a>
+</li>
+<li>
+<a class="flex items-center space-x-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out mt-auto" href="#">
+<span class="material-symbols-outlined font-label-mono text-label-mono" data-icon="settings">settings</span>
+<span class="font-label-mono text-label-mono">Settings</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-64 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-surface dark:bg-surface docked full-width top-0 sticky z-40 border-b border-outline-variant dark:border-outline-variant flex justify-between items-center h-14 px-margin-desktop">
+<div class="flex items-center w-full max-w-md relative">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-[#090B0F] border border-[#252A33] rounded-DEFAULT py-1.5 pl-10 pr-4 text-body-sm text-on-surface focus:outline-none focus:border-primary-container transition-colors font-body-base" placeholder="Search insights..." type="text"/>
+</div>
+<div class="flex items-center space-x-4">
+<button class="bg-primary-container text-[#090B0F] font-bold font-label-mono text-label-mono px-4 py-2 rounded-DEFAULT hover:opacity-90 transition-opacity active:opacity-80">
+                    Export Report
+                </button>
+<div class="w-8 h-8 rounded-full border border-[#252A33] overflow-hidden bg-[#171B22]">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeXKhsdbTKxF5ib9RD1134F9cN80TjHD_fLsU0SKRYMW4mNQkGmqdg43SJv3VjSvIfjo0JRiWFIdzkoaw2tuSUPWwtphRdMwM3E2E1zn-I7LsFbMkzRbu1C-stqcgbqRRFZa0sKVGvfOl0lyzTi_Tz9o4mNGXyQwvRhziD9tqBvrYxW9Ch1R1EIHErwkCNdKR8QQO6ti192_tbrXd_AW6oWFFrU0A8Ic836GKAhJbsOv7bYQIsBNSB4Ol8RaECh6TP_zaUVBJNoRk"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 overflow-y-auto p-margin-desktop space-y-8 bg-[#090B0F]">
+<!-- Page Header -->
+<div class="flex justify-between items-end border-b border-[#252A33] pb-6">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Project Gap Analysis</h2>
+<p class="text-on-surface-variant font-body-base text-body-base mt-2 max-w-2xl">Identifying missing critical skill demonstrations in the current portfolio to optimize hiring match rate.</p>
+</div>
+<div class="flex space-x-2">
+<span class="px-2 py-1 rounded-DEFAULT bg-[#171B22] border border-[#252A33] font-label-mono text-label-mono text-on-surface flex items-center">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-2"></span>
+                        3 Critical Gaps
+                    </span>
+<span class="px-2 py-1 rounded-DEFAULT bg-[#171B22] border border-[#252A33] font-label-mono text-label-mono text-on-surface flex items-center">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container mr-2"></span>
+                        82% Match Ready
+                    </span>
+</div>
+</div>
+<!-- Main Bento Grid -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Matrix Section (Span 8) -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<!-- Portfolio Coverage Matrix -->
+<div class="card-surface rounded-lg p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-label-mono text-label-mono text-on-surface uppercase tracking-wider">Portfolio vs Industry Demand Matrix</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="tune">tune</span>
+</button>
+</div>
+<div class="grid grid-cols-4 gap-4">
+<!-- Category: Frontend -->
+<div class="col-span-1 border border-[#252A33] rounded p-4 bg-[#171B22] relative overflow-hidden">
+<div class="absolute top-0 right-0 w-16 h-16 bg-primary-container opacity-5 rounded-bl-full"></div>
+<span class="font-label-mono text-label-mono text-on-surface-variant block mb-2">Category</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-4">Frontend</h4>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-body-sm">
+<span class="text-on-surface">React / Next.js</span>
+<span class="material-symbols-outlined text-tertiary-container text-[16px]" data-icon="check_circle">check_circle</span>
+</div>
+<div class="flex justify-between items-center text-body-sm">
+<span class="text-on-surface">State Mgmt</span>
+<span class="material-symbols-outlined text-tertiary-container text-[16px]" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-[#252A33]">
+<span class="text-xs font-label-mono text-[#9AA4B2]">Coverage: Strong</span>
+</div>
+</div>
+<!-- Category: Backend -->
+<div class="col-span-1 border border-[#252A33] rounded p-4 bg-[#171B22]">
+<span class="font-label-mono text-label-mono text-on-surface-variant block mb-2">Category</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-4">Backend</h4>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-body-sm">
+<span class="text-on-surface">Node.js / Express</span>
+<span class="material-symbols-outlined text-tertiary-container text-[16px]" data-icon="check_circle">check_circle</span>
+</div>
+<div class="flex justify-between items-center text-body-sm">
+<span class="text-on-error">Microservices</span>
+<span class="material-symbols-outlined text-error text-[16px]" data-icon="warning">warning</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-[#252A33]">
+<span class="text-xs font-label-mono text-primary-container">Coverage: Moderate</span>
+</div>
+</div>
+<!-- Category: AI / ML (Gap) -->
+<div class="col-span-1 border border-primary-container/30 rounded p-4 matrix-cell relative">
+<div class="absolute inset-0 bg-primary-container/5 pointer-events-none"></div>
+<span class="font-label-mono text-label-mono text-primary-container block mb-2">Missing Category</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-4">AI Integration</h4>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-body-sm">
+<span class="text-[#9AA4B2]">LLM APIs</span>
+<span class="material-symbols-outlined text-[#9AA4B2] text-[16px]" data-icon="close">close</span>
+</div>
+<div class="flex justify-between items-center text-body-sm">
+<span class="text-[#9AA4B2]">RAG Pipelines</span>
+<span class="material-symbols-outlined text-[#9AA4B2] text-[16px]" data-icon="close">close</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-[#252A33]">
+<span class="text-xs font-label-mono text-error">Coverage: None</span>
+</div>
+</div>
+<!-- Category: Cloud / DevOps (Gap) -->
+<div class="col-span-1 border border-[#252A33] rounded p-4 matrix-cell">
+<span class="font-label-mono text-label-mono text-on-surface-variant block mb-2">Missing Category</span>
+<h4 class="font-headline-md text-headline-md text-on-surface mb-4">Cloud/SaaS</h4>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-body-sm">
+<span class="text-[#9AA4B2]">AWS/GCP</span>
+<span class="material-symbols-outlined text-[#9AA4B2] text-[16px]" data-icon="close">close</span>
+</div>
+<div class="flex justify-between items-center text-body-sm">
+<span class="text-[#9AA4B2]">CI/CD</span>
+<span class="material-symbols-outlined text-[#9AA4B2] text-[16px]" data-icon="close">close</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-[#252A33]">
+<span class="text-xs font-label-mono text-error">Coverage: Weak</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Impact vs Effort Matrix -->
+<div class="card-surface rounded-lg p-6">
+<h3 class="font-label-mono text-label-mono text-on-surface uppercase tracking-wider mb-6">Impact vs. Effort Analysis</h3>
+<div class="relative h-64 border-l border-b border-[#252A33] ml-8 mb-8">
+<!-- Axis Labels -->
+<div class="absolute -left-8 top-1/2 -translate-y-1/2 -rotate-90 font-label-mono text-[10px] text-on-surface-variant tracking-widest whitespace-nowrap">IMPACT ON HIRING</div>
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-label-mono text-[10px] text-on-surface-variant tracking-widest">IMPLEMENTATION EFFORT</div>
+<!-- Quadrant Grid Lines -->
+<div class="absolute inset-0 grid grid-cols-2 grid-rows-2">
+<div class="border-r border-b border-[#252A33] border-dashed"></div>
+<div class="border-b border-[#252A33] border-dashed"></div>
+<div class="border-r border-[#252A33] border-dashed"></div>
+<div></div>
+</div>
+<!-- Data Points (Projects) -->
+<!-- High Impact, Low Effort (Top Left) -->
+<div class="absolute top-[20%] left-[25%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="w-3 h-3 bg-primary-container rounded-full ring-4 ring-primary-container/20 group-hover:ring-primary-container/40 transition-all"></div>
+<div class="absolute top-4 left-1/2 -translate-x-1/2 bg-[#171B22] border border-[#252A33] px-2 py-1 rounded text-[10px] font-label-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                    AI Chatbot Demo
+                                </div>
+</div>
+<!-- High Impact, High Effort (Top Right) -->
+<div class="absolute top-[30%] left-[80%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="w-3 h-3 bg-tertiary-container rounded-full ring-4 ring-tertiary-container/20 group-hover:ring-tertiary-container/40 transition-all"></div>
+<div class="absolute top-4 left-1/2 -translate-x-1/2 bg-[#171B22] border border-[#252A33] px-2 py-1 rounded text-[10px] font-label-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                    SaaS Auth Boilerplate
+                                </div>
+</div>
+<!-- Low Impact, High Effort (Bottom Right) -->
+<div class="absolute top-[70%] left-[75%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="w-3 h-3 bg-[#44474c] rounded-full ring-4 ring-[#44474c]/20 group-hover:ring-[#44474c]/40 transition-all"></div>
+<div class="absolute top-4 left-1/2 -translate-x-1/2 bg-[#171B22] border border-[#252A33] px-2 py-1 rounded text-[10px] font-label-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                    Custom Micro-ORM
+                                </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recommended Projects Sidebar (Span 4) -->
+<div class="col-span-12 lg:col-span-4 flex flex-col space-y-4">
+<div class="card-surface rounded-lg p-0 flex-1 flex flex-col border-primary-container/20 border">
+<div class="p-4 border-b border-[#252A33] bg-[#171B22]">
+<h3 class="font-label-mono text-label-mono text-on-surface flex items-center">
+<span class="material-symbols-outlined text-primary-container mr-2 text-[18px]" data-icon="lightbulb">lightbulb</span>
+                                Recommended Projects
+                            </h3>
+</div>
+<div class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4 bg-[#090B0F]">
+<!-- Project 1 (Top Pick) -->
+<div class="elevated-surface rounded border border-primary-container/50 p-4 hover:border-primary-container transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-body-base text-body-base font-semibold text-primary-container group-hover:text-primary transition-colors">LLM-Powered Chat App</h4>
+<span class="px-2 py-0.5 rounded text-[10px] font-label-mono bg-primary-container/10 text-primary-container border border-primary-container/20">Top Pick</span>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-4 line-clamp-2">A full-stack application demonstrating API integration with OpenAI, streaming responses, and basic RAG capabilities.</p>
+<div class="grid grid-cols-2 gap-2 mb-4">
+<div>
+<span class="block text-[10px] font-label-mono text-[#9AA4B2] mb-1">Tech Stack</span>
+<div class="flex gap-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-[#111418] border border-[#252A33] text-[10px] font-label-mono">Next.js</span>
+<span class="px-1.5 py-0.5 rounded bg-[#111418] border border-[#252A33] text-[10px] font-label-mono">OpenAI</span>
+</div>
+</div>
+<div>
+<span class="block text-[10px] font-label-mono text-[#9AA4B2] mb-1">Target Gap</span>
+<span class="text-body-sm text-on-surface">AI Integration</span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-[#252A33]">
+<div class="flex items-center space-x-4">
+<div>
+<span class="block text-[10px] font-label-mono text-[#9AA4B2]">Difficulty</span>
+<span class="text-body-sm text-tertiary-container">Medium</span>
+</div>
+<div>
+<span class="block text-[10px] font-label-mono text-[#9AA4B2]">Hiring Impact</span>
+<span class="text-body-sm text-primary-container font-semibold">High</span>
+</div>
+</div>
+<button class="bg-transparent text-[#9AA4B2] hover:text-[#F5F7FA] border border-[#252A33] px-3 py-1 rounded text-xs font-label-mono transition-colors">
+                                        View Spec
+                                    </button>
+</div>
+</div>
+<!-- Project 2 -->
+<div class="elevated-surface rounded border border-[#252A33] p-4 hover:border-[#44474c] transition-colors cursor-pointer">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-body-base text-body-base font-semibold text-on-surface">Multi-tenant SaaS Dashboard</h4>
+</div>
+<p class="text-body-sm text-on-surface-variant mb-4 line-clamp-2">Demonstrate understanding of cloud architecture, role-based access control, and complex data visualization.</p>
+<div class="grid grid-cols-2 gap-2 mb-4">
+<div>
+<span class="block text-[10px] font-label-mono text-[#9AA4B2] mb-1">Tech Stack</span>
+<div class="flex gap-1 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-[#111418] border border-[#252A33] text-[10px] font-label-mono">React</span>
+<span class="px-1.5 py-0.5 rounded bg-[#111418] border border-[#252A33] text-[10px] font-label-mono">AWS</span>
+</div>
+</div>
+<div>
+<span class="block text-[10px] font-label-mono text-[#9AA4B2] mb-1">Target Gap</span>
+<span class="text-body-sm text-on-surface">Cloud / SaaS</span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-3 border-t border-[#252A33]">
+<div class="flex items-center space-x-4">
+<div>
+<span class="block text-[10px] font-label-mono text-[#9AA4B2]">Difficulty</span>
+<span class="text-body-sm text-error">Hard</span>
+</div>
+<div>
+<span class="block text-[10px] font-label-mono text-[#9AA4B2]">Hiring Impact</span>
+<span class="text-body-sm text-tertiary-container font-semibold">Medium</span>
+</div>
+</div>
+<button class="bg-transparent text-[#9AA4B2] hover:text-[#F5F7FA] border border-[#252A33] px-3 py-1 rounded text-xs font-label-mono transition-colors">
+                                        View Spec
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1010,5 +1010,84 @@ app.get('/api/ai-status', async (req, res) => {
   }
 });
 
+  // NEW AI Status Endpoint with detailed telemetry
+  app.get('/api/ai/status', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    const configured = !!apiKey && !apiKey.includes('your_');
+    
+    if (!configured) {
+      return res.json({
+        configured: false,
+        connected: false,
+        model: "gemini-2.5-flash",
+        quotaAvailable: false,
+        lastError: "API Key missing or invalid",
+        rawResponse: null
+      });
+    }
+
+    try {
+      const testRes = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: 'Reply only with:\nDEVSCOPE_GEMINI_OK' }] }],
+            generationConfig: { maxOutputTokens: 10 }
+          })
+        }
+      );
+
+      if (testRes.status === 429) {
+        return res.json({
+          configured: true,
+          connected: true,
+          model: "gemini-2.5-flash",
+          quotaAvailable: false,
+          lastError: "Quota Exceeded (429)",
+          rawResponse: null
+        });
+      }
+
+      if (!testRes.ok) {
+        const errText = await testRes.text();
+        return res.json({
+          configured: true,
+          connected: false,
+          model: "gemini-2.5-flash",
+          quotaAvailable: false,
+          lastError: `HTTP ${testRes.status}: ${errText.substring(0, 100)}`,
+          rawResponse: null
+        });
+      }
+
+      const data = await testRes.json();
+      const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      return res.json({
+        configured: true,
+        connected: true,
+        model: "gemini-2.5-flash",
+        quotaAvailable: true,
+        lastError: null,
+        rawResponse: rawResponse.trim()
+      });
+
+    } catch (e) {
+      return res.json({
+        configured: true,
+        connected: false,
+        model: "gemini-2.5-flash",
+        quotaAvailable: false,
+        lastError: e.message,
+        rawResponse: null
+      });
+    }
+  });
 
 export default app;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function TopNavBar({ user, onExport, exportState = { status: 'idle', message: '' } }) {
+export default function TopNavBar({ user, onExport, exportState = { status: 'idle', message: '' }, aiSource }) {
   const isExporting = exportState.status === 'loading';
   const isSuccess = exportState.status === 'success';
 
@@ -17,6 +17,14 @@ export default function TopNavBar({ user, onExport, exportState = { status: 'idl
         </div>
       </div>
       <div className="flex items-center gap-6">
+        {aiSource && (
+          <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-label-caps border shadow-sm ${aiSource === 'GEMINI' ? 'bg-[#000000] border-success/30 text-success' : 'bg-[#000000] border-warning/30 text-warning'}`}>
+            <span className="material-symbols-outlined text-[14px]">
+              {aiSource === 'GEMINI' ? 'auto_awesome' : 'warning'}
+            </span>
+            {aiSource === 'GEMINI' ? 'AI Source: Gemini ✅' : 'AI Source: Fallback ⚠️'}
+          </div>
+        )}
         <div className="relative flex items-center">
           {exportState.status === 'error' && (
             <span className="absolute right-full mr-4 whitespace-nowrap text-error font-body-sm text-[12px] animate-fade-in">

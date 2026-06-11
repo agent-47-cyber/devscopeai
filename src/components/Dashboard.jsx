@@ -1347,6 +1347,14 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     }
   };
 
+  let currentSource = null;
+  if (activeTab === 'github') currentSource = github?.analysis_result?._aiSource;
+  else if (activeTab === 'resume') currentSource = resume?._aiSource;
+  else if (activeTab === 'linkedin') currentSource = linkedin?.analysis_result?._aiSource;
+  else if (activeTab === 'recruiter') currentSource = jobMatch?._aiSource;
+  else if (activeTab === 'projects') currentSource = projectGap?._aiSource;
+  else if (activeTab === 'analytics') currentSource = candidateReport?._aiSource;
+
   return (
     <DashboardLayout 
       onSignOut={onHome} 
@@ -1354,6 +1362,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       user={user}
       onExport={handleExportReport}
       exportState={exportState}
+      aiSource={currentSource}
     >
       <div className="tab-panels animate-fade-in">
         {aiStatus && aiStatus.usingFallback && (
@@ -1766,6 +1775,48 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                 onExport={handleExportReport}
                 exportState={exportState}
               />
+            )}
+
+            {/* TAB 10: System Settings */}
+            {activeTab === 'settings' && (
+              <div className="max-w-4xl animate-fade-in">
+                <div className="mb-8">
+                  <h2 className="font-display-lg text-display-lg text-primary tracking-tight">System Settings & Telemetry</h2>
+                  <p className="text-on-surface-variant mt-2 font-body-md">Verify backend intelligence endpoints and Gemini AI connectivity.</p>
+                </div>
+                <div className="bg-surface-container-low border border-outline-variant p-6 rim-light-amber">
+                  <h3 className="font-title-md mb-4 text-on-surface">Gemini AI Engine Connection</h3>
+                  <div className="flex items-center gap-4 mb-4">
+                    <button 
+                      onClick={async () => {
+                        const btn = document.getElementById('test-gemini-btn');
+                        const resPre = document.getElementById('gemini-test-res');
+                        btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-sm">sync</span> TESTING...';
+                        btn.disabled = true;
+                        resPre.textContent = 'Awaiting response from Gemini...';
+                        try {
+                          const res = await fetch('http://localhost:5000/api/ai/status');
+                          const data = await res.json();
+                          resPre.textContent = JSON.stringify(data, null, 2);
+                        } catch (e) {
+                          resPre.textContent = 'Fetch Error: ' + e.message;
+                        } finally {
+                          btn.innerHTML = '<span class="material-symbols-outlined text-sm">science</span> TEST GEMINI CONNECTION';
+                          btn.disabled = false;
+                        }
+                      }}
+                      id="test-gemini-btn"
+                      className="bg-primary text-on-primary px-4 py-2 font-label-caps flex items-center gap-2 hover:brightness-110 active:opacity-80 transition-all border border-primary/20"
+                    >
+                      <span className="material-symbols-outlined text-sm">science</span>
+                      TEST GEMINI CONNECTION
+                    </button>
+                  </div>
+                  <pre id="gemini-test-res" className="bg-[#050505] border border-outline-variant p-4 font-mono text-[12px] text-primary whitespace-pre-wrap overflow-x-auto min-h-[100px]">
+Click 'Test Gemini Connection' to verify API key and Google AI response.
+                  </pre>
+                </div>
+              </div>
             )}
 
           </div>{/* end tab-panels */}

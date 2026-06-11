@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevScope AI | Cinematic Landing Page</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#690005",
+                    "inverse-surface": "#e0e3e6",
+                    "on-secondary": "#2e3135",
+                    "primary-fixed": "#ffdbca",
+                    "background": "#101416",
+                    "inverse-on-surface": "#2d3133",
+                    "on-secondary-fixed": "#191c20",
+                    "primary-fixed-dim": "#ffb690",
+                    "on-tertiary-fixed": "#001d32",
+                    "surface-bright": "#363a3c",
+                    "on-tertiary-container": "#003554",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-high": "#272a2d",
+                    "surface-container-highest": "#323538",
+                    "error": "#ffb4ab",
+                    "surface-container-lowest": "#0b0f11",
+                    "surface-container-low": "#191c1e",
+                    "outline": "#a78b7d",
+                    "secondary": "#c5c6cc",
+                    "on-surface": "#e0e3e6",
+                    "secondary-fixed": "#e1e2e8",
+                    "on-tertiary-fixed-variant": "#004b74",
+                    "on-primary": "#552100",
+                    "surface": "#101416",
+                    "tertiary": "#93ccff",
+                    "surface-tint": "#ffb690",
+                    "tertiary-container": "#00a2f4",
+                    "on-primary-container": "#582200",
+                    "surface-dim": "#101416",
+                    "primary-container": "#f97316",
+                    "on-background": "#e0e3e6",
+                    "primary": "#ffb690",
+                    "outline-variant": "#584237",
+                    "surface-container": "#1d2022",
+                    "secondary-fixed-dim": "#c5c6cc",
+                    "on-surface-variant": "#e0c0b1",
+                    "tertiary-fixed": "#cde5ff",
+                    "on-primary-fixed": "#341100",
+                    "on-secondary-fixed-variant": "#44474c",
+                    "secondary-container": "#44474c",
+                    "on-tertiary": "#003351",
+                    "error-container": "#93000a",
+                    "on-primary-fixed-variant": "#783200",
+                    "on-secondary-container": "#b3b5ba",
+                    "inverse-primary": "#9d4300",
+                    "tertiary-fixed-dim": "#93ccff",
+                    "surface-variant": "#323538"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "container-max": "1280px",
+                    "margin-mobile": "16px",
+                    "unit": "4px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "body-base": [
+                            "Geist"
+                    ],
+                    "label-mono": [
+                            "JetBrains Mono"
+                    ],
+                    "headline-lg": [
+                            "Geist"
+                    ],
+                    "body-sm": [
+                            "Geist"
+                    ],
+                    "headline-lg-mobile": [
+                            "Geist"
+                    ],
+                    "headline-md": [
+                            "Geist"
+                    ],
+                    "headline-display": [
+                            "Geist"
+                    ]
+            },
+            "fontSize": {
+                    "body-base": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-mono": [
+                            "12px",
+                            {
+                                    "lineHeight": "1",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "20px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-display": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+        },
+        },
+      }
+    </script>
+<style>
+        /* Custom overrides to match the exact aesthetic */
+        body {
+            background-color: #090B0F;
+            color: #e0e3e6;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .border-technical {
+            border-color: #252A33;
+        }
+        
+        .bg-surface-main {
+            background-color: #111418;
+        }
+        
+        .bg-surface-elevated {
+            background-color: #171B22;
+        }
+        
+        .text-muted {
+            color: #9AA4B2;
+        }
+        
+        .btn-primary {
+            background-color: #F97316;
+            color: #090B0F;
+            font-weight: bold;
+            border: none;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid #252A33;
+            color: #F5F7FA;
+            transition: border-color 0.2s;
+        }
+        .btn-secondary:hover {
+            border-color: #F97316;
+        }
+        
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, #252A33 1px, transparent 1px),
+                linear-gradient(to bottom, #252A33 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen relative font-body-base text-body-base">
+<!-- Global Grid Background -->
+<div class="absolute inset-0 grid-bg pointer-events-none z-0"></div>
+<!-- Top Navigation -->
+<!-- Content logic: Linear Landing Page, suppressing SideNavBar. Kept TopNavBar for brand anchoring -->
+<header class="bg-surface dark:bg-surface text-primary dark:text-primary font-label-mono text-label-mono docked full-width top-0 sticky z-40 border-b border-technical flex justify-between items-center h-14 px-margin-desktop relative z-50 bg-[#090B0F]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">
+                DevScope AI
+            </div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-6 text-muted">
+<a class="hover:text-primary transition-colors" href="#">Product</a>
+<a class="hover:text-primary transition-colors" href="#">Methodology</a>
+<a class="hover:text-primary transition-colors" href="#">Pricing</a>
+</nav>
+<button class="btn-secondary px-4 py-2 rounded text-label-mono font-label-mono">
+                Log In
+            </button>
+</div>
+</header>
+<!-- Main Hero Section -->
+<main class="relative z-10 container mx-auto px-margin-desktop pt-24 pb-32 max-w-container-max flex flex-col items-center justify-center min-h-[921px]">
+<!-- Hero Copy -->
+<div class="text-center max-w-3xl mb-16 flex flex-col items-center">
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-surface-elevated border border-technical rounded-full text-label-mono font-label-mono text-primary mb-8">
+<span class="w-1.5 h-1.5 bg-primary-container rounded-full"></span>
+                v2.0 Intelligence Engine Live
+            </div>
+<h1 class="font-headline-display text-headline-display md:text-5xl lg:text-6xl text-on-surface mb-6 leading-tight">
+                Your Resume Says One Thing.<br/>
+<span class="text-muted">Your GitHub Says Another.</span>
+</h1>
+<p class="font-body-base text-body-base md:text-lg text-muted max-w-2xl mb-10">
+                Understand how recruiters evaluate your skills, projects, and professional presence across Resume, GitHub, LinkedIn, and target job descriptions.
+            </p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="btn-primary px-6 py-3 rounded text-label-mono font-label-mono uppercase tracking-wider">
+                    Analyze My Profile
+                </button>
+<button class="btn-secondary px-6 py-3 rounded text-label-mono font-label-mono uppercase tracking-wider flex items-center gap-2 justify-center">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+                    View Sample Report
+                </button>
+</div>
+</div>
+<!-- High-Fidelity UI Mockup (Candidate Intelligence Report) -->
+<div class="w-full max-w-5xl bg-surface-main border border-technical rounded-lg shadow-2xl overflow-hidden flex flex-col mt-8">
+<!-- Window Chrome -->
+<div class="h-10 border-b border-technical bg-surface-elevated flex items-center px-4 justify-between">
+<div class="flex gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-[#252A33]"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-[#252A33]"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-[#252A33]"></div>
+</div>
+<div class="font-label-mono text-label-mono text-muted flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+                    report_id: cnd_8x9f2a_v2
+                </div>
+<div class="w-12"></div> <!-- Spacer -->
+</div>
+<!-- App Interface -->
+<div class="flex h-[500px]">
+<!-- Mock Sidebar -->
+<div class="w-48 border-r border-technical bg-surface-main p-4 flex flex-col gap-4 hidden md:flex">
+<div class="text-label-mono font-label-mono text-muted mb-2 uppercase">Modules</div>
+<div class="flex items-center gap-3 text-primary font-body-sm text-body-sm bg-surface-elevated py-1.5 px-2 rounded border border-technical">
+<span class="material-symbols-outlined text-[16px]">dashboard</span>
+                        Overview
+                    </div>
+<div class="flex items-center gap-3 text-muted font-body-sm text-body-sm hover:text-on-surface py-1.5 px-2 cursor-pointer">
+<span class="material-symbols-outlined text-[16px]">description</span>
+                        Resume
+                    </div>
+<div class="flex items-center gap-3 text-muted font-body-sm text-body-sm hover:text-on-surface py-1.5 px-2 cursor-pointer">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+                        GitHub
+                    </div>
+<div class="flex items-center gap-3 text-muted font-body-sm text-body-sm hover:text-on-surface py-1.5 px-2 cursor-pointer">
+<span class="material-symbols-outlined text-[16px]">person_search</span>
+                        LinkedIn
+                    </div>
+<div class="mt-auto border-t border-technical pt-4">
+<div class="flex items-center gap-3 text-muted font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">rule</span>
+                            Job Match: 84%
+                        </div>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 p-6 bg-[#090B0F] overflow-hidden flex flex-col gap-6">
+<!-- Header -->
+<div class="flex justify-between items-start">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Alex Chen</h2>
+<div class="font-label-mono text-label-mono text-muted">Senior Full Stack Engineer</div>
+</div>
+<div class="text-right">
+<div class="inline-block bg-surface-elevated border border-technical px-3 py-1 rounded text-label-mono font-label-mono text-primary">
+                                Overall Score: 92/100
+                            </div>
+</div>
+</div>
+<!-- Bento Grid Data Viz -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+<!-- Col 1: Skill Discrepancy -->
+<div class="col-span-1 md:col-span-2 bg-surface-main border border-technical rounded p-4 flex flex-col">
+<div class="font-label-mono text-label-mono text-muted mb-4 uppercase flex justify-between">
+<span>Skill Verification Gap</span>
+<span class="material-symbols-outlined text-[14px]">analytics</span>
+</div>
+<div class="flex-1 flex flex-col justify-center gap-4">
+<!-- Mock Chart Bars -->
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="text-on-surface">React / Next.js</span>
+<span class="text-muted">High Confidence</span>
+</div>
+<div class="w-full h-1.5 bg-[#252A33] rounded overflow-hidden flex">
+<div class="w-3/4 bg-primary-container h-full"></div>
+<div class="w-1/4 bg-surface-elevated h-full border-l border-technical"></div>
+</div>
+<div class="flex text-[10px] text-muted mt-1 font-label-mono justify-between">
+<span>Resume Claim</span>
+<span>GitHub Evidence</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="text-on-surface">Python / Django</span>
+<span class="text-[#9AA4B2]">Moderate Gap</span>
+</div>
+<div class="w-full h-1.5 bg-[#252A33] rounded overflow-hidden flex">
+<div class="w-[85%] bg-[#44474c] h-full"></div>
+<div class="w-[15%] bg-surface-elevated h-full border-l border-technical"></div>
+</div>
+<div class="flex text-[10px] text-muted mt-1 font-label-mono justify-between">
+<span>Resume Claim</span>
+<span>GitHub Evidence (Lacking)</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="text-on-surface">AWS / Infrastructure</span>
+<span class="text-[#9AA4B2]">Verified</span>
+</div>
+<div class="w-full h-1.5 bg-[#252A33] rounded overflow-hidden flex">
+<div class="w-[60%] bg-[#584237] h-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Col 2: Commits & Consistency -->
+<div class="bg-surface-main border border-technical rounded p-4 flex flex-col">
+<div class="font-label-mono text-label-mono text-muted mb-4 uppercase">
+                                Code Consistency
+                            </div>
+<div class="flex-1 flex items-center justify-center">
+<!-- Mock circular progress or radar chart representation -->
+<div class="relative w-32 h-32 rounded-full border border-technical flex items-center justify-center">
+<div class="absolute inset-2 rounded-full border border-[#252A33] opacity-50"></div>
+<div class="absolute inset-6 rounded-full border border-[#252A33] opacity-20"></div>
+<div class="text-center">
+<div class="text-2xl font-headline-md text-on-surface">1.2k</div>
+<div class="text-[10px] font-label-mono text-muted uppercase">Commits YTD</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Row: Alerts -->
+<div class="col-span-1 md:col-span-3 bg-surface-elevated border border-technical rounded p-3 flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">warning</span>
+<div>
+<div class="font-body-sm text-body-sm text-on-surface font-semibold">Missing Keywords for Target Role</div>
+<div class="font-body-sm text-body-sm text-muted">The target job description emphasizes "CI/CD pipelines" and "Docker", which are absent from your LinkedIn summary despite appearing in your GitHub repositories.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

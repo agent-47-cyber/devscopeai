@@ -112,6 +112,8 @@ export async function generateWithGemini(prompt, options = {}) {
     }
 
     try {
+      console.log(`[geminiService] Gemini Request Started [Attempt ${attempt + 1}/${maxRetries}]`);
+      const startTime = Date.now();
       const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -120,16 +122,23 @@ export async function generateWithGemini(prompt, options = {}) {
 
       if (response.status === 429 || response.status === 503) {
         const errBody = await response.json().catch(() => ({}));
-        lastError = new Error(`Gemini ${response.status} (${response.status === 429 ? 'rate limit' : 'service unavailable'}): ${errBody.error?.message || 'temporary issue'}`);
-        console.warn(`[geminiService] ${response.status} error, will retry:`, lastError.message);
+        const exactMsg = errBody.error?.message || 'temporary issue';
+        lastError = new Error(response.status === 429 ? `Quota Exceeded: ${exactMsg}` : `Service Unavailable: ${exactMsg}`);
+        console.warn(`[geminiService] Gemini Error ${response.status}, will retry:`, lastError.message);
         continue;
       }
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[geminiService] API Error:', response.status, errorText.substring(0, 300));
+        console.error(`[geminiService] Gemini Error ${response.status}:`, errorText.substring(0, 300));
+        if (response.status === 401 || response.status === 403) {
+          throw new Error('Invalid API Key or unauthorized access.');
+        }
         throw new Error(`Gemini API Error ${response.status}: ${errorText.substring(0, 200)}`);
       }
+
+      const duration = Date.now() - startTime;
+      console.log(`[geminiService] Gemini Response Received in ${duration}ms`);
 
       const data = await response.json();
       const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -149,16 +158,13 @@ export async function generateWithGemini(prompt, options = {}) {
       return responseText;
 
     } catch (err) {
-      if (err.message?.includes('rate limit') || err.message?.includes('429') ||
-        err.message?.includes('503') || err.message?.includes('service unavailable')) {
-        lastError = err;
-        continue;
-      }
-      throw err;
+      console.error('[geminiService] Gemini Error during fetch:', err.message);
+      lastError = err;
     }
   }
 
-  throw lastError || new Error('Gemini request failed after all retries');
+  console.error('[geminiService] Gemini Request Failed after all retries:', lastError?.message);
+  throw lastError || new Error('Gemini generation failed.');
 }
 
 export default { generateWithGemini };

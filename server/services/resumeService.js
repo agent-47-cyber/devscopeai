@@ -18,9 +18,12 @@ Provide your evaluation in strict JSON format only. No markdown, no extra text.`
 
   try {
     const analysisResult = await generateWithGemini(prompt, { systemInstruction, parseJson: true });
+    analysisResult._aiSource = 'GEMINI';
     return analysisResult;
   } catch (err) {
     console.warn('[resumeService] Gemini unavailable, using local fallback:', err.message);
-    return createResumeFallback(resumeText, targetRole);
+    const fallbackResult = createResumeFallback(resumeText, targetRole);
+    fallbackResult._aiSource = 'FALLBACK';
+    return fallbackResult;
   }
 }

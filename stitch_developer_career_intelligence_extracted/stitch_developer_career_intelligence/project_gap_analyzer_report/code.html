@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Project Gap &amp; Career Roadmap | DEVSCOPE AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@600;700&amp;family=JetBrains+Mono:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#8d0012",
+                    "on-primary-container": "#613b00",
+                    "tertiary-container": "#ff938c",
+                    "surface-variant": "#353534",
+                    "surface-container": "#201f1f",
+                    "inverse-primary": "#855300",
+                    "on-tertiary": "#68000a",
+                    "on-secondary-container": "#00311f",
+                    "on-primary": "#472a00",
+                    "tertiary-fixed-dim": "#ffb3ad",
+                    "on-tertiary-fixed": "#410004",
+                    "on-tertiary-fixed-variant": "#930013",
+                    "tertiary": "#ffbcb7",
+                    "secondary-container": "#00a572",
+                    "secondary": "#4edea3",
+                    "surface-bright": "#3a3939",
+                    "tertiary-fixed": "#ffdad7",
+                    "secondary-fixed-dim": "#4edea3",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-container-high": "#2a2a2a",
+                    "on-secondary": "#003824",
+                    "secondary-fixed": "#6ffbbe",
+                    "surface-container-low": "#1c1b1b",
+                    "on-surface": "#e5e2e1",
+                    "error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#005236",
+                    "primary-container": "#f59e0b",
+                    "surface-container-lowest": "#0e0e0e",
+                    "primary-fixed": "#ffddb8",
+                    "surface-dim": "#131313",
+                    "on-error-container": "#ffdad6",
+                    "outline": "#a08e7a",
+                    "on-primary-fixed-variant": "#653e00",
+                    "surface": "#131313",
+                    "surface-tint": "#ffb95f",
+                    "on-surface-variant": "#d8c3ad",
+                    "background": "#131313",
+                    "error": "#ffb4ab",
+                    "on-error": "#690005",
+                    "on-background": "#e5e2e1",
+                    "primary": "#ffc174",
+                    "surface-container-highest": "#353534",
+                    "primary-fixed-dim": "#ffb95f",
+                    "on-primary-fixed": "#2a1700",
+                    "outline-variant": "#534434",
+                    "inverse-on-surface": "#313030",
+                    "on-secondary-fixed": "#002113"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "1.5rem",
+                    "sidebar-width": "240px",
+                    "section-margin": "3rem",
+                    "card-gap": "1rem",
+                    "container-padding": "2rem"
+            },
+            "fontFamily": {
+                    "title-sm": ["Inter"],
+                    "label-caps": ["JetBrains Mono"],
+                    "display-lg": ["Hanken Grotesk"],
+                    "data-lg": ["Hanken Grotesk"],
+                    "body-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "title-sm": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                    "label-caps": ["11px", {"lineHeight": "12px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "data-lg": ["40px", {"lineHeight": "1", "fontWeight": "700"}],
+                    "body-md": ["15px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #e5e2e1;
+        }
+        .rim-light-active {
+            border: 1px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+        .dossier-grid {
+            background-image: radial-gradient(circle at 2px 2px, #262626 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+        .dashed-connector {
+            background-image: repeating-linear-gradient(0deg, #f59e0b 0px, #f59e0b 4px, transparent 4px, transparent 8px);
+            width: 1px;
+            opacity: 0.2;
+        }
+    </style>
+</head>
+<body class="font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- Sidebar Navigation Shell -->
+<aside class="fixed h-screen left-0 top-0 w-sidebar-width border-r border-outline-variant bg-background z-50 flex flex-col">
+<div class="p-6">
+<h1 class="font-headline-md text-headline-md font-bold tracking-tighter text-primary">DEVSCOPE AI</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant opacity-60">Intelligence Terminal</p>
+</div>
+<nav class="flex-1 flex flex-col mt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-caps text-label-caps">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-caps text-label-caps">Resume Analyzer</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">code</span>
+<span class="font-label-caps text-label-caps">GitHub Analyzer</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-caps text-label-caps">LinkedIn Analyzer</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="font-label-caps text-label-caps">Job Match</span>
+</a>
+<!-- Active Navigation -->
+<a class="flex items-center gap-3 px-4 py-3 text-primary border-l-2 border-primary bg-primary/5 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-caps text-label-caps">Project Gap Analysis</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-label-caps text-label-caps">Candidate Report</span>
+</a>
+<div class="mt-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-150 ease-in-out border-t border-outline-variant" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 left-sidebar-width right-0 h-16 border-b border-outline-variant bg-background flex justify-between items-center px-gutter z-40">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary">search</span>
+<input class="bg-surface-container-lowest border-none font-label-caps text-label-caps focus:ring-1 focus:ring-primary w-64 h-8 px-3" placeholder="QUERY INTELLIGENCE..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors">notifications</span>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-caps text-label-caps px-4 py-2 hover:opacity-90 active:scale-95 transition-all">
+                Export Report
+            </button>
+<div class="w-8 h-8 bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden">
+<img alt="Recruiter Profile" class="w-full h-full object-cover grayscale brightness-75 hover:grayscale-0 transition-all" data-alt="A professional headshot of a corporate recruiter in a dark, atmospheric studio setting. The lighting is dramatic with deep shadows and high-contrast amber highlights reflecting off a glass surface in the background. The style is cinematic and elite, emphasizing authority and technical precision within a high-stakes intelligence environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAeh-Tvh5uhjy2oAYcg1i1AQYhRQB9AeiOj43wb_EcdjoerLeFd11RGpVWGk6OTXBOW2FhA8KbrOY7eLEc3neK5Ws6TjCA1luAUpM0XLgaFudohXFpXD-7RtR64b4zwVUNZZgsRqRVJZij0-nf8gk1jd1y7bnihHAsFxgR77TQ0or0w756gWIthufg9cW0dHdszgA_4BEYsqyXPiOAW_dZZCwx0I5SF_UtjUum0DlpiioyoYdHYLJ46bDIKQOr7fufkPcEQtEk6OXh"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-sidebar-width mt-16 p-gutter dossier-grid min-h-screen">
+<div class="max-w-7xl mx-auto space-y-8">
+<!-- Header Section -->
+<section class="flex flex-col md:flex-row md:items-end justify-between border-b border-outline-variant pb-6 gap-4">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface">Project Gap &amp; Career Roadmap</h2>
+<div class="flex items-center gap-4 mt-2">
+<span class="font-label-caps text-label-caps text-primary bg-primary/10 px-2 py-1">DOSSIER ID: DS-9921-A</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">LAST UPDATED: 2023-10-24 14:22 UTC</span>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="text-right">
+<p class="font-label-caps text-label-caps text-on-surface-variant">MATCH INDEX</p>
+<p class="font-data-lg text-data-lg text-primary">74%</p>
+</div>
+</div>
+</section>
+<!-- Portfolio Assessment & Missing Grid -->
+<div class="grid grid-cols-12 gap-card-gap">
+<!-- Portfolio Assessment -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container border border-outline-variant p-6 space-y-6">
+<h3 class="font-label-caps text-label-caps text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">analytics</span>
+                        Portfolio Assessment
+                    </h3>
+<div class="space-y-4">
+<div class="flex justify-between items-end border-b border-outline-variant/30 pb-2">
+<div>
+<p class="font-label-caps text-[10px] text-on-surface-variant">CURRENT STRENGTHS</p>
+<p class="font-title-sm text-title-sm">Technical Implementation</p>
+</div>
+<span class="font-label-caps text-secondary">VALIDATED</span>
+</div>
+<p class="font-body-md text-on-surface-variant text-sm">
+                            GitHub signals high proficiency in <strong class="text-on-surface">React, TypeScript, and Node.js</strong>. Code quality is elite with 98% test coverage in core repositories.
+                        </p>
+<div class="flex flex-wrap gap-2">
+<span class="px-2 py-0.5 bg-secondary/10 text-secondary border border-secondary/20 font-label-caps text-[10px]">RELIABLE ARCHITECTURE</span>
+<span class="px-2 py-0.5 bg-secondary/10 text-secondary border border-secondary/20 font-label-caps text-[10px]">STRICT TYPESCRIPT</span>
+</div>
+</div>
+<div class="relative pt-4">
+<div class="absolute inset-0 flex items-center pointer-events-none">
+<div class="w-full border-t border-dashed border-primary/20"></div>
+</div>
+<div class="relative bg-surface-container p-3 border border-outline-variant inline-block">
+<p class="font-label-caps text-[10px] text-on-surface-variant">CRITICAL OBSERVATION</p>
+<p class="font-body-md text-sm mt-1">Lack of distributed systems evidence is suppressing senior-level offers.</p>
+</div>
+</div>
+</div>
+<!-- Missing Categories Grid -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container border border-outline-variant p-6">
+<h3 class="font-label-caps text-label-caps text-on-surface flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-error text-sm">grid_view</span>
+                        Missing Categories Grid
+                    </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Category Cell -->
+<div class="border border-outline-variant p-4 space-y-2 opacity-100 bg-surface-container-lowest">
+<p class="font-label-caps text-[10px] text-on-surface-variant">SYSTEM DESIGN</p>
+<span class="material-symbols-outlined text-error">close</span>
+<p class="font-label-sm text-label-sm text-error">NO EVIDENCE</p>
+</div>
+<div class="border border-outline-variant p-4 space-y-2 bg-secondary/5 border-secondary/30">
+<p class="font-label-caps text-[10px] text-on-surface-variant">SAAS</p>
+<span class="material-symbols-outlined text-secondary">check</span>
+<p class="font-label-sm text-label-sm text-secondary">VALIDATED</p>
+</div>
+<div class="border border-outline-variant p-4 space-y-2 opacity-50">
+<p class="font-label-caps text-[10px] text-on-surface-variant">AI / ML</p>
+<span class="material-symbols-outlined">radio_button_unchecked</span>
+<p class="font-label-sm text-label-sm">SURFACE LEVEL</p>
+</div>
+<div class="border border-outline-variant p-4 space-y-2 bg-error/5 border-error/30">
+<p class="font-label-caps text-[10px] text-on-surface-variant">CLOUD INFRA</p>
+<span class="material-symbols-outlined text-error">priority_high</span>
+<p class="font-label-sm text-label-sm text-error">GAP DETECTED</p>
+</div>
+<div class="border border-outline-variant p-4 space-y-2 opacity-50">
+<p class="font-label-caps text-[10px] text-on-surface-variant">TEAM PROJECTS</p>
+<span class="material-symbols-outlined">radio_button_unchecked</span>
+<p class="font-label-sm text-label-sm">SURFACE LEVEL</p>
+</div>
+<div class="border border-outline-variant p-4 space-y-2 opacity-50">
+<p class="font-label-caps text-[10px] text-on-surface-variant">OPEN SOURCE</p>
+<span class="material-symbols-outlined">radio_button_unchecked</span>
+<p class="font-label-sm text-label-sm">NO DATA</p>
+</div>
+<div class="border border-outline-variant p-4 space-y-2 bg-error/5 border-error/30">
+<p class="font-label-caps text-[10px] text-on-surface-variant">DEVOPS</p>
+<span class="material-symbols-outlined text-error">priority_high</span>
+<p class="font-label-sm text-label-sm text-error">CRITICAL GAP</p>
+</div>
+<div class="border border-outline-variant p-4 space-y-2 bg-secondary/5 border-secondary/30">
+<p class="font-label-caps text-[10px] text-on-surface-variant">API DESIGN</p>
+<span class="material-symbols-outlined text-secondary">check</span>
+<p class="font-label-sm text-label-sm text-secondary">VALIDATED</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Top Recommended Projects -->
+<section class="space-y-4">
+<h3 class="font-label-caps text-label-caps text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">rocket_launch</span>
+                    Top Recommended Projects
+                </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-card-gap">
+<!-- Project Card 1 -->
+<div class="bg-surface-container border border-outline-variant overflow-hidden group hover:border-primary transition-all">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" data-alt="A futuristic digital data visualization representing blockchain and secure network architecture. The aesthetic is dark and technical with glowing neon amber lines connecting complex nodes on a black background. The mood is high-intelligence and secure, reflecting elite software engineering projects." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9yhhRCmi7ELTafYEdKM-Np9Z_UUFtRZX__WdD3FjLO-iQ8IwWsREtPeV6kQEfUgDyVXxii43bAHug37Xj7O7Qwdc1PaYfwFNE54KKBHBUbyJNFIj4Lb_gKkr7v_L87AT9tlZvw3N7UMBe9Pu9Q7L5LNcctURrXHzw-dEgMi_ge__qF7_lqYyrnsTEW30x3FsXJSYEkJ5mSkxmFXIvdEM_QWOtSktlUb8noL1yFzchAtlnbLpye134jRrnAJHakBzhKm8ZuE6LRYSc"/>
+<div class="absolute top-4 left-4">
+<span class="bg-primary text-on-primary font-label-caps text-[10px] px-2 py-1">MOST IMPACTFUL</span>
+</div>
+</div>
+<div class="p-6 space-y-4">
+<h4 class="font-title-sm text-title-sm">Distributed Event Bus</h4>
+<div class="flex justify-between font-label-caps text-[10px]">
+<span class="text-on-surface-variant">DIFFICULTY: <span class="text-on-surface">HARD</span></span>
+<span class="text-on-surface-variant">EFFORT: <span class="text-on-surface">3 WEEKS</span></span>
+</div>
+<p class="font-body-md text-sm text-on-surface-variant">Build a multi-region message broker using Go and Raft consensus. Solves the 'Distributed Systems' gap.</p>
+<div class="pt-4 border-t border-outline-variant">
+<p class="font-label-caps text-[10px] text-primary mb-2">HIRING IMPACT</p>
+<div class="w-full bg-surface-container-highest h-1">
+<div class="bg-primary h-full w-[95%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Project Card 2 -->
+<div class="bg-surface-container border border-outline-variant overflow-hidden group hover:border-primary transition-all">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" data-alt="A sleek high-tech server room with vertical server racks and glowing status indicators in a deep charcoal and amber palette. The perspective is symmetrical and clinical, emphasizing high-availability infrastructure and cloud engineering expertise. The lighting is low-key with sharp atmospheric depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7BRzB3NoVUsZnjRkoaRCGMBDYPDIfgBeOcZ71vL4Iw08yygOWkd153jN7h5vsfyu3aVOkpaMggFeeVZAw1g5EzDs3yGA99GiRJaLYijkrsfZBY7w7mWB5FMD-ct9ncDbCNDXkbhAW94NFVQ0ukzaQFuK0pXSMddaJzYw1ZG_W0gKVDGoq9UlAz1x0yo0VoAMvcPBnO_hM6mU_8E58yIbJ5386nsyUBLB8WhoZ7JKJuaYZ3vjZ2pdCBtXgPeSWQym4A2fTOjXn-Amf"/>
+</div>
+<div class="p-6 space-y-4">
+<h4 class="font-title-sm text-title-sm">K8s GitOps Pipeline</h4>
+<div class="flex justify-between font-label-caps text-[10px]">
+<span class="text-on-surface-variant">DIFFICULTY: <span class="text-on-surface">MEDIUM</span></span>
+<span class="text-on-surface-variant">EFFORT: <span class="text-on-surface">1 WEEK</span></span>
+</div>
+<p class="font-body-md text-sm text-on-surface-variant">Automated deployment infrastructure using Terraform and ArgoCD. Validates 'DevOps' &amp; 'Cloud' categories.</p>
+<div class="pt-4 border-t border-outline-variant">
+<p class="font-label-caps text-[10px] text-primary mb-2">HIRING IMPACT</p>
+<div class="w-full bg-surface-container-highest h-1">
+<div class="bg-primary h-full w-[82%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Project Card 3 -->
+<div class="bg-surface-container border border-outline-variant overflow-hidden group hover:border-primary transition-all">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity" data-alt="Abstract AI neural network visualization with flowing golden particles against a vast black void. The design is modern and sophisticated, illustrating deep learning and intelligence processing. The aesthetic uses technical brutalism elements with sharp lines and high-contrast tonal layering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbYore9O_sqv49rfaIBQcF4IgkXnxIOtKgGgTdxxfpadRhIzzaO6BuIYfanwoTDjHAODipaBunP2H_JMKJBHtF-tMjQaIvbxYUsWEhrgsj1kNxXCtrOiy_HgbjJgwhIsP8hco7GedjlFQJG3UlFOsullR-GdvskQqhUoTs4tu7S3d8aMOf3fKmrhxI12IZ8Tw4lWDVep7dX61RZ2L9my0OcLcwf8KMy_MjyS0xk7SxWHQrvKACViyDgFodM9GL3JJNlkgnttiPPNpu"/>
+</div>
+<div class="p-6 space-y-4">
+<h4 class="font-title-sm text-title-sm">RAG-based Doc Analyzer</h4>
+<div class="flex justify-between font-label-caps text-[10px]">
+<span class="text-on-surface-variant">DIFFICULTY: <span class="text-on-surface">MEDIUM</span></span>
+<span class="text-on-surface-variant">EFFORT: <span class="text-on-surface">2 WEEKS</span></span>
+</div>
+<p class="font-body-md text-sm text-on-surface-variant">LLM-powered tool for internal document intelligence. Demonstrates 'AI/ML' readiness for enterprise.</p>
+<div class="pt-4 border-t border-outline-variant">
+<p class="font-label-caps text-[10px] text-primary mb-2">HIRING IMPACT</p>
+<div class="w-full bg-surface-container-highest h-1">
+<div class="bg-primary h-full w-[78%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Roadmap & Matrix Grid -->
+<div class="grid grid-cols-12 gap-card-gap">
+<!-- 90-Day Roadmap -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container border border-outline-variant p-6">
+<h3 class="font-label-caps text-label-caps text-on-surface flex items-center gap-2 mb-8">
+<span class="material-symbols-outlined text-primary">timeline</span>
+                        90-Day Strategic Roadmap
+                    </h3>
+<div class="relative">
+<!-- Vertical Timeline Bar -->
+<div class="absolute left-4 top-0 bottom-0 w-px bg-outline-variant dashed-connector"></div>
+<div class="space-y-12">
+<!-- Phase 1 -->
+<div class="relative pl-12">
+<div class="absolute left-[11px] top-1 w-2.5 h-2.5 bg-primary rounded-full ring-4 ring-primary/20"></div>
+<div class="space-y-2">
+<p class="font-label-caps text-[11px] text-primary">PHASE 1: DAYS 1-30 — INFRASTRUCTURE PRIMING</p>
+<h4 class="font-title-sm text-title-sm">Provisioning &amp; CI/CD Automation</h4>
+<p class="font-body-md text-sm text-on-surface-variant max-w-2xl">Complete the K8s GitOps project. Objective: Signal that you can handle production-grade deployments. This removes the 'Surface Level' tag from Cloud skills.</p>
+<div class="flex gap-4 pt-2">
+<div class="text-center p-2 border border-outline-variant bg-surface-container-low w-20">
+<p class="font-label-caps text-[10px]">WEEKS</p>
+<p class="font-title-sm text-primary">04</p>
+</div>
+<div class="text-center p-2 border border-outline-variant bg-surface-container-low w-20">
+<p class="font-label-caps text-[10px]">TASKS</p>
+<p class="font-title-sm text-primary">08</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Phase 2 -->
+<div class="relative pl-12">
+<div class="absolute left-[11px] top-1 w-2.5 h-2.5 bg-on-surface-variant/30 border border-on-surface-variant rounded-full"></div>
+<div class="space-y-2">
+<p class="font-label-caps text-[11px] text-on-surface-variant">PHASE 2: DAYS 31-60 — ARCHITECTURAL DEPTH</p>
+<h4 class="font-title-sm text-title-sm">Distributed Systems Implementation</h4>
+<p class="font-body-md text-sm text-on-surface-variant max-w-2xl">Develop the Distributed Event Bus. Objective: Demonstrate concurrency control and networking fundamentals. This targets L5/L6 software engineering roles.</p>
+</div>
+</div>
+<!-- Phase 3 -->
+<div class="relative pl-12">
+<div class="absolute left-[11px] top-1 w-2.5 h-2.5 bg-on-surface-variant/30 border border-on-surface-variant rounded-full"></div>
+<div class="space-y-2">
+<p class="font-label-caps text-[11px] text-on-surface-variant">PHASE 3: DAYS 61-90 — VERTICAL SPECIALIZATION</p>
+<h4 class="font-title-sm text-title-sm">AI Integration &amp; Final Polish</h4>
+<p class="font-body-md text-sm text-on-surface-variant max-w-2xl">Deploy the RAG Analyzer. Final objective: Combine infra + backend + AI into a cohesive portfolio narrative. Prepare for technical interviews.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Impact vs Effort Matrix -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container border border-outline-variant p-6 flex flex-col">
+<h3 class="font-label-caps text-label-caps text-on-surface flex items-center gap-2 mb-8">
+<span class="material-symbols-outlined text-primary text-sm">leaderboard</span>
+                        Impact vs Effort Matrix
+                    </h3>
+<div class="flex-1 relative flex flex-col border-l border-b border-outline-variant mb-6 ml-6">
+<!-- Y-Axis Label -->
+<div class="absolute -left-8 top-1/2 -translate-y-1/2 -rotate-90 font-label-caps text-[10px] text-on-surface-variant">IMPACT</div>
+<!-- X-Axis Label -->
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-label-caps text-[10px] text-on-surface-variant">EFFORT</div>
+<!-- Quadrant Labels -->
+<div class="grid grid-cols-2 grid-rows-2 h-full w-full">
+<div class="border-r border-b border-outline-variant/20 p-2 flex items-start justify-end opacity-20">
+<span class="font-label-caps text-[8px]">HIGH IMPACT / LOW EFFORT</span>
+</div>
+<div class="border-b border-outline-variant/20 p-2 flex items-start justify-start opacity-20">
+<span class="font-label-caps text-[8px]">HIGH IMPACT / HIGH EFFORT</span>
+</div>
+<div class="border-r border-outline-variant/20 p-2 flex items-end justify-end opacity-20">
+<span class="font-label-caps text-[8px]">LOW IMPACT / LOW EFFORT</span>
+</div>
+<div class="p-2 flex items-end justify-start opacity-20">
+<span class="font-label-caps text-[8px]">LOW IMPACT / HIGH EFFORT</span>
+</div>
+</div>
+<!-- Data Points -->
+<div class="absolute bottom-[80%] left-[20%] group">
+<div class="w-3 h-3 bg-primary rounded-full cursor-help hover:scale-150 transition-all"></div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-surface-container-highest border border-primary p-2 w-32 z-10">
+<p class="font-label-caps text-[10px] text-primary">GitOps Pipeline</p>
+</div>
+</div>
+<div class="absolute bottom-[90%] left-[80%] group">
+<div class="w-3 h-3 bg-primary rounded-full cursor-help hover:scale-150 transition-all"></div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-surface-container-highest border border-primary p-2 w-32 z-10">
+<p class="font-label-caps text-[10px] text-primary">Event Bus</p>
+</div>
+</div>
+<div class="absolute bottom-[50%] left-[60%] group">
+<div class="w-3 h-3 bg-primary rounded-full cursor-help hover:scale-150 transition-all"></div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-surface-container-highest border border-primary p-2 w-32 z-10">
+<p class="font-label-caps text-[10px] text-primary">RAG Analyzer</p>
+</div>
+</div>
+</div>
+<div class="space-y-4">
+<p class="font-body-md text-xs text-on-surface-variant">The <strong class="text-primary">GitOps Pipeline</strong> is your "Quick Win" priority to establish credibility before tackling the High-Effort Distributed Systems core.</p>
+<button class="w-full border border-primary text-primary font-label-caps text-label-caps py-2 hover:bg-primary/5 active:scale-95 transition-all">
+                            GENERATE DETECTED TASK LIST
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual Toast / Micro-interaction (Hidden by default) -->
+<div class="fixed bottom-6 right-6 bg-surface-container-highest border border-primary/40 px-4 py-2 flex items-center gap-3 animate-pulse" id="ai-status">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+<span class="font-label-caps text-[10px] text-primary">AI ENGINE: CONTINUOUS ANALYSIS ACTIVE</span>
+</div>
+<script>
+        // Micro-interaction for the status toast
+        window.addEventListener('load', () => {
+            const toast = document.getElementById('ai-status');
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            }, 1000);
+        });
+    </script>
+</body></html>

@@ -11,9 +11,12 @@ Target role: ${targetRole.toUpperCase()} engineer.
 Provide your evaluation in strict JSON format only. No markdown, no extra text.`;
 
     const analysisResult = await generateWithGemini(prompt, { systemInstruction, parseJson: true, useCache: false });
+    analysisResult._aiSource = 'GEMINI';
     return analysisResult;
   } catch (err) {
     console.warn('[reportService] Gemini unavailable, using local fallback:', err.message);
-    return createCandidateReportFallback(resumeData, githubData, linkedinData, jobMatchData, projectGapData);
+    const fallbackResult = createCandidateReportFallback(resumeData, githubData, linkedinData, jobMatchData, projectGapData);
+    fallbackResult._aiSource = 'FALLBACK';
+    return fallbackResult;
   }
 }

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevScope Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#b4b5b5",
+                        "surface-container-high": "#282a2e",
+                        "secondary-fixed": "#e2e2e2",
+                        "primary-fixed": "#ffdbca",
+                        "on-surface": "#e2e2e8",
+                        "surface-elevated": "#171B22",
+                        "on-secondary-fixed-variant": "#454747",
+                        "border": "#252A33",
+                        "surface-container-lowest": "#0c0e12",
+                        "secondary-container": "#454747",
+                        "on-tertiary": "#003351",
+                        "on-error": "#690005",
+                        "surface": "#111418",
+                        "background": "#090B0F",
+                        "on-primary-container": "#582200",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary-fixed": "#001d32",
+                        "on-primary-fixed": "#341100",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "secondary": "#c6c6c7",
+                        "surface-dim": "#111318",
+                        "tertiary-container": "#00a2f4",
+                        "text-muted": "#606A7B",
+                        "on-tertiary-container": "#003554",
+                        "on-surface-variant": "#e0c0b1",
+                        "surface-tint": "#ffb690",
+                        "inverse-surface": "#e2e2e8",
+                        "tertiary-fixed": "#cde5ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-background": "#e2e2e8",
+                        "primary": "#ffb690",
+                        "error": "#ffb4ab",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-primary": "#552100",
+                        "outline-variant": "#584237",
+                        "outline": "#a78b7d",
+                        "text-primary": "#F1F2F4",
+                        "inverse-on-surface": "#2f3035",
+                        "surface-bright": "#37393e",
+                        "on-secondary": "#2f3131",
+                        "surface-container": "#1e2024",
+                        "surface-variant": "#333539",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-highest": "#333539",
+                        "inverse-primary": "#9d4300",
+                        "surface-container-low": "#1a1c20",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#93ccff",
+                        "on-tertiary-fixed-variant": "#004b74",
+                        "tertiary": "#93ccff",
+                        "primary-container": "#f97316",
+                        "text-secondary": "#9BA3AF"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "max-width": "1440px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "48px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-xl": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "body-lg": ["Geist"],
+                        "label-md": ["JetBrains Mono"],
+                        "code-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-xl": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-md": ["12px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "code-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .log-entry {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeUpIn 0.5s ease forwards;
+        }
+        @keyframes fadeUpIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .delay-1 { animation-delay: 0.5s; }
+        .delay-2 { animation-delay: 1.5s; }
+        .delay-3 { animation-delay: 2.5s; }
+        .delay-4 { animation-delay: 3.5s; }
+        .delay-summary { animation-delay: 5s; }
+        
+        .pulse-dot {
+            position: relative;
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #F97316;
+            border-radius: 50%;
+        }
+        .pulse-dot::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 1px solid #F97316;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary min-h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- Left Side: Simulation (Hidden on small mobile) -->
+<div class="hidden md:flex md:w-[60%] relative flex-col border-r border-border">
+<!-- Background Animation -->
+<!-- STITCH_SHADER_START:ANIMATION_80 class="absolute inset-0 w-full h-full opacity-20 pointer-events-none" -->
+<div class="absolute inset-0 w-full h-full opacity-20 pointer-events-none" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_80" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_80');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+varying vec2 v_texCoord;
+
+float grid(vec2 uv, float spacing) {
+    vec2 lines = mod(uv, spacing);
+    return step(spacing - 0.01, lines.x) + step(spacing - 0.01, lines.y);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    
+    // Technical dark background base
+    vec3 backgroundColor = vec3(0.035, 0.043, 0.059); // #090B0F
+    
+    // Create a subtle modular grid pattern
+    float majorGrid = grid(uv * 10.0, 1.0);
+    float minorGrid = grid(uv * 50.0, 1.0);
+    
+    vec3 gridColor = vec3(0.145, 0.165, 0.2); // Very subtle #252A33 variant
+    
+    // Blend layers with very low opacity to create "engineered" depth
+    vec3 color = backgroundColor;
+    color = mix(color, gridColor, minorGrid * 0.05);
+    color = mix(color, gridColor, majorGrid * 0.1);
+    
+    // Add a very faint blueprint-like crosshair or dot every few major squares
+    vec2 crosshairPos = mod(uv * 2.0, 1.0);
+    float crosshair = step(0.998, crosshairPos.x) * step(0.48, crosshairPos.y) * step(crosshairPos.y, 0.52);
+    crosshair += step(0.998, crosshairPos.y) * step(0.48, crosshairPos.x) * step(crosshairPos.x, 0.52);
+    color = mix(color, gridColor, crosshair * 0.15);
+
+    gl_FragColor = vec4(color, 1.0);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_80 -->
+<!-- Subtle Grid Overlay for Technical Feel -->
+<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTAgMGgyNHYyNEgwem0xIDF2MjJoMjJWMXptMSAxdjIwaDIwVjJ6IiBmaWxsPSJyZ2JhKDM3LCA0MiwgNTEsIDAuMikiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')] opacity-30 pointer-events-none"></div>
+<div class="relative z-10 flex flex-col h-full p-12">
+<!-- Header -->
+<div class="mb-12">
+<h2 class="font-headline-lg text-headline-lg text-text-primary mb-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container">radar</span>
+                    Live Candidate Intelligence
+                </h2>
+<p class="font-body-md text-body-md text-text-secondary">Processing real-time technical profile analysis...</p>
+</div>
+<!-- Logs Section -->
+<div class="font-code-sm text-code-sm space-y-3 mb-12 max-w-[680px]">
+<div class="log-entry delay-1 flex items-center gap-4 text-text-secondary">
+<span class="text-primary-container">[SYS]</span>
+<span>Initializing Resume Analyzer module...</span>
+</div>
+<div class="log-entry delay-1 flex items-center gap-4 text-text-primary">
+<span class="text-primary-container">[OK]</span>
+<span>Resume Analysis Complete</span>
+</div>
+<div class="log-entry delay-2 flex items-center gap-4 text-text-secondary">
+<span class="text-tertiary">[SYS]</span>
+<span>Fetching GitHub repository metadata...</span>
+</div>
+<div class="log-entry delay-2 flex items-center gap-4 text-text-primary">
+<span class="text-tertiary">[OK]</span>
+<span>GitHub Analysis Complete</span>
+</div>
+<div class="log-entry delay-3 flex items-center gap-4 text-text-secondary">
+<span class="text-outline">[SYS]</span>
+<span>Cross-referencing LinkedIn professional history...</span>
+</div>
+<div class="log-entry delay-3 flex items-center gap-4 text-text-primary">
+<span class="text-outline">[OK]</span>
+<span>LinkedIn Analysis Complete</span>
+</div>
+<div class="log-entry delay-4 flex items-center gap-4 text-text-secondary">
+<span class="text-on-secondary-container">[SYS]</span>
+<span>Calculating Job Match algorithmic score...</span>
+</div>
+<div class="log-entry delay-4 flex items-center gap-4 text-text-primary">
+<span class="text-primary-container">[OK]</span>
+<span>Job Match Complete</span>
+<span class="ml-auto text-primary-container bg-primary-container/10 px-2 py-0.5 rounded border border-primary-container/20">SCORE: 94%</span>
+</div>
+</div>
+<!-- Summary Panel (Reveals later) -->
+<div class="log-entry delay-summary mt-auto max-w-[680px] bg-surface border border-border p-6 shadow-2xl relative overflow-hidden">
+<!-- Decorative top line -->
+<div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary-container to-transparent"></div>
+<div class="flex items-center justify-between mb-6 border-b border-border pb-4">
+<div class="flex items-center gap-3">
+<div class="pulse-dot"></div>
+<h3 class="font-label-md text-label-md text-text-primary uppercase tracking-wider">Candidate Report Generated</h3>
+</div>
+<span class="font-code-sm text-code-sm text-text-secondary">ID: USR-8892-XT</span>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<!-- Strengths/Weaknesses -->
+<div class="space-y-6">
+<div>
+<h4 class="font-label-md text-label-md text-text-secondary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">add_circle</span> Strengths
+                            </h4>
+<ul class="font-body-md text-body-md text-text-primary space-y-2 pl-6 list-disc list-outside marker:text-border">
+<li>Deep expertise in React ecosystem</li>
+<li>Demonstrated system architecture skills</li>
+<li>High-impact open source contributions</li>
+</ul>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-text-secondary mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">remove_circle</span> Areas to Probe
+                            </h4>
+<ul class="font-body-md text-body-md text-text-primary space-y-2 pl-6 list-disc list-outside marker:text-border">
+<li>Recent gap in backend deployments</li>
+<li>Limited cloud infrastructure scope</li>
+</ul>
+</div>
+</div>
+<!-- Repositories -->
+<div class="border-l border-border pl-8">
+<h4 class="font-label-md text-label-md text-text-secondary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">timeline</span> Repository Insights
+                        </h4>
+<div class="space-y-4">
+<div class="border border-border bg-background p-3">
+<div class="flex justify-between items-center mb-1">
+<span class="font-label-md text-label-md text-primary-container">core-engine-v2</span>
+<span class="font-code-sm text-code-sm text-text-secondary">Update: 2d ago</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 mt-2">
+<div class="bg-primary-container h-1 w-[85%]"></div>
+</div>
+<p class="font-code-sm text-code-sm text-text-secondary mt-1">High commit frequency</p>
+</div>
+<div class="border border-border bg-background p-3">
+<div class="flex justify-between items-center mb-1">
+<span class="font-label-md text-label-md text-text-primary">react-components-lib</span>
+<span class="font-code-sm text-code-sm text-text-secondary">Update: 1w ago</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 mt-2">
+<div class="bg-border h-1 w-[40%]"></div>
+</div>
+<p class="font-code-sm text-code-sm text-text-secondary mt-1">Maintenance mode</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Authentication -->
+<div class="w-full md:w-[40%] flex flex-col justify-center items-center p-8 bg-surface-dim relative z-20">
+<div class="w-full max-w-[400px]">
+<!-- Brand -->
+<div class="mb-12 text-center">
+<h1 class="font-headline-xl text-headline-xl text-text-primary mb-2">DevScope</h1>
+<p class="font-body-lg text-body-lg text-text-secondary">Technical Intelligence Platform</p>
+</div>
+<!-- Auth Options -->
+<div class="space-y-4">
+<button class="w-full h-12 flex items-center justify-center gap-3 border border-border bg-surface hover:bg-surface-elevated transition-colors text-text-primary font-label-md text-label-md uppercase tracking-wide group">
+<span class="material-symbols-outlined text-[20px] text-text-secondary group-hover:text-text-primary transition-colors">login</span>
+                    Continue with Google
+                </button>
+<button class="w-full h-12 flex items-center justify-center gap-3 border border-border bg-surface hover:bg-surface-elevated transition-colors text-text-primary font-label-md text-label-md uppercase tracking-wide group">
+<span class="material-symbols-outlined text-[20px] text-text-secondary group-hover:text-text-primary transition-colors">code</span>
+                    Continue with GitHub
+                </button>
+<div class="relative flex py-4 items-center">
+<div class="flex-grow border-t border-border"></div>
+<span class="flex-shrink-0 mx-4 font-label-md text-label-md text-text-muted">OR</span>
+<div class="flex-grow border-t border-border"></div>
+</div>
+<button class="w-full h-12 flex items-center justify-center gap-3 bg-primary-container hover:bg-[#EA580C] transition-colors text-surface-container-lowest font-label-md text-label-md uppercase tracking-wide focus:outline-none focus:ring-2 focus:ring-primary-container focus:ring-offset-2 focus:ring-offset-background">
+<span class="material-symbols-outlined text-[20px]">mail</span>
+                    Continue with Email
+                </button>
+</div>
+<div class="mt-8 text-center">
+<p class="font-body-md text-body-md text-text-secondary">
+                    By continuing, you agree to our <a class="text-text-primary hover:text-primary-container transition-colors border-b border-transparent hover:border-primary-container" href="#">Terms of Service</a> and <a class="text-text-primary hover:text-primary-container transition-colors border-b border-transparent hover:border-primary-container" href="#">Privacy Policy</a>.
+                </p>
+</div>
+</div>
+</div>
+</body></html>

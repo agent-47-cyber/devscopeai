@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevScope - Candidate Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#fcf8fa",
+                      "surface-variant": "#e5e2e3",
+                      "surface-tint": "#575e70",
+                      "tertiary-fixed-dim": "#dcc2a4",
+                      "secondary": "#585f6c",
+                      "on-secondary": "#ffffff",
+                      "tertiary-container": "#261906",
+                      "on-surface-variant": "#45464c",
+                      "on-primary-container": "#7d8497",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#c0c6db",
+                      "surface": "#fcf8fa",
+                      "surface-dim": "#dcd9db",
+                      "surface-container-low": "#f6f3f4",
+                      "on-secondary-fixed": "#151c27",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#968065",
+                      "on-surface": "#1b1b1d",
+                      "background": "#fcf8fa",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#f0edee",
+                      "error": "#ba1a1a",
+                      "secondary-fixed-dim": "#c0c7d6",
+                      "primary-fixed": "#dce2f7",
+                      "primary-container": "#141b2b",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-high": "#eae7e9",
+                      "primary-fixed-dim": "#c0c6db",
+                      "tertiary-fixed": "#f9debf",
+                      "on-secondary-container": "#5e6572",
+                      "surface-container-highest": "#e5e2e3",
+                      "on-secondary-fixed-variant": "#404754",
+                      "outline": "#76777d",
+                      "secondary-fixed": "#dce2f3",
+                      "secondary-container": "#dce2f3",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#000000",
+                      "inverse-surface": "#303031",
+                      "inverse-on-surface": "#f3f0f1",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#141b2b",
+                      "on-tertiary-fixed-variant": "#55442d",
+                      "on-primary-fixed-variant": "#404758",
+                      "on-background": "#1b1b1d",
+                      "primary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-tertiary-fixed": "#261906"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "2.5rem",
+                      "gutter": "1rem",
+                      "lg": "1.5rem",
+                      "md": "1rem",
+                      "base": "4px",
+                      "xs": "0.25rem",
+                      "sm": "0.5rem",
+                      "margin": "2rem"
+              },
+              "fontFamily": {
+                      "mono-code": ["Geist"],
+                      "display-lg": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "body-lg": ["Inter"],
+                      "headline-lg-mobile": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "label-md": ["Geist"],
+                      "body-sm": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "mono-code": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["30px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .geist { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col antialiased selection:bg-surface-variant selection:text-on-surface">
+<!-- TopNavBar Component -->
+<header class="bg-surface border-b border-surface-variant docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-xl h-14 bg-surface max-w-[1440px] mx-auto">
+<div class="flex items-center gap-xl">
+<span class="font-headline-md text-headline-md font-semibold text-primary">DevScope</span>
+<nav class="hidden md:flex items-center gap-md h-full">
+<a class="font-body-md text-body-md h-14 flex items-center px-sm text-primary font-bold border-b-2 border-primary hover:text-primary transition-colors" href="#">Reports</a>
+<a class="font-body-md text-body-md h-14 flex items-center px-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Pipelines</a>
+<a class="font-body-md text-body-md h-14 flex items-center px-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Archive</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<div class="hidden md:flex items-center text-on-surface-variant gap-sm">
+<button class="p-xs hover:text-primary transition-colors duration-150 rounded-DEFAULT hover:bg-surface-container"><span class="material-symbols-outlined text-[20px]">notifications</span></button>
+<button class="p-xs hover:text-primary transition-colors duration-150 rounded-DEFAULT hover:bg-surface-container"><span class="material-symbols-outlined text-[20px]">help_outline</span></button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-surface-variant flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">person</span>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-[1440px] mx-auto flex flex-col">
+<!-- Hero Section -->
+<section class="w-full px-xl pt-[8rem] pb-[4rem] flex flex-col items-center text-center">
+<h1 class="font-display-lg text-display-lg text-primary max-w-4xl mb-md tracking-tight">Candidate Intelligence for Engineering Teams</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-xl">Move beyond intuition. DevScope provides evidence-based evaluation of software engineers by actively analyzing syntax, architectural decisions, and historical output.</p>
+<div class="flex gap-md">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-lg py-sm rounded-DEFAULT hover:bg-inverse-surface transition-colors">Start Evaluation</button>
+<button class="bg-surface-container-lowest border border-surface-variant text-primary font-label-md text-label-md px-lg py-sm rounded-DEFAULT hover:bg-surface-container-low transition-colors">View Methodology</button>
+</div>
+</section>
+<!-- Main Feature: Embedded Report -->
+<section class="w-full px-xl pb-[6rem] flex justify-center">
+<div class="w-full max-w-5xl bg-surface-container-lowest border border-surface-variant rounded-xl shadow-[0px_1px_3px_rgba(0,0,0,0.05)] overflow-hidden flex flex-col">
+<!-- Report Header -->
+<div class="px-xl py-lg border-b border-surface-variant flex justify-between items-start bg-surface-bright">
+<div>
+<div class="flex items-center gap-sm mb-xs">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Alex Mercer</h2>
+<span class="bg-surface-container text-on-surface font-label-md text-label-md px-2 py-1 rounded-DEFAULT border border-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary block"></span> Highly Recommended
+                            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Senior Backend Engineer Candidate • Evaluated on Oct 24, 2024</p>
+</div>
+<div class="flex gap-sm">
+<button class="p-sm border border-surface-variant rounded-DEFAULT hover:bg-surface-container-low transition-colors text-on-surface-variant flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">download</span></button>
+<button class="p-sm border border-surface-variant rounded-DEFAULT hover:bg-surface-container-low transition-colors text-on-surface-variant flex items-center justify-center"><span class="material-symbols-outlined text-[18px]">share</span></button>
+</div>
+</div>
+<!-- Report Body -->
+<div class="p-xl grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- Summary -->
+<div class="col-span-1 md:col-span-2">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-sm">Executive Summary</h3>
+<p class="font-body-md text-body-md text-on-surface leading-relaxed max-w-4xl">
+                            Alex demonstrates exceptional proficiency in distributed systems architecture and Go backend development. Code analysis reveals a strong preference for pragmatic, highly testable patterns over abstract complexity. The candidate shows mature decision-making regarding database indexing and API design. Communication in technical documentation is precise and structured.
+                        </p>
+</div>
+<!-- Strengths -->
+<div class="flex flex-col gap-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Observed Strengths</h3>
+<ul class="flex flex-col gap-sm">
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-[16px] text-primary mt-[2px]">check</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">Concurrency Management</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Correct implementation of worker pools and mutexes in provided Go samples.</p>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-[16px] text-primary mt-[2px]">check</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">Database Optimization</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Consistent use of composite indexes and query explain plan analysis.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- Weaknesses -->
+<div class="flex flex-col gap-sm">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-xs">Areas for Calibration</h3>
+<ul class="flex flex-col gap-sm">
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant mt-[2px]">remove</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">Frontend Frameworks</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Limited exposure to modern React/Vue state management patterns.</p>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant mt-[2px]">remove</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">Kubernetes Administration</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Relies on managed services; lacks deep custom resource definition experience.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- Evidence Table -->
+<div class="col-span-1 md:col-span-2 mt-md">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-md">Evidence Matrix</h3>
+<div class="border border-surface-variant rounded-DEFAULT overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-bright border-b border-surface-variant">
+<th class="font-label-md text-label-md text-on-surface-variant p-sm font-medium">Competency</th>
+<th class="font-label-md text-label-md text-on-surface-variant p-sm font-medium">Observation Level</th>
+<th class="font-label-md text-label-md text-on-surface-variant p-sm font-medium">Primary Source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-surface-variant">
+<td class="font-body-sm text-body-sm text-on-surface p-sm">API Design (REST/gRPC)</td>
+<td class="font-body-sm text-body-sm text-on-surface p-sm">Advanced</td>
+<td class="font-mono-code text-mono-code text-on-surface-variant p-sm">github.com/amercer/payment-gateway</td>
+</tr>
+<tr class="border-b border-surface-variant">
+<td class="font-body-sm text-body-sm text-on-surface p-sm">System Architecture</td>
+<td class="font-body-sm text-body-sm text-on-surface p-sm">Proficient</td>
+<td class="font-mono-code text-mono-code text-on-surface-variant p-sm">Technical Interview Notes</td>
+</tr>
+<tr>
+<td class="font-body-sm text-body-sm text-on-surface p-sm">Testing Discipline</td>
+<td class="font-body-sm text-body-sm text-on-surface p-sm">Advanced</td>
+<td class="font-mono-code text-mono-code text-on-surface-variant p-sm">Resume / Public Repos</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Key Value Props -->
+<section class="w-full px-xl pb-[8rem] border-t border-surface-variant pt-[6rem]">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-xl max-w-5xl mx-auto">
+<div class="flex flex-col gap-sm">
+<div class="w-10 h-10 flex items-center justify-center border border-surface-variant rounded-DEFAULT bg-surface-container-lowest mb-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">description</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Resume Review</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                        Extract factual claims and structured timelines from unstructured documents. Bypass formatting noise to identify core engineering tenures and stated proficiencies instantly.
+                    </p>
+</div>
+<div class="flex flex-col gap-sm">
+<div class="w-10 h-10 flex items-center justify-center border border-surface-variant rounded-DEFAULT bg-surface-container-lowest mb-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">terminal</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Portfolio Analysis</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                        Synthesize public code repositories to verify claims. Evaluate commit history, code structure, and documentation habits without requiring manual line-by-line review.
+                    </p>
+</div>
+<div class="flex flex-col gap-sm">
+<div class="w-10 h-10 flex items-center justify-center border border-surface-variant rounded-DEFAULT bg-surface-container-lowest mb-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">analytics</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Job Match Results</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                        Map candidate evidence directly to specific job requisitions. Generate objective alignment scores based on demonstrated skills rather than keyword matching.
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Component -->
+<footer class="bg-surface-bright border-t border-surface-variant full-width py-lg mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-xl max-w-[1440px] mx-auto gap-md">
+<div class="font-label-md text-label-md font-bold text-on-surface-variant">
+                © 2024 DevScope Intelligence. All rights reserved.
+            </div>
+<nav class="flex flex-wrap items-center gap-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Security</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Status</a>
+</nav>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DEVSCOPE - Access Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&amp;family=JetBrains+Mono:wght@450&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#2f3035",
+                        "surface-container-highest": "#333539",
+                        "on-tertiary-container": "#38496a",
+                        "on-secondary-fixed-variant": "#424751",
+                        "surface-tint": "#e5c187",
+                        "on-primary-container": "#5d4516",
+                        "on-surface-variant": "#d1c5b6",
+                        "surface-container-low": "#1a1c20",
+                        "on-surface": "#e2e2e8",
+                        "tertiary-fixed-dim": "#b5c7ee",
+                        "on-tertiary-fixed-variant": "#364768",
+                        "secondary-fixed": "#dee2ef",
+                        "error-container": "#93000a",
+                        "tertiary-fixed": "#d7e2ff",
+                        "on-primary": "#422c01",
+                        "outline": "#9a8f81",
+                        "inverse-primary": "#755a2a",
+                        "inverse-surface": "#e2e2e8",
+                        "outline-variant": "#2B313D", /* Adjusted slightly darker for structural border per guidelines */
+                        "secondary": "#c2c6d3",
+                        "on-secondary": "#2c313a",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0c0e12",
+                        "primary-fixed-dim": "#e5c187",
+                        "on-primary-fixed": "#271900",
+                        "on-error-container": "#ffdad6",
+                        "primary-container": "#d6b37a",
+                        "tertiary-container": "#a7b8df",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#5b4314",
+                        "on-background": "#e2e2e8",
+                        "surface": "#161A20", /* Adjusted to Level 1 Surface per guidelines */
+                        "tertiary": "#c3d4fc",
+                        "on-tertiary": "#1f3050",
+                        "surface-container-high": "#1D222B", /* Adjusted to Level 2 Elevated per guidelines */
+                        "surface-bright": "#37393e",
+                        "primary-fixed": "#ffdeaa",
+                        "background": "#0F1115", /* Level 0 Base */
+                        "primary": "#f3ce93",
+                        "on-tertiary-fixed": "#071b3a",
+                        "on-secondary-container": "#b1b5c1",
+                        "on-secondary-fixed": "#171c25",
+                        "secondary-container": "#424751",
+                        "surface-variant": "#333539",
+                        "surface-dim": "#111317",
+                        "surface-container": "#1e2024",
+                        "secondary-fixed-dim": "#c2c6d3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xl": "40px",
+                        "max-content-width": "1200px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "label-caps": ["Inter", "sans-serif"],
+                        "headline-sm": ["Inter", "sans-serif"],
+                        "display-sm": ["Inter", "sans-serif"],
+                        "mono-data": ["JetBrains Mono", "monospace"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "display-lg": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-sm": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-sm": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "mono-data": ["12px", { "lineHeight": "1.4", "fontWeight": "450" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2B313D; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4e463a; }
+        
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md antialiased flex min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+<!-- Left Panel: Live Dashboard Preview (Hidden on Mobile) -->
+<div class="hidden lg:flex w-1/2 bg-surface border-r border-outline-variant p-xl flex-col relative overflow-hidden">
+<!-- Subtle Ambient Background -->
+<div class="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary-container/5 rounded-full blur-[120px] pointer-events-none"></div>
+<!-- Branding -->
+<div class="flex items-center gap-sm mb-xl z-10">
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">target</span>
+<span class="font-headline-lg text-headline-lg font-black tracking-tight text-on-surface">DEVSCOPE</span>
+</div>
+<!-- Mock Dashboard Canvas -->
+<div class="flex-1 flex flex-col justify-center max-w-[600px] w-full mx-auto z-10">
+<div class="mb-lg opacity-0 animate-fade-in-up">
+<span class="font-label-caps text-label-caps text-primary uppercase tracking-widest block mb-2">Live Intelligence Feed</span>
+<h2 class="font-display-sm text-display-sm text-on-surface">Candidate Profiling Active</h2>
+</div>
+<!-- Bento Grid -->
+<div class="grid grid-cols-12 gap-md">
+<!-- Profile Header -->
+<div class="col-span-12 bg-background border border-outline-variant rounded-xl p-lg flex items-start gap-lg opacity-0 animate-fade-in-up delay-100">
+<div class="w-16 h-16 rounded bg-surface-container-high border border-outline-variant flex items-center justify-center shrink-0">
+<span class="font-headline-lg text-headline-lg text-on-surface-variant font-bold">JD</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Jonathan Doe</h3>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-1">Senior Backend Systems Engineer</p>
+</div>
+<span class="px-2 py-1 bg-surface-container-high border border-outline-variant rounded font-mono-data text-mono-data text-on-surface-variant text-[10px]">ID: 8492-AX</span>
+</div>
+</div>
+</div>
+<!-- Readiness Score -->
+<div class="col-span-5 bg-background border border-outline-variant rounded-xl p-lg flex flex-col justify-between opacity-0 animate-fade-in-up delay-200 min-h-[160px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Readiness Score</span>
+<div class="flex items-end gap-3 mt-4">
+<span class="font-display-lg text-display-lg text-primary leading-none">88</span>
+<span class="font-headline-sm text-headline-sm text-on-surface-variant mb-1">%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1 mt-4 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[88%] rounded-full"></div>
+</div>
+</div>
+<!-- Hiring Risk -->
+<div class="col-span-7 bg-background border border-outline-variant rounded-xl p-lg flex flex-col justify-between opacity-0 animate-fade-in-up delay-200">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Risk Assessment</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">info</span>
+</div>
+<div class="flex items-center gap-3 mt-auto">
+<div class="w-3 h-3 rounded-full border border-primary bg-primary/20 animate-pulse-slow"></div>
+<span class="font-headline-sm text-headline-sm text-on-surface">Low Risk Profile</span>
+</div>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-2 border-l border-outline-variant pl-3">
+                        Consistent tenure. High commit velocity. No conflicting background flags detected.
+                    </p>
+</div>
+<!-- Skills Analysis -->
+<div class="col-span-12 bg-background border border-outline-variant rounded-xl p-lg opacity-0 animate-fade-in-up delay-300">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest block mb-4">Technical Stack Validation</span>
+<div class="flex flex-col gap-3">
+<div class="flex justify-between items-center border-b border-outline-variant pb-3">
+<span class="font-mono-data text-mono-data text-on-surface">Verified Strengths</span>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-surface-container-high border border-outline-variant rounded font-mono-data text-mono-data text-on-surface">React</span>
+<span class="px-2 py-1 bg-surface-container-high border border-outline-variant rounded font-mono-data text-mono-data text-on-surface">Node.js</span>
+<span class="px-2 py-1 bg-surface-container-high border border-outline-variant rounded font-mono-data text-mono-data text-on-surface">Python</span>
+</div>
+</div>
+<div class="flex justify-between items-center pt-1">
+<span class="font-mono-data text-mono-data text-on-surface-variant">Identified Gap</span>
+<span class="px-2 py-1 bg-background border border-outline-variant rounded font-mono-data text-mono-data text-on-surface-variant opacity-70 border-dashed">Kubernetes</span>
+</div>
+</div>
+</div>
+<!-- AI Synthesis -->
+<div class="col-span-12 bg-surface-container-high border border-outline-variant rounded-xl p-lg opacity-0 animate-fade-in-up delay-300 relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary text-[16px]">psychology</span>
+<span class="font-label-caps text-label-caps text-on-surface uppercase tracking-widest">Synthesis Engine</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed italic">
+                        "Strong architectural patterns detected in GitHub repository history. Consistent adherence to clean code principles and modular design. Minor gap in orchestration deployment workflows, but high adaptability index suggests rapid upskilling capability."
+                    </p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: Minimalist Auth -->
+<div class="flex-1 flex flex-col justify-center items-center p-lg lg:p-xl relative bg-background">
+<div class="w-full max-w-[380px] flex flex-col z-10">
+<!-- Mobile Branding -->
+<div class="flex lg:hidden items-center justify-center gap-sm mb-xl">
+<span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">target</span>
+<span class="font-headline-lg text-headline-lg font-black tracking-tight text-on-surface">DEVSCOPE</span>
+</div>
+<!-- Header -->
+<div class="mb-xl text-center lg:text-left">
+<h1 class="font-display-sm text-display-sm text-on-surface mb-2">Access Portal</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Sign in to securely access intelligence reports.</p>
+</div>
+<!-- Social Logins -->
+<div class="flex flex-col gap-3 mb-xl">
+<button class="w-full flex items-center justify-center gap-3 py-3 px-4 border border-outline-variant bg-background hover:bg-surface-container-high rounded-lg transition-colors font-body-md text-body-md text-on-surface group">
+<svg class="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" fill="currentColor" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.58c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+                    Continue with Google
+                </button>
+<button class="w-full flex items-center justify-center gap-3 py-3 px-4 border border-outline-variant bg-background hover:bg-surface-container-high rounded-lg transition-colors font-body-md text-body-md text-on-surface group">
+<svg class="w-5 h-5 fill-current opacity-70 group-hover:opacity-100 transition-opacity" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z" fill-rule="evenodd"></path>
+</svg>
+                    Continue with GitHub
+                </button>
+</div>
+<!-- Divider -->
+<div class="flex items-center gap-4 mb-xl">
+<div class="h-[1px] bg-outline-variant flex-1"></div>
+<span class="font-mono-data text-mono-data text-on-surface-variant uppercase">Enterprise Login</span>
+<div class="h-[1px] bg-outline-variant flex-1"></div>
+</div>
+<!-- Email Form -->
+<form class="flex flex-col gap-lg" onsubmit="event.preventDefault();">
+<div class="flex flex-col gap-2">
+<label class="font-mono-data text-mono-data text-on-surface-variant" for="email">Work Email</label>
+<input class="bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/30" id="email" placeholder="name@company.com" required="" type="email"/>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-center">
+<label class="font-mono-data text-mono-data text-on-surface-variant" for="password">Password</label>
+<a class="font-mono-data text-mono-data text-primary hover:underline underline-offset-4" href="#">Reset</a>
+</div>
+<input class="bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-on-surface-variant/30" id="password" placeholder="••••••••" required="" type="password"/>
+</div>
+<button class="w-full py-3 px-4 mt-2 bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-semibold rounded-lg hover:shadow-[0_0_12px_rgba(214,179,122,0.2)] hover:bg-[#dfc294] transition-all active:scale-[0.98] border border-[#e5c187]" type="submit">
+                    Authenticate
+                </button>
+</form>
+<!-- Footer -->
+<div class="mt-xl text-center">
+<p class="font-mono-data text-mono-data text-on-surface-variant/60">
+                    Secure connection established. <br/>
+<a class="hover:text-on-surface transition-colors" href="#">Privacy Policy</a> • <a class="hover:text-on-surface transition-colors" href="#">Terms of Service</a>
+</p>
+</div>
+</div>
+</div>
+</body></html>

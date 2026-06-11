@@ -20,9 +20,11 @@ Provide your evaluation in strict JSON format only. No markdown, no extra text.`
     let analysisResult;
     try {
       analysisResult = await generateWithGemini(prompt, { systemInstruction, parseJson: true });
+      analysisResult._aiSource = 'GEMINI';
     } catch (err) {
       console.warn('[linkedinService] Gemini unavailable, using local fallback:', err.message);
       analysisResult = createLinkedinFallback(normalizedProfile, resumeData, githubData);
+      analysisResult._aiSource = 'FALLBACK';
     }
 
     return {

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevScope AI - Overview</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#690005",
+                        "inverse-surface": "#e0e3e6",
+                        "on-secondary": "#2e3135",
+                        "primary-fixed": "#ffdbca",
+                        "background": "#101416",
+                        "inverse-on-surface": "#2d3133",
+                        "on-secondary-fixed": "#191c20",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary-fixed": "#001d32",
+                        "surface-bright": "#363a3c",
+                        "on-tertiary-container": "#003554",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-high": "#272a2d",
+                        "surface-container-highest": "#323538",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0b0f11",
+                        "surface-container-low": "#191c1e",
+                        "outline": "#a78b7d",
+                        "secondary": "#c5c6cc",
+                        "on-surface": "#e0e3e6",
+                        "secondary-fixed": "#e1e2e8",
+                        "on-tertiary-fixed-variant": "#004b74",
+                        "on-primary": "#552100",
+                        "surface": "#101416",
+                        "tertiary": "#93ccff",
+                        "surface-tint": "#ffb690",
+                        "tertiary-container": "#00a2f4",
+                        "on-primary-container": "#582200",
+                        "surface-dim": "#101416",
+                        "primary-container": "#f97316",
+                        "on-background": "#e0e3e6",
+                        "primary": "#ffb690",
+                        "outline-variant": "#584237",
+                        "surface-container": "#1d2022",
+                        "secondary-fixed-dim": "#c5c6cc",
+                        "on-surface-variant": "#e0c0b1",
+                        "tertiary-fixed": "#cde5ff",
+                        "on-primary-fixed": "#341100",
+                        "on-secondary-fixed-variant": "#44474c",
+                        "secondary-container": "#44474c",
+                        "on-tertiary": "#003351",
+                        "error-container": "#93000a",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-secondary-container": "#b3b5ba",
+                        "inverse-primary": "#9d4300",
+                        "tertiary-fixed-dim": "#93ccff",
+                        "surface-variant": "#323538"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "body-base": ["Geist"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "headline-display": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-base": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-mono": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-sm": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "headline-display": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Hide scrollbar for clean aesthetic */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #323538; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #44474c; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body-base h-screen flex overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-margin-desktop z-50">
+<!-- Header -->
+<div class="px-6 mb-8 flex flex-col gap-unit">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">DevScope AI</h1>
+<span class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider">Intelligence Platform</span>
+</div>
+<!-- Navigation -->
+<nav class="flex-1 flex flex-col gap-1 px-4">
+<!-- Active Tab: Overview -->
+<a class="flex items-center gap-3 px-3 py-2 text-primary font-bold border-r-2 border-primary hover:bg-surface-container-high transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span class="font-label-mono text-label-mono uppercase">Overview</span>
+</a>
+<!-- Inactive Tabs -->
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+<span class="font-label-mono text-label-mono uppercase">Resume Analyzer</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="terminal">terminal</span>
+<span class="font-label-mono text-label-mono uppercase">GitHub Analyzer</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="person_search">person_search</span>
+<span class="font-label-mono text-label-mono uppercase">LinkedIn Analyzer</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="rule">rule</span>
+<span class="font-label-mono text-label-mono uppercase">Job Match</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="analytics">analytics</span>
+<span class="font-label-mono text-label-mono uppercase">Project Gap Analysis</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="assignment">assignment</span>
+<span class="font-label-mono text-label-mono uppercase">Candidate Report</span>
+</a>
+</nav>
+<!-- Settings -->
+<div class="px-4 mt-auto">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="font-label-mono text-label-mono uppercase">Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 ml-64 flex flex-col h-screen relative">
+<!-- TopNavBar (Shared Component) -->
+<header class="sticky top-0 z-40 bg-surface border-b border-outline-variant flex justify-between items-center h-14 px-margin-desktop w-full">
+<!-- Search Left -->
+<div class="flex items-center w-96 relative">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded pl-10 pr-4 py-1.5 font-body-sm text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Search entity, skill, or metric..." type="text"/>
+</div>
+<!-- Trailing Action -->
+<div class="flex items-center gap-4">
+<button class="bg-primary-container text-on-primary-container font-label-mono text-label-mono px-4 py-2 rounded font-bold hover:opacity-90 transition-opacity flex items-center gap-2 uppercase tracking-wider">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                    Export Report
+                </button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden shrink-0 cursor-pointer">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A close-up profile portrait of a modern tech professional, softly lit against a dark, minimalist graphite background. The lighting is precise and architectural, highlighting features without harsh shadows, matching the austere, software-first functionalism aesthetic. The overall mood is serious, competent, and authoritative, aligning with a high-end intelligence tool." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOeh6Gev651ghf19HDtFv970IH449zmqlFJHudPYiuXZeFruSC_WgiBqhKl3xKmOqLd5cKdXl1eFKZH0TkzxLb8Zf-90Kz1IB57LiISGJzKoFLy5HDPormpF-P6WzTJyEskmU5Ve9GXqmjM2xk2tjUt0lK6IF6VnlDRKQCouFNa1CWFyciSW5tWEsPyP8XgV0l4TaZA1uW3Yyi6MluB2N7od2rQ8w_8l5EE-WVwQNfG8_cNA53SVlJ6w_FTIeFuWfyfQas4_cdJiA"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="flex-1 overflow-y-auto p-margin-desktop bg-background">
+<!-- Page Title Context -->
+<div class="mb-6 flex flex-col gap-1">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Candidate: Alex Mercer</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Senior Full-Stack Engineer target role. Last scan: 2 hours ago.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-gutter auto-rows-min">
+<!-- Panel: Executive Summary (Span 8) -->
+<section class="col-span-12 lg:col-span-8 bg-surface border border-outline-variant rounded flex flex-col">
+<header class="p-4 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">subject</span>
+                            Executive Summary
+                        </h3>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest border border-outline-variant font-label-mono text-[10px] text-primary">CONFIDENCE: HIGH</span>
+</header>
+<div class="p-6 font-body-base text-body-base text-inverse-surface space-y-4">
+<p>Candidate demonstrates exceptional architectural competency in distributed systems and microservice orchestration, evidenced by deep integration patterns across public GitHub repositories. Code structure is highly modular, favoring composition over inheritance, aligning perfectly with modern software engineering standards.</p>
+<p>However, analysis indicates a strong historical reliance on established paradigms (REST, standard monolithic frontend patterns) with minimal observable experimentation in emerging edge-compute or serverless topologies. The overall profile suggests a highly reliable 'builder' rather than an exploratory 'innovator', which perfectly maps to the immediate operational requirements of the target role.</p>
+</div>
+</section>
+<!-- Panel: Recommended Next Actions (Span 4) -->
+<section class="col-span-12 lg:col-span-4 bg-surface border border-outline-variant rounded flex flex-col">
+<header class="p-4 border-b border-outline-variant">
+<h3 class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">psychology</span>
+                            Next Actions
+                        </h3>
+</header>
+<div class="p-4 flex flex-col gap-3">
+<div class="group flex items-start gap-3 p-3 rounded border border-outline-variant bg-background hover:border-primary transition-colors cursor-pointer">
+<div class="mt-0.5 w-4 h-4 rounded-sm border border-outline-variant group-hover:border-primary flex items-center justify-center bg-surface shrink-0"></div>
+<div>
+<h4 class="font-body-sm text-body-sm text-on-surface font-medium">Probe Serverless Experience</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-1 leading-snug">Ask for specific scenarios where serverless was evaluated and rejected in past projects.</p>
+</div>
+</div>
+<div class="group flex items-start gap-3 p-3 rounded border border-outline-variant bg-background hover:border-primary transition-colors cursor-pointer">
+<div class="mt-0.5 w-4 h-4 rounded-sm border border-outline-variant group-hover:border-primary flex items-center justify-center bg-surface shrink-0"></div>
+<div>
+<h4 class="font-body-sm text-body-sm text-on-surface font-medium">Verify Database Tuning</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-1 leading-snug">Resume claims 'performance optimization'. Request raw metrics and specific index structures used.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Panel: Strengths (Span 4) -->
+<section class="col-span-12 lg:col-span-4 bg-surface border border-outline-variant rounded flex flex-col">
+<header class="p-4 border-b border-outline-variant">
+<h3 class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+                            Verified Strengths
+                        </h3>
+</header>
+<div class="p-4 flex flex-wrap gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant font-label-mono text-[11px] text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                            Go / Golang (Expert)
+                        </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant font-label-mono text-[11px] text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                            Kubernetes
+                        </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant font-label-mono text-[11px] text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                            System Design
+                        </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant font-label-mono text-[11px] text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                            CI/CD Pipelines
+                        </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high border border-outline-variant font-label-mono text-[11px] text-on-surface">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                            PostgreSQL
+                        </span>
+</div>
+</section>
+<!-- Panel: Weaknesses (Span 4) -->
+<section class="col-span-12 lg:col-span-4 bg-surface border border-outline-variant rounded flex flex-col">
+<header class="p-4 border-b border-outline-variant">
+<h3 class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                            Observable Weaknesses
+                        </h3>
+</header>
+<div class="p-4 flex flex-col gap-2">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant mt-0.5">remove</span>
+<span class="font-body-sm text-body-sm text-on-surface">No evidence of strict TDD adoption in open-source work.</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant mt-0.5">remove</span>
+<span class="font-body-sm text-body-sm text-on-surface">Frontend state management patterns appear dated (Redux boilerplate heavy).</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant mt-0.5">remove</span>
+<span class="font-body-sm text-body-sm text-on-surface">Limited exposure to graph databases or unstructured data stores.</span>
+</div>
+</div>
+</section>
+<!-- Panel: Hiring Risks (Span 4) -->
+<section class="col-span-12 lg:col-span-4 bg-surface border border-outline-variant rounded flex flex-col">
+<header class="p-4 border-b border-outline-variant bg-surface-container-high">
+<h3 class="font-label-mono text-label-mono text-error uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">error</span>
+                            Critical Hiring Risks
+                        </h3>
+</header>
+<div class="p-4 flex flex-col gap-3">
+<div class="pl-3 border-l-2 border-error">
+<h4 class="font-body-sm text-body-sm text-inverse-surface font-medium">Over-indexing on AWS</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-1">Candidate is highly coupled to AWS proprietary services (DynamoDB, ECS). Transitioning to our GCP/Kubernetes hybrid environment may require extended onboarding.</p>
+</div>
+<div class="pl-3 border-l-2 border-outline-variant">
+<h4 class="font-body-sm text-body-sm text-inverse-surface font-medium">Tenure Volatility</h4>
+<p class="font-body-sm text-[12px] text-on-surface-variant mt-1">Last three roles average 14 months. Investigate reasons for departure to ensure alignment with long-term project lifecycle.</p>
+</div>
+</div>
+</section>
+<!-- Panel: Portfolio Gaps (Span 12) -->
+<section class="col-span-12 bg-surface border border-outline-variant rounded flex flex-col overflow-hidden">
+<header class="p-4 border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-label-mono text-label-mono text-on-surface-variant uppercase tracking-wider flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">grid_on</span>
+                            Portfolio Gap Analysis
+                        </h3>
+</header>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant font-label-mono text-label-mono text-on-surface-variant">
+<th class="p-3 font-medium">Required Competency</th>
+<th class="p-3 font-medium">Evidenced Level</th>
+<th class="p-3 font-medium">Data Source</th>
+<th class="p-3 font-medium">Intelligence Note</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="p-3">Micro-frontend Architecture</td>
+<td class="p-3"><span class="text-error font-medium">Undetected</span></td>
+<td class="p-3 font-label-mono text-[11px] text-on-surface-variant">GitHub, Resume</td>
+<td class="p-3 text-on-surface-variant">All observed frontend projects operate as monoliths.</td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="p-3">gRPC / Protocol Buffers</td>
+<td class="p-3"><span class="text-primary font-medium">Moderate</span></td>
+<td class="p-3 font-label-mono text-[11px] text-on-surface-variant">GitHub (1 repo)</td>
+<td class="p-3 text-on-surface-variant">Implemented in a personal project, but not enterprise scale.</td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="p-3">Infrastructure as Code (Terraform)</td>
+<td class="p-3"><span class="text-on-surface font-medium">Strong</span></td>
+<td class="p-3 font-label-mono text-[11px] text-on-surface-variant">Resume, Certs</td>
+<td class="p-3 text-on-surface-variant">Multiple references in accomplishment bullets. High confidence.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

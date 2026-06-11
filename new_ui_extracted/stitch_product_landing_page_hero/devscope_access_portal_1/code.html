@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevScope - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#fcf8fa",
+                      "surface-variant": "#e5e2e3",
+                      "surface-tint": "#575e70",
+                      "tertiary-fixed-dim": "#dcc2a4",
+                      "secondary": "#585f6c",
+                      "on-secondary": "#ffffff",
+                      "tertiary-container": "#261906",
+                      "on-surface-variant": "#45464c",
+                      "on-primary-container": "#7d8497",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#c0c6db",
+                      "surface": "#fcf8fa",
+                      "surface-dim": "#dcd9db",
+                      "surface-container-low": "#f6f3f4",
+                      "on-secondary-fixed": "#151c27",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#968065",
+                      "on-surface": "#1b1b1d",
+                      "background": "#fcf8fa",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#f0edee",
+                      "error": "#ba1a1a",
+                      "secondary-fixed-dim": "#c0c7d6",
+                      "primary-fixed": "#dce2f7",
+                      "primary-container": "#141b2b",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-high": "#eae7e9",
+                      "primary-fixed-dim": "#c0c6db",
+                      "tertiary-fixed": "#f9debf",
+                      "on-secondary-container": "#5e6572",
+                      "surface-container-highest": "#e5e2e3",
+                      "on-secondary-fixed-variant": "#404754",
+                      "outline": "#76777d",
+                      "secondary-fixed": "#dce2f3",
+                      "secondary-container": "#dce2f3",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#000000",
+                      "inverse-surface": "#303031",
+                      "inverse-on-surface": "#f3f0f1",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#141b2b",
+                      "on-tertiary-fixed-variant": "#55442d",
+                      "on-primary-fixed-variant": "#404758",
+                      "on-background": "#1b1b1d",
+                      "primary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-tertiary-fixed": "#261906"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "2.5rem",
+                      "gutter": "1rem",
+                      "lg": "1.5rem",
+                      "md": "1rem",
+                      "base": "4px",
+                      "xs": "0.25rem",
+                      "sm": "0.5rem",
+                      "margin": "2rem"
+              },
+              "fontFamily": {
+                      "mono-code": ["Geist"],
+                      "display-lg": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "body-lg": ["Inter"],
+                      "headline-lg-mobile": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "label-md": ["Geist"],
+                      "body-sm": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "mono-code": ["13px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["30px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                      "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex">
+<!-- Left Side: Candidate Report Preview (60%) -->
+<div class="hidden md:flex w-[60%] bg-surface-container-low border-r border-surface-variant flex-col items-center justify-center p-xl relative overflow-hidden">
+<!-- Subtle background pattern for depth -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, #1b1b1d 1px, transparent 0); background-size: 24px 24px;"></div>
+<div class="w-full max-w-2xl z-10 flex flex-col gap-lg">
+<!-- Context Label -->
+<div class="flex items-center gap-sm font-label-md text-label-md text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+<span>Preview: Candidate Intelligence Report</span>
+</div>
+<!-- Main Report Card -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
+<!-- Header -->
+<div class="p-lg border-b border-surface-variant flex items-start justify-between bg-surface-bright">
+<div class="flex items-center gap-md">
+<img alt="Candidate Profile" class="w-12 h-12 rounded-full object-cover border border-surface-variant" data-alt="A professional, brightly lit headshot of a female software engineer in her late 20s. She is smiling subtly, wearing a simple dark blue button-down shirt against a clean, plain white background. The lighting is soft and studio-quality, conveying approachability and competence suitable for a corporate profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQokFEfwuzkEbAPZbsQ9wI1DMDACEnJJvhGLDOZO0zfUJXsE9eivD-disdwn9VU-DLHKfgae8Rg75_mK7vVUB7dHDbCU4yZPHjlNxzEzXb4W1bPIAgL5U2QiEI_DMZ0YaNIBeD1PQrucqc4qnzwYrT68-wt3zLOmXyPsPKCleV2l7AwjmwXCIxISEY4axIPRkvFvECHEwhfzYr5svwj3pdQm7bNcVnFtaS9Ahj_AgF5FvLyLSSXpZg7pyMK3ET4gYLcbb6V1bK8NE"/>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Elena Rodriguez</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Senior Frontend Engineer</p>
+</div>
+</div>
+<div class="flex items-center gap-xs px-sm py-xs bg-surface-container rounded-sm border border-surface-variant">
+<div class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></div>
+<span class="font-label-md text-label-md text-on-surface">Ready for Interview</span>
+</div>
+</div>
+<!-- Summary -->
+<div class="p-lg border-b border-surface-variant">
+<h3 class="font-label-md text-label-md text-surface-tint mb-sm uppercase tracking-wider">Executive Summary</h3>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                        Highly proficient frontend specialist with 8+ years of experience. Exceptional track record in React ecosystem performance tuning. Analyzed GitHub repositories indicate strong architectural discipline and consistent adherence to clean code principles, though backend integrations are typically handled by counterparts.
+                    </p>
+</div>
+<!-- Data Split Layout -->
+<div class="flex flex-col sm:flex-row border-b border-surface-variant">
+<!-- Strengths (Left) -->
+<div class="flex-1 p-lg sm:border-r border-surface-variant border-b sm:border-b-0">
+<h3 class="font-label-md text-label-md text-surface-tint mb-md uppercase tracking-wider">Verified Strengths</h3>
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-surface-container-high">
+<th class="pb-sm font-label-md text-label-md text-on-surface-variant font-normal">Skill</th>
+<th class="pb-sm font-label-md text-label-md text-on-surface-variant font-normal">Confidence</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface">
+<tr class="border-b border-surface-container-high">
+<td class="py-sm font-mono-code text-mono-code">React / Next.js</td>
+<td class="py-sm">
+<div class="flex gap-1">
+<div class="h-1.5 w-6 bg-on-surface rounded-sm"></div>
+<div class="h-1.5 w-6 bg-on-surface rounded-sm"></div>
+<div class="h-1.5 w-6 bg-on-surface rounded-sm"></div>
+</div>
+</td>
+</tr>
+<tr class="border-b border-surface-container-high">
+<td class="py-sm font-mono-code text-mono-code">TypeScript</td>
+<td class="py-sm">
+<div class="flex gap-1">
+<div class="h-1.5 w-6 bg-on-surface rounded-sm"></div>
+<div class="h-1.5 w-6 bg-on-surface rounded-sm"></div>
+<div class="h-1.5 w-6 bg-surface-container-high rounded-sm"></div>
+</div>
+</td>
+</tr>
+<tr>
+<td class="py-sm font-mono-code text-mono-code">Web Accessibility</td>
+<td class="py-sm">
+<div class="flex gap-1">
+<div class="h-1.5 w-6 bg-on-surface rounded-sm"></div>
+<div class="h-1.5 w-6 bg-on-surface rounded-sm"></div>
+<div class="h-1.5 w-6 bg-surface-container-high rounded-sm"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Missing Skills (Right) -->
+<div class="flex-1 p-lg bg-surface-bright">
+<h3 class="font-label-md text-label-md text-surface-tint mb-md uppercase tracking-wider">Gap Analysis</h3>
+<ul class="space-y-md">
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant mt-0.5">remove</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">No visible production experience with GraphQL in recent public repositories.</span>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant mt-0.5">remove</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Lacks contributions to core internal UI libraries (mostly product-focused commits).</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Recruiter Notes -->
+<div class="p-lg bg-surface-bright">
+<h3 class="font-label-md text-label-md text-surface-tint mb-xs uppercase tracking-wider">Internal Notes</h3>
+<div class="pl-md border-l-2 border-surface-variant">
+<p class="font-body-sm text-body-sm text-on-surface italic">
+                            "Strong cultural fit observed in initial screen. Highly articulate about rendering strategies. Needs technical deep-dive focusing on state management at scale during the panel round."
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Authentication Panel (40%) -->
+<div class="w-full md:w-[40%] bg-surface flex flex-col items-center justify-center p-xl sm:p-margin relative">
+<div class="w-full max-w-[360px] flex flex-col items-center">
+<!-- Logo / Brand -->
+<div class="mb-xl text-center">
+<div class="flex items-center justify-center gap-xs mb-sm text-primary">
+<span class="material-symbols-outlined text-[32px]">radar</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface md:hidden">DevScope</h1>
+<h1 class="font-headline-lg text-headline-lg text-on-surface hidden md:block">DevScope</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Sign in to recruitment intelligence.</p>
+</div>
+<!-- Social Logins -->
+<div class="w-full space-y-sm mb-lg">
+<button class="w-full flex items-center justify-center gap-sm py-sm px-md bg-surface-container-lowest border border-surface-variant rounded-md hover:bg-surface-container-low transition-colors duration-200">
+<svg class="w-5 h-5" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span class="font-label-md text-label-md text-on-surface">Continue with Google</span>
+</button>
+<button class="w-full flex items-center justify-center gap-sm py-sm px-md bg-surface-container-lowest border border-surface-variant rounded-md hover:bg-surface-container-low transition-colors duration-200">
+<svg aria-hidden="true" class="w-5 h-5 text-on-surface" fill="currentColor" viewbox="0 0 24 24">
+<path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
+</svg>
+<span class="font-label-md text-label-md text-on-surface">Continue with GitHub</span>
+</button>
+</div>
+<!-- Divider -->
+<div class="w-full flex items-center justify-between mb-lg">
+<div class="h-px bg-surface-variant flex-1"></div>
+<span class="px-sm font-label-md text-label-md text-on-surface-variant bg-surface">or</span>
+<div class="h-px bg-surface-variant flex-1"></div>
+</div>
+<!-- Email Form -->
+<form class="w-full flex flex-col gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="email">Work Email</label>
+<input class="w-full px-md py-sm bg-surface-container-lowest border border-surface-variant rounded-md focus:outline-none focus:border-on-surface focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 transition-colors" id="email" placeholder="name@company.com" type="email"/>
+</div>
+<div class="flex flex-col gap-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface" for="password">Password</label>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" href="#">Forgot?</a>
+</div>
+<input class="w-full px-md py-sm bg-surface-container-lowest border border-surface-variant rounded-md focus:outline-none focus:border-on-surface focus:ring-0 font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/50 transition-colors" id="password" placeholder="••••••••" type="password"/>
+</div>
+<button class="w-full mt-sm py-sm px-md bg-primary text-on-primary font-label-md text-label-md rounded-md hover:bg-inverse-surface transition-colors duration-200 shadow-sm flex justify-center items-center gap-xs" type="button">
+                    Sign In
+                    <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</form>
+<p class="mt-xl font-body-sm text-body-sm text-on-surface-variant text-center">
+                Don't have an account? <a class="text-on-surface underline decoration-surface-variant hover:decoration-on-surface underline-offset-4 transition-all" href="#">Request access</a>
+</p>
+</div>
+</div>
+</body></html>

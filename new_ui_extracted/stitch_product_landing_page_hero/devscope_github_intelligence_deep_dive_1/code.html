@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GitHub Analyzer | DevScope</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Define Geist font via font-face for placeholder -->
+<style>
+        @font-face {
+            font-family: 'Geist';
+            src: local('Inter'); /* Fallback for rendering purposes */
+        }
+        
+        /* Material Symbols standard class */
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#1e1b17",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#9a8f81",
+                        "inverse-on-surface": "#34302b",
+                        "primary": "#e6c184",
+                        "on-tertiary-fixed": "#031b3b",
+                        "on-surface": "#e9e1da",
+                        "surface-container-high": "#2d2925",
+                        "secondary": "#67df70",
+                        "primary-fixed": "#ffdea9",
+                        "surface-container-highest": "#38342f",
+                        "on-tertiary": "#1c3051",
+                        "primary-fixed-dim": "#e6c184",
+                        "inverse-surface": "#e9e1da",
+                        "tertiary": "#b3c7f0",
+                        "on-primary-fixed": "#271900",
+                        "surface-tint": "#e6c184",
+                        "surface-variant": "#38342f",
+                        "tertiary-container": "#98acd3",
+                        "surface": "#16130f",
+                        "surface-dim": "#16130f",
+                        "on-secondary": "#00390d",
+                        "outline-variant": "#4e463a",
+                        "secondary-fixed-dim": "#67df70",
+                        "secondary-fixed": "#83fc89",
+                        "secondary-container": "#27a640",
+                        "surface-container-lowest": "#100e0a",
+                        "primary-container": "#c9a66b",
+                        "on-error": "#690005",
+                        "on-primary": "#422c00",
+                        "tertiary-fixed": "#d6e3ff",
+                        "tertiary-fixed-dim": "#b3c7ef",
+                        "error-container": "#93000a",
+                        "inverse-primary": "#765a26",
+                        "on-primary-container": "#533b09",
+                        "surface-bright": "#3c3934",
+                        "on-secondary-container": "#00320a",
+                        "on-tertiary-fixed-variant": "#334769",
+                        "background": "#16130f",
+                        "surface-container": "#221f1b",
+                        "on-background": "#e9e1da",
+                        "on-tertiary-container": "#2c4061",
+                        "on-primary-fixed-variant": "#5c4211",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#002105",
+                        "on-secondary-fixed-variant": "#005317",
+                        "on-surface-variant": "#d1c5b5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "40px",
+                        "gutter": "16px",
+                        "container-max": "1280px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-md": ["Inter"],
+                        "code-md": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-md": ["20px", { "lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "code-md": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="bg-surface-container dark:bg-surface-container h-screen w-64 border-r border-outline-variant flat no shadows fixed inset-y-0 left-0 flex flex-col z-50">
+<div class="p-lg flex items-center gap-md border-b border-outline-variant">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-[18px]" data-icon="hub">hub</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">DevScope</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Technical Intelligence</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto py-md flex flex-col gap-sm px-sm">
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Overview</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="description">description</span>
+<span class="font-body-md text-body-md">Resume Analyzer</span>
+</a>
+<a aria-current="page" class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-primary font-bold border-r-2 border-primary bg-surface-container-high dark:bg-surface-container-high opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="font-body-md text-body-md">GitHub Analyzer</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="person_search">person_search</span>
+<span class="font-body-md text-body-md">LinkedIn Analyzer</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="compare_arrows">compare_arrows</span>
+<span class="font-body-md text-body-md">Job Match</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="analytics">analytics</span>
+<span class="font-body-md text-body-md">Project Gap Analysis</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="assessment">assessment</span>
+<span class="font-body-md text-body-md">Candidate Report</span>
+</a>
+</div>
+<div class="p-sm mt-auto border-t border-outline-variant">
+<a class="flex items-center gap-md px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col ml-64 min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface-container-low dark:bg-surface-container-low w-full h-16 border-b border-outline-variant flat no shadows flex justify-between items-center px-lg sticky top-0 z-40">
+<div class="flex items-center gap-md w-1/3">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-[#0D1117] border border-outline-variant rounded-DEFAULT py-[6px] pl-xl pr-sm text-on-surface font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-colors" placeholder="Search insights..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="px-md py-sm border border-outline-variant rounded-DEFAULT text-on-surface font-label-md text-label-md uppercase tracking-wider hover:border-on-surface-variant transition-colors bg-[#1F2630]">
+                    Share
+                </button>
+<button class="px-md py-sm bg-primary-container text-[#0D1117] rounded-DEFAULT font-label-md text-label-md uppercase tracking-wider hover:opacity-90 transition-opacity font-bold">
+                    Export Report
+                </button>
+<div class="w-px h-6 bg-outline-variant mx-sm"></div>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-lg bg-background overflow-y-auto">
+<!-- Page Header -->
+<div class="mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">GitHub Analyzer</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Evidence-based technical signals extracted from repository commits, code quality, and project architecture.</p>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Primary Column (Left 8 cols) -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-lg">
+<!-- Technology Evidence Table -->
+<div class="bg-[#161B22] border border-outline-variant rounded-DEFAULT relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-[#1F2630]">
+<h3 class="font-headline-md text-headline-md text-on-surface">Technology Evidence</h3>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Verified Commits</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-[#1F2630] border-b border-outline-variant">
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Technology</th>
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Evidence Strength</th>
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Commits</th>
+<th class="py-sm px-md font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Recency</th>
+</tr>
+</thead>
+<tbody class="font-code-md text-code-md text-on-surface">
+<tr class="border-b border-outline-variant hover:bg-[#1F2630]/50 transition-colors">
+<td class="py-sm px-md flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+                                            React
+                                        </td>
+<td class="py-sm px-md">
+<div class="flex gap-xs">
+<div class="w-6 h-2 bg-secondary rounded-full"></div>
+<div class="w-6 h-2 bg-secondary rounded-full"></div>
+<div class="w-6 h-2 bg-secondary rounded-full"></div>
+<div class="w-6 h-2 bg-[#30363D] rounded-full"></div>
+</div>
+</td>
+<td class="py-sm px-md text-on-surface-variant">42 verified</td>
+<td class="py-sm px-md text-on-surface-variant">2 days ago</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#1F2630]/50 transition-colors">
+<td class="py-sm px-md flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+                                            TypeScript
+                                        </td>
+<td class="py-sm px-md">
+<div class="flex gap-xs">
+<div class="w-6 h-2 bg-secondary rounded-full"></div>
+<div class="w-6 h-2 bg-secondary rounded-full"></div>
+<div class="w-6 h-2 bg-secondary rounded-full"></div>
+<div class="w-6 h-2 bg-secondary rounded-full"></div>
+</div>
+</td>
+<td class="py-sm px-md text-on-surface-variant">128 verified</td>
+<td class="py-sm px-md text-on-surface-variant">Today</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#1F2630]/50 transition-colors">
+<td class="py-sm px-md flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+                                            Node.js
+                                        </td>
+<td class="py-sm px-md">
+<div class="flex gap-xs">
+<div class="w-6 h-2 bg-primary rounded-full"></div>
+<div class="w-6 h-2 bg-primary rounded-full"></div>
+<div class="w-6 h-2 bg-[#30363D] rounded-full"></div>
+<div class="w-6 h-2 bg-[#30363D] rounded-full"></div>
+</div>
+</td>
+<td class="py-sm px-md text-on-surface-variant">15 verified</td>
+<td class="py-sm px-md text-on-surface-variant">3 weeks ago</td>
+</tr>
+<tr class="hover:bg-[#1F2630]/50 transition-colors">
+<td class="py-sm px-md flex items-center gap-sm">
+<div class="w-2 h-2 rounded-full bg-error"></div>
+                                            Python
+                                        </td>
+<td class="py-sm px-md">
+<div class="flex gap-xs">
+<div class="w-6 h-2 bg-error rounded-full"></div>
+<div class="w-6 h-2 bg-[#30363D] rounded-full"></div>
+<div class="w-6 h-2 bg-[#30363D] rounded-full"></div>
+<div class="w-6 h-2 bg-[#30363D] rounded-full"></div>
+</div>
+</td>
+<td class="py-sm px-md text-on-surface-variant">2 verified</td>
+<td class="py-sm px-md text-on-surface-variant">6 months ago</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Repository Leaderboard -->
+<div class="bg-[#161B22] border border-outline-variant rounded-DEFAULT relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#30363D]"></div>
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-[#1F2630]">
+<h3 class="font-headline-md text-headline-md text-on-surface">Repository Leaderboard</h3>
+</div>
+<div class="p-md flex flex-col gap-sm">
+<!-- Repo Item -->
+<div class="flex items-center justify-between p-sm border border-outline-variant rounded-DEFAULT bg-[#0D1117] hover:border-[#8B949E] transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="star">star</span>
+<div>
+<h4 class="font-body-md text-body-md font-medium text-on-surface">enterprise-dashboard-ui</h4>
+<p class="font-code-md text-code-md text-on-surface-variant text-[11px] mt-xs">TypeScript • 842 Commits • 45 Stars</p>
+</div>
+</div>
+<div class="px-sm py-xs bg-[#1F2630] border border-outline-variant rounded-sm flex items-center gap-xs">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<span class="font-code-md text-code-md text-[11px]">Primary Contributor</span>
+</div>
+</div>
+<!-- Repo Item -->
+<div class="flex items-center justify-between p-sm border border-outline-variant rounded-DEFAULT bg-[#0D1117] hover:border-[#8B949E] transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="book">book</span>
+<div>
+<h4 class="font-body-md text-body-md font-medium text-on-surface">react-auth-hook</h4>
+<p class="font-code-md text-code-md text-on-surface-variant text-[11px] mt-xs">JavaScript • 120 Commits • 12 Stars</p>
+</div>
+</div>
+<div class="px-sm py-xs bg-[#1F2630] border border-outline-variant rounded-sm flex items-center gap-xs">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<span class="font-code-md text-code-md text-[11px]">Owner</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Column (Right 4 cols) -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-lg">
+<!-- Project Quality Scores -->
+<div class="bg-[#161B22] border border-outline-variant rounded-DEFAULT relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<div class="p-md border-b border-outline-variant bg-[#1F2630]">
+<h3 class="font-headline-md text-headline-md text-on-surface">Quality Scores</h3>
+</div>
+<div class="p-md flex flex-col gap-md">
+<div>
+<div class="flex justify-between items-end mb-xs">
+<span class="font-label-md text-label-md uppercase text-on-surface-variant tracking-wider">Clean Code Patterns</span>
+<span class="font-code-md text-code-md text-secondary">85/100</span>
+</div>
+<div class="w-full h-1.5 bg-[#0D1117] rounded-full overflow-hidden border border-outline-variant">
+<div class="h-full bg-secondary" style="width: 85%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-xs">
+<span class="font-label-md text-label-md uppercase text-on-surface-variant tracking-wider">Documentation</span>
+<span class="font-code-md text-code-md text-primary">62/100</span>
+</div>
+<div class="w-full h-1.5 bg-[#0D1117] rounded-full overflow-hidden border border-outline-variant">
+<div class="h-full bg-primary" style="width: 62%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-xs">
+<span class="font-label-md text-label-md uppercase text-on-surface-variant tracking-wider">Test Coverage (Inferred)</span>
+<span class="font-code-md text-code-md text-error">30/100</span>
+</div>
+<div class="w-full h-1.5 bg-[#0D1117] rounded-full overflow-hidden border border-outline-variant">
+<div class="h-full bg-error" style="width: 30%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Portfolio Risks -->
+<div class="bg-[#161B22] border border-outline-variant rounded-DEFAULT relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-error"></div>
+<div class="p-md border-b border-outline-variant bg-[#1F2630] flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Portfolio Risks</h3>
+<span class="material-symbols-outlined text-error text-[18px]" data-icon="warning">warning</span>
+</div>
+<div class="p-md">
+<ul class="flex flex-col gap-sm">
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-error text-[16px] mt-[2px]" data-icon="close">close</span>
+<div>
+<span class="font-body-md text-body-md text-on-surface block">Missing CI/CD Evidence</span>
+<span class="font-code-md text-code-md text-on-surface-variant text-[11px]">No workflow files detected in primary repositories.</span>
+</div>
+</li>
+<li class="flex items-start gap-sm">
+<span class="material-symbols-outlined text-primary text-[16px] mt-[2px]" data-icon="info">info</span>
+<div>
+<span class="font-body-md text-body-md text-on-surface block">Shallow Commit History</span>
+<span class="font-code-md text-code-md text-on-surface-variant text-[11px]">Recent repos show large, infrequent commits rather than granular tracking.</span>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<!-- Missing Categories -->
+<div class="bg-[#161B22] border border-outline-variant rounded-DEFAULT relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#30363D]"></div>
+<div class="p-md border-b border-outline-variant bg-[#1F2630]">
+<h3 class="font-headline-md text-headline-md text-on-surface">Missing Project Categories</h3>
+</div>
+<div class="p-md flex flex-wrap gap-xs">
+<span class="px-2 py-1 bg-[#0D1117] border border-outline-variant rounded-sm font-code-md text-code-md text-on-surface-variant text-[11px]">Backend API</span>
+<span class="px-2 py-1 bg-[#0D1117] border border-outline-variant rounded-sm font-code-md text-code-md text-on-surface-variant text-[11px]">Data Pipeline</span>
+<span class="px-2 py-1 bg-[#0D1117] border border-outline-variant rounded-sm font-code-md text-code-md text-on-surface-variant text-[11px]">Mobile App</span>
+<span class="px-2 py-1 bg-[#0D1117] border border-outline-variant rounded-sm font-code-md text-code-md text-on-surface-variant text-[11px]">System Architecture</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface w-full py-md border-t border-outline-variant flat no shadows flex justify-between items-center px-lg mt-auto">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant dark:text-on-surface-variant">© 2024 DevScope Intelligence. All rights reserved.</span>
+<div class="flex gap-md font-body-md text-body-md text-on-surface-variant">
+<a class="hover:text-primary transition-colors Default link behavior" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors Default link behavior" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors Default link behavior" href="#">Security</a>
+</div>
+</footer>
+</div>
+</body></html>

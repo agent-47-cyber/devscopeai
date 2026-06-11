@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Candidate Intelligence Report - DevScope</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700&amp;family=Inter:wght@400&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#1e1b17",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#9a8f81",
+                        "inverse-on-surface": "#34302b",
+                        "primary": "#e6c184",
+                        "on-tertiary-fixed": "#031b3b",
+                        "on-surface": "#e9e1da",
+                        "surface-container-high": "#2d2925",
+                        "secondary": "#67df70",
+                        "primary-fixed": "#ffdea9",
+                        "surface-container-highest": "#38342f",
+                        "on-tertiary": "#1c3051",
+                        "primary-fixed-dim": "#e6c184",
+                        "inverse-surface": "#e9e1da",
+                        "tertiary": "#b3c7f0",
+                        "on-primary-fixed": "#271900",
+                        "surface-tint": "#e6c184",
+                        "surface-variant": "#38342f",
+                        "tertiary-container": "#98acd3",
+                        "surface": "#16130f",
+                        "surface-dim": "#16130f",
+                        "on-secondary": "#00390d",
+                        "outline-variant": "#4e463a",
+                        "secondary-fixed-dim": "#67df70",
+                        "secondary-fixed": "#83fc89",
+                        "secondary-container": "#27a640",
+                        "surface-container-lowest": "#100e0a",
+                        "primary-container": "#c9a66b",
+                        "on-error": "#690005",
+                        "on-primary": "#422c00",
+                        "tertiary-fixed": "#d6e3ff",
+                        "tertiary-fixed-dim": "#b3c7ef",
+                        "error-container": "#93000a",
+                        "inverse-primary": "#765a26",
+                        "on-primary-container": "#533b09",
+                        "surface-bright": "#3c3934",
+                        "on-secondary-container": "#00320a",
+                        "on-tertiary-fixed-variant": "#334769",
+                        "background": "#16130f",
+                        "surface-container": "#221f1b",
+                        "on-background": "#e9e1da",
+                        "on-tertiary-container": "#2c4061",
+                        "on-primary-fixed-variant": "#5c4211",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#002105",
+                        "on-secondary-fixed-variant": "#005317",
+                        "on-surface-variant": "#d1c5b5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "40px",
+                        "gutter": "16px",
+                        "container-max": "1280px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "body-md": ["Inter"],
+                        "code-md": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Geist"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-md": ["20px", { "lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "code-md": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .premium-border { border: 1px solid #30363D; }
+        .bg-level-0 { background-color: #0D1117; }
+        .bg-level-1 { background-color: #161B22; }
+        .bg-level-2 { background-color: #1F2630; }
+        .border-accent { border-color: #30363D; }
+        .border-hover { transition: border-color 0.2s ease; }
+        .border-hover:hover { border-color: #8B949E; }
+        
+        .accent-strip-success { border-left: 4px solid #67df70; }
+        .accent-strip-error { border-left: 4px solid #ffb4ab; }
+        .accent-strip-warning { border-left: 4px solid #e6c184; }
+        .accent-strip-neutral { border-left: 4px solid #b3c7f0; }
+        
+        /* Custom scrollbar for data density */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0D1117; }
+        ::-webkit-scrollbar-thumb { background: #30363D; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4e463a; }
+    </style>
+</head>
+<body class="bg-level-0 text-on-background font-body-md min-h-screen flex text-body-md">
+<!-- SideNavBar -->
+<nav class="bg-surface-container dark:bg-surface-container h-screen w-64 border-r border-outline-variant flat no shadows fixed inset-y-0 left-0 flex flex-col z-50">
+<div class="p-lg border-b border-outline-variant flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary leading-tight">DevScope</div>
+<div class="font-label-md text-label-md text-on-surface-variant leading-none mt-1">Technical Intelligence</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto py-md">
+<ul class="flex flex-col gap-1 px-sm">
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-label-md text-label-md">Overview</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="font-label-md text-label-md">Resume Analyzer</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">terminal</span>
+<span class="font-label-md text-label-md">GitHub Analyzer</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">person_search</span>
+<span class="font-label-md text-label-md">LinkedIn Analyzer</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">compare_arrows</span>
+<span class="font-label-md text-label-md">Job Match</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span class="font-label-md text-label-md">Project Gap Analysis</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm text-primary font-bold border-r-2 border-primary bg-surface-container-high opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">assessment</span>
+<span class="font-label-md text-label-md">Candidate Report</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-DEFAULT text-on-surface-variant font-medium hover:bg-surface-container-high dark:hover:bg-surface-container-high transition-colors mt-lg border-t border-outline-variant pt-lg" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-64 flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface-container-low dark:bg-surface-container-low flex justify-between items-center px-lg w-full sticky top-0 z-40 h-16 border-b border-outline-variant flat no shadows">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary">DevScope</span>
+<div class="h-6 w-px bg-outline-variant hidden md:block"></div>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider hidden md:block">Intelligence Dossier: E. Chen</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="bg-level-2 text-on-background px-md py-sm rounded-DEFAULT font-label-md text-label-md flex items-center gap-sm premium-border hover:border-[#8B949E] transition-colors border-hover">
+<span class="material-symbols-outlined text-lg">share</span>
+                    Share
+                </button>
+<button class="bg-primary-container text-[#0D1117] px-md py-sm rounded-DEFAULT font-label-md text-label-md flex items-center gap-sm font-bold hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-lg">download</span>
+                    Export Report
+                </button>
+<button class="w-8 h-8 rounded-full bg-level-2 premium-border flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors border-hover">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-lg overflow-y-auto w-full max-w-container-max mx-auto">
+<!-- Page Header -->
+<div class="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<div class="flex items-center gap-sm mb-sm">
+<span class="px-sm py-xs bg-level-2 text-secondary premium-border rounded-sm font-label-md text-label-md flex items-center gap-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                            Verified Profile
+                        </span>
+<span class="font-code-md text-code-md text-on-surface-variant">ID: DSC-8824-ALPHA</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-background mb-xs">Eleanor Chen</h1>
+<p class="font-headline-md text-headline-md text-on-surface-variant font-normal">Senior Backend Architect / Staff Engineer Candidate</p>
+</div>
+<div class="bg-level-1 premium-border rounded-lg p-md min-w-[240px] accent-strip-success">
+<div class="font-label-md text-label-md text-on-surface-variant uppercase mb-sm">Job Readiness Verdict</div>
+<div class="flex items-center gap-md">
+<div class="font-display-lg text-display-lg text-secondary">92<span class="text-headline-md">%</span></div>
+<div>
+<div class="font-label-md text-label-md text-on-background font-bold">Strong Hire</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-xs">Exceeds technical bar for level.</div>
+</div>
+</div>
+</div>
+</div>
+<!-- CSS Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Exec Summary (Span 8) -->
+<section class="col-span-1 md:col-span-8 bg-level-1 premium-border rounded-lg p-lg border-hover flex flex-col h-full">
+<h2 class="font-headline-md text-headline-md border-b border-outline-variant pb-sm mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">summarize</span>
+                        Executive Summary
+                    </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-md leading-relaxed">
+                        Eleanor exhibits exceptional architectural competence, specifically within distributed systems and high-throughput data pipelines. Analysis of GitHub contributions reveals a consistent focus on systemic performance optimization and robust error handling, hallmarks of a mature Staff-level engineer. While her frontend exposure is limited, her backend rigor is top-tier.
+                    </p>
+<div class="grid grid-cols-3 gap-md mt-auto pt-md border-t border-outline-variant">
+<div>
+<div class="font-label-md text-label-md text-on-surface-variant uppercase mb-xs">Primary Tech Stack</div>
+<div class="font-code-md text-code-md text-on-background">Go, Rust, PostgreSQL, Kafka</div>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface-variant uppercase mb-xs">Experience Level</div>
+<div class="font-body-md text-body-md text-on-background">8.5 YOE (3 Yrs Lead)</div>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface-variant uppercase mb-xs">System Design Fit</div>
+<div class="font-body-md text-body-md text-secondary flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm">check_circle</span> Exceptional
+                            </div>
+</div>
+</div>
+</section>
+<!-- Hiring Risks (Span 4) -->
+<section class="col-span-1 md:col-span-4 bg-level-1 premium-border rounded-lg p-lg border-hover accent-strip-warning flex flex-col h-full">
+<h2 class="font-headline-md text-headline-md border-b border-outline-variant pb-sm mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">warning</span>
+                        Hiring Risks
+                    </h2>
+<div class="flex flex-col gap-md flex-1">
+<div class="bg-level-2 p-sm rounded-DEFAULT premium-border">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-on-background font-bold">Tenure Volatility</span>
+<span class="px-xs py-[2px] bg-surface-container text-primary text-[10px] rounded premium-border uppercase">Moderate</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">
+                                3 roles in the last 4 years. While common in hyper-growth startups, it requires probing during culture fit interviews.
+                            </p>
+</div>
+<div class="bg-level-2 p-sm rounded-DEFAULT premium-border">
+<div class="flex justify-between items-start mb-xs">
+<span class="font-label-md text-label-md text-on-background font-bold">Domain Shift</span>
+<span class="px-xs py-[2px] bg-surface-container text-on-surface-variant text-[10px] rounded premium-border uppercase">Low</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">
+                                Transitioning from FinTech to HealthTech. Regulatory compliance experience transfers, but specific data models will require ramp-up.
+                            </p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface dark:bg-surface w-full py-md border-t border-outline-variant flex justify-between items-center px-lg mt-auto">
+<span class="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant">© 2024 DevScope Intelligence. All rights reserved.</span>
+<div class="flex gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Security</a>
+</div>
+</footer>
+</div>
+</body></html>

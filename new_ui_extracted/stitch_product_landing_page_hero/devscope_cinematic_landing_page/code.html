@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DEVSCOPE - Candidate Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-on-surface": "#2f3035",
+                        "surface-container-highest": "#333539",
+                        "on-tertiary-container": "#38496a",
+                        "on-secondary-fixed-variant": "#424751",
+                        "surface-tint": "#e5c187",
+                        "on-primary-container": "#5d4516",
+                        "on-surface-variant": "#d1c5b6",
+                        "surface-container-low": "#1a1c20",
+                        "on-surface": "#e2e2e8",
+                        "tertiary-fixed-dim": "#b5c7ee",
+                        "on-tertiary-fixed-variant": "#364768",
+                        "secondary-fixed": "#dee2ef",
+                        "error-container": "#93000a",
+                        "tertiary-fixed": "#d7e2ff",
+                        "on-primary": "#422c01",
+                        "outline": "#9a8f81",
+                        "inverse-primary": "#755a2a",
+                        "inverse-surface": "#e2e2e8",
+                        "outline-variant": "#4e463a",
+                        "secondary": "#c2c6d3",
+                        "on-secondary": "#2c313a",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#0c0e12",
+                        "primary-fixed-dim": "#e5c187",
+                        "on-primary-fixed": "#271900",
+                        "on-error-container": "#ffdad6",
+                        "primary-container": "#d6b37a",
+                        "tertiary-container": "#a7b8df",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#5b4314",
+                        "on-background": "#e2e2e8",
+                        "surface": "#111317",
+                        "tertiary": "#c3d4fc",
+                        "on-tertiary": "#1f3050",
+                        "surface-container-high": "#282a2e",
+                        "surface-bright": "#37393e",
+                        "primary-fixed": "#ffdeaa",
+                        "background": "#111317",
+                        "primary": "#f3ce93",
+                        "on-tertiary-fixed": "#071b3a",
+                        "on-secondary-container": "#b1b5c1",
+                        "on-secondary-fixed": "#171c25",
+                        "secondary-container": "#424751",
+                        "surface-variant": "#333539",
+                        "surface-dim": "#111317",
+                        "surface-container": "#1e2024",
+                        "secondary-fixed-dim": "#c2c6d3"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xl": "40px",
+                        "max-content-width": "1200px",
+                        "sm": "8px"
+                    },
+                    fontFamily: {
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "label-caps": ["Inter", "sans-serif"],
+                        "headline-sm": ["Inter", "sans-serif"],
+                        "display-sm": ["Inter", "sans-serif"],
+                        "mono-data": ["JetBrains Mono", "monospace"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "display-lg": ["Inter", "sans-serif"]
+                    },
+                    fontSize: {
+                        "headline-lg": ["24px", { lineHeight: "1.3", letterSpacing: "-0.01em", fontWeight: "500" }],
+                        "label-caps": ["11px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "headline-sm": ["18px", { lineHeight: "1.4", fontWeight: "500" }],
+                        "display-sm": ["32px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "mono-data": ["12px", { lineHeight: "1.4", fontWeight: "450" }],
+                        "body-lg": ["16px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "body-md": ["14px", { lineHeight: "1.5", fontWeight: "400" }],
+                        "display-lg": ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 12px rgba(214, 179, 122, 0.3);
+        }
+        .strict-shadow {
+            box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-body-lg text-body-lg">
+<!-- Navbar -->
+<header class="w-full flex justify-between items-center h-16 px-lg md:px-xl border-b border-outline-variant bg-surface-dim z-50 sticky top-0">
+<div class="flex items-center">
+<span class="font-headline-sm text-headline-sm font-black text-primary tracking-tight">DEVSCOPE</span>
+</div>
+<nav class="hidden md:flex gap-lg">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps" href="#">Product</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps" href="#">Methodology</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps" href="#">Pricing</a>
+</nav>
+<div class="flex items-center gap-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps" href="#">Log In</a>
+<a class="bg-primary text-on-primary font-label-caps text-label-caps py-sm px-md rounded transition-colors glow-hover" href="#">Get Started</a>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center w-full">
+<!-- Hero Section -->
+<section class="w-full max-w-max-content-width px-lg md:px-xl pt-[120px] pb-[80px] flex flex-col items-center text-center">
+<div class="inline-flex items-center gap-sm bg-surface-container-low border border-outline-variant rounded-full py-1 px-3 mb-8">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">See Your Career Through a Recruiter's Eyes</span>
+</div>
+<h1 class="font-display-lg text-display-lg max-w-4xl mb-6 text-on-surface">
+                Your Resume Says One Thing.<br/>
+<span class="text-surface-variant">Your GitHub Says Another.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-10">
+                DEVSCOPE ingests your Resume, GitHub, LinkedIn, and target job descriptions to generate a unified Candidate Intelligence Report. Discover the gaps recruiters see before you apply.
+            </p>
+<div class="flex flex-col sm:flex-row gap-4 mb-16">
+<button class="bg-primary text-on-primary font-label-caps text-label-caps py-3 px-8 rounded transition-all glow-hover flex items-center justify-center gap-2">
+                    Analyze My Profile
+                    <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+<button class="bg-transparent border border-outline-variant text-on-surface font-label-caps text-label-caps py-3 px-8 rounded hover:bg-surface-container-low transition-colors flex items-center justify-center">
+                    View Sample Report
+                </button>
+</div>
+<!-- Hero Visual (Product Preview) -->
+<div class="w-full max-w-5xl bg-surface border border-outline-variant rounded-lg p-1 strict-shadow relative overflow-hidden group">
+<!-- Abstracted Mock UI header -->
+<div class="h-8 border-b border-outline-variant bg-surface-container-low flex items-center px-4 gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-surface-variant"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-surface-variant"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-surface-variant"></div>
+</div>
+<img alt="Dashboard Preview" class="w-full h-auto object-cover opacity-90 transition-opacity duration-500 group-hover:opacity-100 filter contrast-125 grayscale-[30%]" data-alt="A highly detailed, realistic user interface dashboard displayed on a dark mode screen. The UI shows complex data visualizations including readiness scores, skill matrices with radar charts, and a sidebar with recruiter notes. The design follows a premium minimalist aesthetic using deep graphite and dark blues with sophisticated bronze accents. The layout is precise, functional, and resembles a high-performance engineering tool or professional intelligence software." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-PeUzE7epjwnloyzjk4FA7zkCdK9868gxvwAUoRO8mUtXQcBnbbRbdax9DnWvvlWsq0g3oQSyHnI0Yqy672SwDhdJdGroiC7D3A1DnDzuu4FBCntY2X028HMlLUFwT0hqNH81udHRc7Fg4j6RxL2-_9rBSLgEdRH-14uTFXsQFY8ag_lqkhVH9EZTbJpWe_P2i_QamXcypGD7CouRr7aPSV54RYH4LVgQG503sXrzTDasxBZGWzUjdilKKufX6mqzgQaAdf03DCg"/>
+<!-- Overlays to make it feel like part of the UI -->
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60"></div>
+<!-- Floating Info Card Overlay -->
+<div class="absolute bottom-6 left-6 bg-surface-container-high border border-outline-variant rounded p-4 strict-shadow max-w-sm hidden md:block">
+<div class="flex items-center justify-between mb-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Readiness Score</span>
+<span class="font-mono-data text-mono-data text-primary">87/100</span>
+</div>
+<div class="w-full bg-surface h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[87%]"></div>
+</div>
+<p class="font-mono-data text-mono-data text-on-surface-variant mt-3 leading-relaxed">
+                        &gt; Primary gap identified in distributed systems architecture. GitHub commits lack evidence matching resume claims.
+                    </p>
+</div>
+</div>
+</section>
+<!-- Trust / Features Section -->
+<section class="w-full max-w-max-content-width px-lg md:px-xl py-[80px] border-t border-outline-variant bg-surface-dim">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-xl">
+<!-- Ingests -->
+<div class="bg-surface border border-outline-variant p-8 rounded-lg relative overflow-hidden group hover:border-primary transition-colors duration-300">
+<div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[64px] text-on-surface">database</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2 relative z-10">Data Ingestion</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 relative z-10">We analyze your entire professional footprint to establish baseline truth.</p>
+<ul class="space-y-4 relative z-10">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">check_circle</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">Resume Processing</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant">Semantic parsing of experience and claims.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">check_circle</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">GitHub Analysis</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant">Code complexity, contribution frequency, stack verification.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">check_circle</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">LinkedIn Mapping</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant">Network topology and endorsement validation.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">check_circle</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">Target Job Descriptions</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant">Keyword extraction and requirement weighting.</span>
+</div>
+</li>
+</ul>
+</div>
+<!-- Outputs -->
+<div class="bg-surface border border-outline-variant p-8 rounded-lg relative overflow-hidden group hover:border-primary transition-colors duration-300">
+<div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[64px] text-on-surface">analytics</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2 relative z-10">Intelligence Generation</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-6 relative z-10">Actionable insights delivered in a unified, professional report.</p>
+<ul class="space-y-4 relative z-10">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">check_circle</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">Intelligence Report</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant">Comprehensive overview of candidate viability.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">check_circle</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">Portfolio Gap Analysis</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant">Identifies discrepancies between claims and evidence.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">check_circle</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">Job Match Insights</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant">Probability scoring for specific roles.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] mt-0.5">check_circle</span>
+<div>
+<span class="font-headline-sm text-headline-sm text-on-surface block">Readiness Assessment</span>
+<span class="font-mono-data text-mono-data text-on-surface-variant">Interview preparation focus areas.</span>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Component from JSON -->
+<footer class="w-full bg-surface-container-lowest py-lg border-t border-outline-variant mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-xl max-w-max-content-width mx-auto gap-4">
+<span class="font-body-md text-body-md text-on-surface-variant">© 2024 DEVSCOPE Intelligence. All rights reserved.</span>
+<nav class="flex gap-lg">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps" href="#">Legal</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps" href="#">Contact Support</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-caps text-label-caps" href="#">Security</a>
+</nav>
+</div>
+</footer>
+</body></html>

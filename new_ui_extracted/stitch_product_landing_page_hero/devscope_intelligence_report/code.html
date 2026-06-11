@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Candidate Intelligence Report - DevScope</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#fcf8fa",
+                      "surface-variant": "#e5e2e3",
+                      "surface-tint": "#575e70",
+                      "tertiary-fixed-dim": "#dcc2a4",
+                      "secondary": "#585f6c",
+                      "on-secondary": "#ffffff",
+                      "tertiary-container": "#261906",
+                      "on-surface-variant": "#45464c",
+                      "on-primary-container": "#7d8497",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#c0c6db",
+                      "surface": "#fcf8fa",
+                      "surface-dim": "#dcd9db",
+                      "surface-container-low": "#f6f3f4",
+                      "on-secondary-fixed": "#151c27",
+                      "on-error": "#ffffff",
+                      "on-tertiary-container": "#968065",
+                      "on-surface": "#1b1b1d",
+                      "background": "#fcf8fa",
+                      "on-error-container": "#93000a",
+                      "surface-container": "#f0edee",
+                      "error": "#ba1a1a",
+                      "secondary-fixed-dim": "#c0c7d6",
+                      "primary-fixed": "#dce2f7",
+                      "primary-container": "#141b2b",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-high": "#eae7e9",
+                      "primary-fixed-dim": "#c0c6db",
+                      "tertiary-fixed": "#f9debf",
+                      "on-secondary-container": "#5e6572",
+                      "surface-container-highest": "#e5e2e3",
+                      "on-secondary-fixed-variant": "#404754",
+                      "outline": "#76777d",
+                      "secondary-fixed": "#dce2f3",
+                      "secondary-container": "#dce2f3",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary": "#000000",
+                      "inverse-surface": "#303031",
+                      "inverse-on-surface": "#f3f0f1",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#141b2b",
+                      "on-tertiary-fixed-variant": "#55442d",
+                      "on-primary-fixed-variant": "#404758",
+                      "on-background": "#1b1b1d",
+                      "primary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-tertiary-fixed": "#261906"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "2.5rem",
+                      "gutter": "1rem",
+                      "lg": "1.5rem",
+                      "md": "1rem",
+                      "base": "4px",
+                      "xs": "0.25rem",
+                      "sm": "0.5rem",
+                      "margin": "2rem"
+              },
+              "fontFamily": {
+                      "mono-code": [
+                              "Geist"
+                      ],
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "headline-md": [
+                              "Geist"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Geist"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "label-md": [
+                              "Geist"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "mono-code": [
+                              "13px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "30px",
+                              {
+                                      "lineHeight": "36px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-sm": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #FAFAF8;
+            color: #1b1b1d;
+        }
+        .report-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border: 1px solid #E7E5E4;
+            box-shadow: 0px 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+            }
+            .report-container {
+                border: none;
+                box-shadow: none;
+                max-width: 100%;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-20">
+<!-- Top Navigation -->
+<header class="flex justify-between items-center w-full px-xl h-14 z-50 bg-white dark:bg-surface-dim border-b border-surface-variant dark:border-outline-variant sticky top-0 no-print">
+<div class="flex items-center gap-md">
+<span class="font-headline-md text-headline-md font-semibold text-primary dark:text-primary-fixed">DevScope</span>
+</div>
+<nav class="hidden md:flex gap-lg">
+<a class="font-body-md text-body-md text-primary dark:text-primary-fixed font-bold border-b-2 border-primary py-xs" href="#">Reports</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors py-xs" href="#">Pipelines</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors py-xs" href="#">Archive</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfR7hfURuWTJoNzQ7cOwPEmW0SZ0q2doUAmU4K6kNu4UGMyhUGoOSLFlX8ZcA2iEzlNu9QHirl1NSJEpL7KxbGrqCm33TNpz8oxrXFJ7GuO5rSgR_yFViEvj-c__Qz8L7N7v1btPYIOT8BQzoGsXKqoTh0RY_fPpAvudVD13p7plggzND3mfuXSC9qnbvdRtrch-RA_msdVviLVZc0pXR9w7lp7gRv8yZH-cxRr7kgEAGtlEBk64EBd6403F7zRgZSWEpD8Qu5dVU"/>
+</div>
+</div>
+</header>
+<main class="pt-xl px-md sm:px-lg md:px-xl">
+<div class="report-container p-xl sm:p-margin rounded">
+<!-- Report Header -->
+<div class="border-b border-surface-variant pb-lg mb-xl">
+<div class="flex justify-between items-start mb-md">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-xs">Candidate Intelligence Report</p>
+<h1 class="font-display-lg text-display-lg text-primary mb-sm">Alexander Chen</h1>
+<p class="font-headline-md text-headline-md text-secondary">Senior Full-Stack Engineer</p>
+</div>
+<button class="no-print bg-primary text-on-primary px-md py-sm rounded font-label-md text-label-md hover:bg-inverse-surface transition-colors flex items-center gap-xs" onclick="window.print()">
+<span class="material-symbols-outlined text-[18px]">print</span>
+                        Export PDF
+                    </button>
+</div>
+<div class="flex flex-wrap gap-md mt-lg">
+<div class="flex items-center gap-sm bg-surface-container-low px-sm py-xs rounded">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">calendar_today</span>
+<span class="font-mono-code text-mono-code text-on-surface">Oct 24, 2024</span>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-low px-sm py-xs rounded">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">location_on</span>
+<span class="font-mono-code text-mono-code text-on-surface">San Francisco, CA</span>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-low px-sm py-xs rounded">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">link</span>
+<span class="font-mono-code text-mono-code text-on-surface">github.com/alexc-dev</span>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-low px-sm py-xs rounded">
+<div class="w-[6px] h-[6px] rounded-full bg-[#10B981]"></div>
+<span class="font-label-md text-label-md text-on-surface">Strong Match</span>
+</div>
+</div>
+</div>
+<!-- 1. Executive Summary -->
+<section class="mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-md">Executive Summary</h2>
+<div class="font-body-lg text-body-lg text-on-surface space-y-md leading-relaxed">
+<p>Alexander exhibits an exceptional command of modern web architecture, specifically within the React/Node.js ecosystem. The analysis of his recent contributions indicates a senior-level understanding of state management, API design, and cloud infrastructure deployment.</p>
+<p>His code demonstrates a consistent preference for maintainability over cleverness, utilizing clear abstractions and comprehensive testing strategies. He is highly recommended for roles requiring immediate technical leadership and complex system design.</p>
+</div>
+</section>
+<!-- 2. Verified Skills -->
+<section class="mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-md">Verified Skills</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mb-lg">Skills corroborated through direct repository analysis and commit history.</p>
+<div class="space-y-sm">
+<!-- Skill Item -->
+<div class="flex items-start gap-md py-sm border-b border-surface-variant last:border-0">
+<div class="mt-xs">
+<span class="material-symbols-outlined text-[#10B981]">verified</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">React.js &amp; Next.js</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Verified via 42 commits in 'e-commerce-platform' repository. Strong usage of Server Components and custom hooks.</p>
+</div>
+</div>
+<!-- Skill Item -->
+<div class="flex items-start gap-md py-sm border-b border-surface-variant last:border-0">
+<div class="mt-xs">
+<span class="material-symbols-outlined text-[#10B981]">verified</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">TypeScript</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Verified via extensive type definitions and generic implementations across 3 major projects. 95% strict mode compliance.</p>
+</div>
+</div>
+<!-- Skill Item -->
+<div class="flex items-start gap-md py-sm border-b border-surface-variant last:border-0">
+<div class="mt-xs">
+<span class="material-symbols-outlined text-[#10B981]">verified</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-primary">PostgreSQL &amp; Prisma</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Verified via 'inventory-service' schema design. Demonstrated efficient querying and complex transaction management.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. Project Deep-Dive -->
+<section class="mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-md">Project Deep-Dive</h2>
+<div class="bg-surface-container-low border border-surface-variant rounded p-lg">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h3 class="font-headline-md text-headline-md text-primary flex items-center gap-sm">
+<span class="material-symbols-outlined">folder_open</span>
+                                Distributed Order Management System
+                            </h3>
+<p class="font-mono-code text-mono-code text-on-surface-variant mt-xs">alexc-dev/order-mesh</p>
+</div>
+<span class="bg-surface border border-outline-variant px-sm py-xs rounded font-label-md text-label-md">Primary Contributor</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface space-y-sm mb-md">
+<p>This repository represents the candidate's most sophisticated architectural work. It implements a distributed saga pattern for handling complex e-commerce orders across microservices.</p>
+</div>
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-sm">Key Architectural Decisions</h4>
+<ul class="list-disc list-inside font-body-sm text-body-sm text-on-surface space-y-xs mb-md">
+<li>Implemented event-driven architecture using Apache Kafka for high throughput.</li>
+<li>Designed idempotent endpoints to ensure data consistency during retries.</li>
+<li>Utilized Redis for distributed locking to prevent race conditions during inventory allocation.</li>
+</ul>
+<div class="bg-surface border border-surface-variant rounded p-sm font-mono-code text-mono-code text-on-surface-variant overflow-x-auto">
+<pre><code>// Example of clean abstraction from the repo
+async function processOrderSaga(orderId: string): Promise&lt;Result&lt;void&gt;&gt; {
+  const saga = new OrderSaga(orderId);
+  return await saga
+    .addStep(new ReserveInventoryStep())
+    .addStep(new ProcessPaymentStep())
+    .execute();
+}</code></pre>
+</div>
+</div>
+</section>
+<!-- 4. Gaps & Risks -->
+<section class="mb-xl">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-md">Gaps &amp; Risks</h2>
+<div class="border-l-2 border-[#F59E0B] pl-md py-xs mb-md">
+<p class="font-body-md text-body-md text-on-surface">While technically exceptional in the JavaScript ecosystem, there are areas where the candidate's experience is less visible.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="border border-surface-variant rounded p-md">
+<h3 class="font-headline-md text-headline-md text-primary flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">warning</span>
+                            Low-Level Systems
+                        </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Limited exposure to memory management or systems programming languages (C++, Rust). May require ramp-up if joining a core infrastructure team.</p>
+</div>
+<div class="border border-surface-variant rounded p-md">
+<h3 class="font-headline-md text-headline-md text-primary flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">cloud_off</span>
+                            Multi-Cloud
+                        </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Heavy reliance on AWS services (specifically Lambda and DynamoDB). Minimal evidence of Azure or GCP deployment experience.</p>
+</div>
+</div>
+</section>
+<!-- 5. Strategic Recommendations -->
+<section>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-md">Strategic Recommendations</h2>
+<div class="bg-surface-bright border border-surface-variant rounded p-lg">
+<h3 class="font-headline-md text-headline-md text-primary mb-sm">Recommended Next Steps</h3>
+<ol class="list-decimal list-inside font-body-md text-body-md text-on-surface space-y-sm">
+<li><strong>Fast-Track Technical Interview:</strong> Bypass standard coding screens and proceed directly to system design discussions, focusing on large-scale data consistency.</li>
+<li><strong>Team Alignment:</strong> Position candidate for the Platform Engineering or Core Product teams where architectural decisions have high leverage.</li>
+<li><strong>Growth Path:</strong> Discuss opportunities for open-source contributions or technical blogging, as their code quality is exemplary and could serve as a standard for internal engineering blogs.</li>
+</ol>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="flex flex-col md:flex-row justify-between items-center px-xl max-w-7xl mx-auto py-lg border-t border-surface-variant dark:border-outline-variant bg-surface-bright dark:bg-surface-container-lowest mt-xl no-print">
+<span class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant font-bold">© 2024 DevScope Intelligence. All rights reserved.</span>
+<div class="flex gap-md mt-sm md:mt-0">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Security</a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Status</a>
+</div>
+</footer>
+</body></html>

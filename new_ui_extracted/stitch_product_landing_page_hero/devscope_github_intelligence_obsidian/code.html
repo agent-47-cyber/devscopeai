@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GitHub Analyzer - DevScope AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "secondary": "#c8c6c5",
+                "surface-bright": "#3a3939",
+                "secondary-fixed-dim": "#c8c6c5",
+                "tertiary-fixed": "#aaedff",
+                "inverse-surface": "#e5e2e1",
+                "surface-container-high": "#2a2a2a",
+                "on-secondary": "#303030",
+                "secondary-fixed": "#e4e2e1",
+                "surface-container-low": "#1c1b1b",
+                "on-surface": "#e5e2e1",
+                "error-container": "#93000a",
+                "on-secondary-fixed-variant": "#474746",
+                "primary-container": "#ffbf00",
+                "primary-fixed": "#ffdfa0",
+                "surface-container-lowest": "#0e0e0e",
+                "surface-dim": "#131313",
+                "on-error-container": "#ffdad6",
+                "outline": "#9c8f78",
+                "on-primary-fixed-variant": "#5c4300",
+                "surface": "#131313",
+                "surface-tint": "#fbbc00",
+                "background": "#131313",
+                "on-surface-variant": "#d4c5ab",
+                "error": "#ffb4ab",
+                "on-error": "#690005",
+                "on-background": "#e5e2e1",
+                "primary": "#ffe2ab",
+                "surface-container-highest": "#353534",
+                "primary-fixed-dim": "#fbbc00",
+                "on-primary-fixed": "#261a00",
+                "outline-variant": "#504532",
+                "inverse-on-surface": "#313030",
+                "on-secondary-fixed": "#1b1c1c",
+                "on-tertiary-container": "#005d6d",
+                "on-primary-container": "#6d5000",
+                "tertiary-container": "#04dcff",
+                "surface-variant": "#353534",
+                "surface-container": "#201f1f",
+                "inverse-primary": "#795900",
+                "on-tertiary": "#003640",
+                "on-secondary-container": "#b7b5b4",
+                "on-primary": "#402d00",
+                "tertiary-fixed-dim": "#00d9fc",
+                "on-tertiary-fixed": "#001f26",
+                "tertiary": "#b4efff",
+                "on-tertiary-fixed-variant": "#004e5c",
+                "secondary-container": "#474746"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "unit-8": "32px",
+                "unit-16": "64px",
+                "unit-6": "24px",
+                "base": "4px",
+                "unit-1": "4px",
+                "unit-12": "48px",
+                "gutter": "24px",
+                "unit-2": "8px",
+                "unit-4": "16px",
+                "margin-mobile": "16px",
+                "container-max": "1280px"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Hanken Grotesk"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Hanken Grotesk"
+                ],
+                "display-lg-mobile": [
+                        "Hanken Grotesk"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Geist"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg-mobile": [
+                        "36px",
+                        {
+                                "lineHeight": "42px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body { background-color: #050505; color: #e5e2e1; }
+        .card-surface { background-color: #1c1b1b; border: 1px solid #353534; }
+        .border-layout { border-color: #353534; }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased flex">
+<!-- SideNavBar Component -->
+<nav class="bg-surface dark:bg-surface h-screen w-64 fixed left-0 top-0 border-r border-layout flex flex-col py-unit-8 z-50">
+<div class="px-6 mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">DevScope AI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 uppercase tracking-wider">Intelligence Platform</p>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center px-6 py-3 font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px] opacity-70 group-hover:opacity-100">dashboard</span>
+                        Overview
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px] opacity-70 group-hover:opacity-100">description</span>
+                        Resume Analyzer
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 font-label-sm text-label-sm text-primary dark:text-primary font-bold border-r-2 border-primary bg-surface-container-high/30" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">terminal</span>
+                        GitHub Analyzer
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px] opacity-70 group-hover:opacity-100">person_search</span>
+                        LinkedIn Analyzer
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px] opacity-70 group-hover:opacity-100">rule</span>
+                        Job Match
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px] opacity-70 group-hover:opacity-100">analytics</span>
+                        Project Gap Analysis
+                    </a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px] opacity-70 group-hover:opacity-100">assignment</span>
+                        Candidate Report
+                    </a>
+</li>
+</ul>
+</div>
+<div class="mt-auto px-6 border-t border-layout pt-4">
+<a class="flex items-center py-3 font-label-sm text-label-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface transition-colors duration-150 ease-in-out group" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px] opacity-70 group-hover:opacity-100">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-64 flex-1 min-h-screen flex flex-col relative">
+<!-- TopNavBar Component -->
+<header class="bg-surface dark:bg-surface border-b border-layout docked full-width top-0 sticky z-40 flex justify-between items-center h-14 px-unit-8">
+<div class="flex items-center space-x-4 flex-1">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-lowest border border-surface-variant rounded text-[13px] font-body-md pl-9 pr-3 py-1.5 focus:border-primary-container focus:ring-0 transition-colors placeholder:text-on-surface-variant" placeholder="Search insights..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<button class="bg-primary-container text-surface-container-lowest font-bold font-label-sm text-label-sm px-4 py-2 rounded-sm active:opacity-80 transition-opacity flex items-center">
+                    Export Report
+                    <span class="material-symbols-outlined ml-2 text-[16px]">download</span>
+</button>
+<div class="h-8 w-8 rounded bg-surface-container-highest border border-layout overflow-hidden flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">person</span>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 p-unit-8 overflow-y-auto">
+<div class="max-w-container-max mx-auto space-y-6">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface tracking-tight mb-2">GitHub Intelligence Deep-Dive</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Analysis of candidate's public code footprint. Evaluating depth of technical claims, architectural choices, and overall portfolio signal vs. noise.</p>
+</div>
+<div class="flex space-x-3">
+<div class="flex items-center px-3 py-1 rounded bg-surface-container border border-surface-variant font-label-sm text-label-sm text-secondary">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></div>
+                            Analysis Complete
+                        </div>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Recruiter Impression Summary (Span 12 - Hero) -->
+<div class="col-span-12 card-surface rounded-lg p-6">
+<h3 class="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-4 flex items-center">
+<span class="material-symbols-outlined mr-2 text-[16px]">visibility</span>
+                            Recruiter Impression Summary
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="col-span-2">
+<p class="font-body-md text-body-md text-on-surface leading-relaxed mb-4">
+                                    The candidate's GitHub profile presents a <strong class="text-white font-medium">strong positive signal</strong> for backend infrastructure roles, particularly within Go and Kubernetes ecosystems. Unlike typical generic portfolios, there is demonstrable evidence of solving complex concurrency problems.
+                                </p>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                                    However, the volume of abandoned "weekend projects" creates noise. A technical recruiter should focus questioning on the 'K8s-Auto-Scaler' repository to validate architectural claims made on the resume.
+                                </p>
+</div>
+<div class="border-l border-surface-variant pl-8 flex flex-col justify-center">
+<div class="mb-4">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block mb-1">Portfolio Signal Strength</span>
+<div class="flex items-end">
+<span class="font-display-lg text-display-lg text-primary mr-2">High</span>
+<span class="text-[13px] font-body-md text-secondary pb-1">85/100</span>
+</div>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase block mb-1">Primary Archetype</span>
+<span class="inline-flex items-center px-2 py-1 rounded bg-surface-container border border-surface-variant font-label-sm text-label-sm text-secondary">
+                                        Infrastructure / Backend
+                                    </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Technology Evidence Panels (Span 8) -->
+<div class="col-span-12 lg:col-span-8 flex flex-col space-y-6">
+<div class="card-surface rounded-lg flex-1 flex flex-col">
+<div class="p-4 border-b border-surface-variant">
+<h3 class="font-label-sm text-label-sm text-secondary uppercase tracking-widest flex items-center">
+<span class="material-symbols-outlined mr-2 text-[16px]">policy</span>
+                                    Technology Evidence Logs
+                                </h3>
+</div>
+<div class="p-0 overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-surface-variant">
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">Claimed Skill</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">Evidence Source</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">Depth Indicator</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">Verdict</th>
+</tr>
+</thead>
+<tbody class="text-[13px] font-body-md">
+<tr class="border-b border-surface-variant hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface">Golang (Expert)</td>
+<td class="py-3 px-4 text-secondary font-mono text-xs">repo: distributed-cache</td>
+<td class="py-3 px-4 text-on-surface-variant">Uses channels, mutexes, context cancellation.</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-900/30 text-emerald-400 border border-emerald-800/50 text-[11px] uppercase tracking-wider font-label-sm">Validated</span>
+</td>
+</tr>
+<tr class="border-b border-surface-variant hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface">Kubernetes</td>
+<td class="py-3 px-4 text-secondary font-mono text-xs">repo: k8s-custom-controller</td>
+<td class="py-3 px-4 text-on-surface-variant">Custom CRDs, informer pattern implemented.</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-900/30 text-emerald-400 border border-emerald-800/50 text-[11px] uppercase tracking-wider font-label-sm">Validated</span>
+</td>
+</tr>
+<tr class="border-b border-surface-variant hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface">React / Frontend</td>
+<td class="py-3 px-4 text-secondary font-mono text-xs">repo: portfolio-v1</td>
+<td class="py-3 px-4 text-on-surface-variant">Basic CRA setup. No state management visible.</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-amber-900/30 text-amber-400 border border-amber-800/50 text-[11px] uppercase tracking-wider font-label-sm">Surface Level</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors">
+<td class="py-3 px-4 font-medium text-on-surface">Rust</td>
+<td class="py-3 px-4 text-secondary font-mono text-xs">None</td>
+<td class="py-3 px-4 text-on-surface-variant">Mentioned on resume, zero commits found.</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-red-900/30 text-red-400 border border-red-800/50 text-[11px] uppercase tracking-wider font-label-sm">No Evidence</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column (Span 4) -->
+<div class="col-span-12 lg:col-span-4 flex flex-col space-y-6">
+<!-- Best Repository Highlight -->
+<div class="card-surface rounded-lg p-5">
+<h3 class="font-label-sm text-label-sm text-secondary uppercase tracking-widest mb-4 flex items-center">
+<span class="material-symbols-outlined mr-2 text-[16px]">star</span>
+                                Best Repository
+                            </h3>
+<div class="bg-surface-container border border-surface-variant p-4 rounded-sm mb-4">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-body-md text-body-md font-medium text-primary hover:underline cursor-pointer">distributed-cache-go</h4>
+<span class="flex items-center text-secondary text-xs font-mono">
+<span class="material-symbols-outlined text-[14px] mr-1">star</span> 1.2k
+                                    </span>
+</div>
+<p class="text-[13px] font-body-md text-on-surface-variant mb-3 line-clamp-2">
+                                    A high-performance, concurrent in-memory cache written in Go, featuring sharding and eviction policies.
+                                </p>
+<div class="flex space-x-2">
+<span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-400 mt-0.5"></span>
+<span class="font-label-sm text-label-sm text-secondary">Go (94%)</span>
+</div>
+</div>
+<div>
+<h5 class="font-label-sm text-label-sm text-on-surface-variant mb-2 uppercase">Why it stands out</h5>
+<ul class="space-y-2 text-[13px] font-body-md text-on-surface-variant">
+<li class="flex items-start">
+<span class="material-symbols-outlined text-[14px] text-primary mr-2 mt-0.5">check_circle</span>
+                                        Demonstrates deep understanding of Go memory models.
+                                    </li>
+<li class="flex items-start">
+<span class="material-symbols-outlined text-[14px] text-primary mr-2 mt-0.5">check_circle</span>
+                                        Comprehensive test suite (92% coverage).
+                                    </li>
+</ul>
+</div>
+</div>
+<!-- Portfolio Risk Markers -->
+<div class="card-surface rounded-lg p-5 flex-1">
+<h3 class="font-label-sm text-label-sm text-secondary uppercase tracking-widest mb-4 flex items-center">
+<span class="material-symbols-outlined mr-2 text-[16px]">warning</span>
+                                Risk Markers
+                            </h3>
+<div class="space-y-4">
+<div class="flex items-start">
+<div class="mt-0.5 mr-3 flex-shrink-0">
+<span class="material-symbols-outlined text-[18px] text-amber-500">pending_actions</span>
+</div>
+<div>
+<h4 class="text-[13px] font-body-md font-medium text-on-surface">High Abandonment Rate</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 leading-relaxed">78% of repos have &lt; 3 commits. Suggests tendency to start but not finish.</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="mt-0.5 mr-3 flex-shrink-0">
+<span class="material-symbols-outlined text-[18px] text-secondary">history</span>
+</div>
+<div>
+<h4 class="text-[13px] font-body-md font-medium text-on-surface">Stale Primary Stack</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1 leading-relaxed">No significant commits to Python projects in 2+ years despite resume emphasis.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

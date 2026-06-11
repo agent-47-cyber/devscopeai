@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DevScope AI - Intelligence Platform Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "secondary": "#c8c6c5",
+                "surface-bright": "#3a3939",
+                "secondary-fixed-dim": "#c8c6c5",
+                "tertiary-fixed": "#aaedff",
+                "inverse-surface": "#e5e2e1",
+                "surface-container-high": "#2a2a2a",
+                "on-secondary": "#303030",
+                "secondary-fixed": "#e4e2e1",
+                "surface-container-low": "#1c1b1b",
+                "on-surface": "#e5e2e1",
+                "error-container": "#93000a",
+                "on-secondary-fixed-variant": "#474746",
+                "primary-container": "#ffbf00",
+                "primary-fixed": "#ffdfa0",
+                "surface-container-lowest": "#0e0e0e",
+                "surface-dim": "#131313",
+                "on-error-container": "#ffdad6",
+                "outline": "#9c8f78",
+                "on-primary-fixed-variant": "#5c4300",
+                "surface": "#131313",
+                "surface-tint": "#fbbc00",
+                "background": "#131313",
+                "on-surface-variant": "#d4c5ab",
+                "error": "#ffb4ab",
+                "on-error": "#690005",
+                "on-background": "#e5e2e1",
+                "primary": "#ffe2ab",
+                "surface-container-highest": "#353534",
+                "primary-fixed-dim": "#fbbc00",
+                "on-primary-fixed": "#261a00",
+                "outline-variant": "#504532",
+                "inverse-on-surface": "#313030",
+                "on-secondary-fixed": "#1b1c1c",
+                "on-tertiary-container": "#005d6d",
+                "on-primary-container": "#6d5000",
+                "tertiary-container": "#04dcff",
+                "surface-variant": "#353534",
+                "surface-container": "#201f1f",
+                "inverse-primary": "#795900",
+                "on-tertiary": "#003640",
+                "on-secondary-container": "#b7b5b4",
+                "on-primary": "#402d00",
+                "tertiary-fixed-dim": "#00d9fc",
+                "on-tertiary-fixed": "#001f26",
+                "tertiary": "#b4efff",
+                "on-tertiary-fixed-variant": "#004e5c",
+                "secondary-container": "#474746"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "unit-8": "32px",
+                "unit-16": "64px",
+                "unit-6": "24px",
+                "base": "4px",
+                "unit-1": "4px",
+                "unit-12": "48px",
+                "gutter": "24px",
+                "unit-2": "8px",
+                "unit-4": "16px",
+                "margin-mobile": "16px",
+                "container-max": "1280px"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Hanken Grotesk"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Hanken Grotesk"
+                ],
+                "display-lg-mobile": [
+                        "Hanken Grotesk"
+                ],
+                "body-md": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Geist"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "56px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "display-lg-mobile": [
+                        "36px",
+                        {
+                                "lineHeight": "42px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body { background-color: #050505; color: #e5e2e1; }
+        .border-technical { border: 1px solid #2a2a2a; }
+        .bg-surface-custom { background-color: #0e0e0e; }
+        .bg-elevated-custom { background-color: #1c1b1b; }
+        .text-muted { color: #d4c5ab; }
+        
+        /* Custom scrollbar for the simulation feed */
+        .simulation-feed::-webkit-scrollbar {
+            width: 4px;
+        }
+        .simulation-feed::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        .simulation-feed::-webkit-scrollbar-thumb {
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+        
+        /* Blinking cursor effect */
+        .cursor-blink::after {
+            content: '_';
+            animation: blink 1s step-start infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        
+        /* Simple typing animation setup */
+        .type-line {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex w-full overflow-hidden selection:bg-primary-container selection:text-surface-container-lowest">
+<!-- LEFTSIDE: Simulation Feed (60%) -->
+<div class="hidden lg:flex flex-col w-[60%] border-r border-technical bg-surface-custom p-8 relative overflow-hidden simulation-feed overflow-y-auto">
+<!-- Header / Brand -->
+<div class="flex items-center gap-4 mb-12">
+<span class="material-symbols-outlined text-primary-container text-3xl">analytics</span>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary font-bold">DevScope AI</h1>
+<p class="font-label-sm text-label-sm text-muted mt-1 uppercase">Intelligence Platform // Active Simulation</p>
+</div>
+</div>
+<!-- Simulation Header -->
+<div class="mb-8 border-b border-technical pb-4">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-label-sm text-label-sm text-primary-container mb-2 cursor-blink">&gt; RUN_ANALYSIS: CANDIDATE_ID_94A2B</h2>
+<p class="font-body-md text-body-md text-on-surface">Target Role: Senior Full-Stack Engineer // React, Node, Python</p>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-muted">SYS_TIME: <span id="clock">00:00:00</span> UTC</span>
+</div>
+</div>
+</div>
+<!-- Intelligence Feed Content -->
+<div class="space-y-6 flex-grow pb-24" id="simulation-container">
+<!-- Phase 1: Pipeline Init -->
+<div class="border border-technical p-4 bg-elevated-custom">
+<div class="flex items-center gap-2 mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span class="font-label-sm text-label-sm text-on-surface uppercase">Phase 1: Multi-Source Extraction</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex justify-between items-center border-b border-technical pb-2">
+<span class="font-label-sm text-label-sm text-muted">Resume Parser</span>
+<span class="font-label-sm text-label-sm text-primary-container">[ OK ]</span>
+</div>
+<div class="flex justify-between items-center border-b border-technical pb-2">
+<span class="font-label-sm text-label-sm text-muted">GitHub API Sync</span>
+<span class="font-label-sm text-label-sm text-primary-container">[ OK ]</span>
+</div>
+<div class="flex justify-between items-center border-b border-technical pb-2">
+<span class="font-label-sm text-label-sm text-muted">LinkedIn Scraper</span>
+<span class="font-label-sm text-label-sm text-primary-container">[ OK ]</span>
+</div>
+<div class="flex justify-between items-center border-b border-technical pb-2">
+<span class="font-label-sm text-label-sm text-muted">Job Match Matrix</span>
+<span class="font-label-sm text-label-sm text-primary-container">[ OK ]</span>
+</div>
+</div>
+</div>
+<!-- Analysis Readout: Strengths -->
+<div class="border border-technical p-4 relative">
+<div class="absolute -top-3 left-4 bg-surface-custom px-2">
+<span class="font-label-sm text-label-sm text-tertiary">OBSERVED_STRENGTHS</span>
+</div>
+<ul class="space-y-3 mt-2 font-label-sm text-label-sm">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-sm mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<span class="text-on-surface font-medium">High React Competency:</span>
+<span class="text-muted ml-1">Detected extensive use of custom hooks, Context API, and state management in 4 active repositories. Commits show deep understanding of render optimization.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-tertiary text-sm mt-0.5" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<div>
+<span class="text-on-surface font-medium">Consistent Career Progression:</span>
+<span class="text-muted ml-1">LinkedIn timeline indicates structured promotion velocity (Junior -&gt; Mid -&gt; Senior) over 6 years with concurrent increasing repo complexity.</span>
+</div>
+</li>
+</ul>
+</div>
+<!-- Analysis Readout: Risks -->
+<div class="border border-technical p-4 relative bg-elevated-custom">
+<div class="absolute -top-3 left-4 bg-elevated-custom px-2">
+<span class="font-label-sm text-label-sm text-primary-container">IDENTIFIED_RISKS</span>
+</div>
+<ul class="space-y-3 mt-2 font-label-sm text-label-sm">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary-container text-sm mt-0.5">warning</span>
+<div>
+<span class="text-on-surface font-medium">Python Experience Shallow:</span>
+<span class="text-muted ml-1">Resume claims "Advanced Python", but GitHub analysis reveals only 2 minor scripting repos. No evidence of enterprise-scale Django/FastAPI implementation.</span>
+</div>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary-container text-sm mt-0.5">warning</span>
+<div>
+<span class="text-on-surface font-medium">Recent Activity Drop:</span>
+<span class="text-muted ml-1">Commit frequency dropped by 70% in the last 4 months compared to historical baseline.</span>
+</div>
+</li>
+</ul>
+</div>
+<!-- Analysis Readout: Job Match Score -->
+<div class="border border-technical p-4 flex gap-8 items-center">
+<div class="flex flex-col items-center justify-center w-24 h-24 border-2 border-primary-container rounded-full shrink-0">
+<span class="font-display-lg text-display-lg text-primary-container font-bold">84</span>
+<span class="font-label-sm text-label-sm text-muted text-[10px]">MATCH_SCORE</span>
+</div>
+<div class="w-full">
+<div class="flex justify-between font-label-sm text-label-sm mb-2">
+<span class="text-on-surface">ALIGNMENT MATRIX</span>
+<span class="text-primary-container">PROCEED_WITH_CAUTION</span>
+</div>
+<div class="space-y-2">
+<div>
+<div class="flex justify-between font-label-sm text-label-sm text-muted mb-1">
+<span>Frontend Requirements</span>
+<span>95%</span>
+</div>
+<div class="h-1 bg-surface-container-highest w-full"><div class="h-full bg-tertiary w-[95%]"></div></div>
+</div>
+<div>
+<div class="flex justify-between font-label-sm text-label-sm text-muted mb-1">
+<span>Backend Requirements</span>
+<span>60%</span>
+</div>
+<div class="h-1 bg-surface-container-highest w-full"><div class="h-full bg-primary-container w-[60%]"></div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-muted flex items-center gap-2">
+<span class="animate-pulse">_</span>
+<span>AWAITING NEXT DIRECTIVE...</span>
+</div>
+</div>
+<!-- Fade out at bottom -->
+<div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0e0e0e] to-transparent pointer-events-none"></div>
+</div>
+<!-- RIGHTSIDE: Minimal Authentication (40%) -->
+<div class="w-full lg:w-[40%] flex flex-col justify-center items-center p-8 sm:p-12 bg-background relative">
+<!-- Mobile Header (Hidden on Desktop) -->
+<div class="lg:hidden flex items-center gap-3 mb-12 self-start">
+<span class="material-symbols-outlined text-primary-container text-2xl">analytics</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">DevScope AI</span>
+</div>
+<div class="w-full max-w-sm">
+<div class="mb-10 text-center lg:text-left">
+<h2 class="font-display-lg-mobile lg:font-display-lg text-display-lg-mobile lg:text-display-lg text-on-surface font-semibold tracking-tight mb-2">System Access</h2>
+<p class="font-body-md text-body-md text-muted">Authenticate to access intelligence reports.</p>
+</div>
+<div class="space-y-4">
+<!-- Auth Buttons -->
+<button class="w-full flex items-center justify-center gap-3 bg-transparent border border-technical hover:bg-surface-container-highest transition-colors duration-200 py-3 px-4 text-on-surface font-body-md text-body-md rounded">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+                    Continue with Google
+                </button>
+<button class="w-full flex items-center justify-center gap-3 bg-transparent border border-technical hover:bg-surface-container-highest transition-colors duration-200 py-3 px-4 text-on-surface font-body-md text-body-md rounded">
+<svg class="w-5 h-5 text-on-surface" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.379.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z" fill-rule="evenodd"></path>
+</svg>
+                    Continue with GitHub
+                </button>
+<div class="relative py-4 flex items-center">
+<div class="flex-grow border-t border-technical"></div>
+<span class="flex-shrink-0 mx-4 font-label-sm text-label-sm text-muted uppercase">or</span>
+<div class="flex-grow border-t border-technical"></div>
+</div>
+<div class="space-y-4">
+<div>
+<input class="w-full bg-[#0e0e0e] border border-[#2a2a2a] rounded px-4 py-3 text-on-surface font-body-md text-body-md focus:outline-none focus:border-primary-container focus:ring-0 placeholder-[#d4c5ab] transition-colors" placeholder="work@email.com" type="email"/>
+</div>
+<button class="w-full bg-primary-container text-[#050505] font-bold py-3 px-4 rounded hover:bg-primary transition-colors duration-200 font-body-md text-body-md">
+                        Continue with Email
+                    </button>
+</div>
+</div>
+<div class="mt-8 text-center lg:text-left">
+<p class="font-label-sm text-label-sm text-muted">
+                    By accessing this system, you agree to the <a class="text-on-surface hover:text-primary-container underline decoration-[#2a2a2a] underline-offset-4" href="#">Terms of Service</a> and <a class="text-on-surface hover:text-primary-container underline decoration-[#2a2a2a] underline-offset-4" href="#">Privacy Policy</a>.
+                </p>
+</div>
+</div>
+</div>
+<script>
+        // Simple clock update
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toISOString().substring(11, 19);
+            document.getElementById('clock').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body></html>

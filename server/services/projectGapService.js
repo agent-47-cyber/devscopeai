@@ -15,9 +15,12 @@ export async function analyzeProjectGap(resumeData, githubData, linkedinData, ta
 Provide your evaluation in strict JSON format only. No markdown, no extra text.`;
 
     const analysisResult = await generateWithGemini(prompt, { systemInstruction, parseJson: true });
+    analysisResult._aiSource = 'GEMINI';
     return analysisResult;
   } catch (err) {
     console.warn('[projectGapService] Gemini unavailable, using local fallback:', err.message);
-    return createProjectGapFallback({ resumeData, githubData, linkedinData }, targetRole);
+    const fallbackResult = createProjectGapFallback({ resumeData, githubData, linkedinData }, targetRole);
+    fallbackResult._aiSource = 'FALLBACK';
+    return fallbackResult;
   }
 }
