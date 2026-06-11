@@ -7,7 +7,9 @@ export default function CandidateReport({
   resume,
   github,
   linkedin,
-  scores
+  scores,
+  onExport,
+  exportState = { status: 'idle', message: '' }
 }) {
   const canAnalyze = resume || github || linkedin;
 
@@ -52,9 +54,8 @@ export default function CandidateReport({
     );
   }
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const isExporting = exportState.status === 'loading';
+  const isSuccess = exportState.status === 'success';
 
   const {
     executiveSummary = '',
@@ -94,7 +95,7 @@ export default function CandidateReport({
   };
 
   return (
-    <div className="space-y-12 animate-fade-in pb-20">
+    <div className="space-y-12 animate-fade-in pb-20" id="candidate-report-content">
       
       {/* ── HERO DOSSIER HEADER ── */}
       <section className="bg-surface-container-low border border-outline-variant p-8 relative overflow-hidden rim-light-amber">
@@ -370,9 +371,38 @@ export default function CandidateReport({
 
       {/* Floating Export Button for bottom */}
       <div className="flex justify-end pt-8 print:hidden">
-        <button onClick={handlePrint} className="bg-surface-container border border-outline-variant text-on-surface px-6 py-3 font-label-caps text-xs hover:bg-surface-container-highest transition-colors flex items-center gap-2 shadow-lg">
-          <span className="material-symbols-outlined text-sm">download</span> EXPORT INTELLIGENCE DOSSIER
-        </button>
+        <div className="relative flex items-center">
+          {exportState.status === 'error' && (
+            <span className="absolute right-full mr-4 whitespace-nowrap text-error font-body-sm text-[12px] animate-fade-in">
+              {exportState.message}
+            </span>
+          )}
+          <button 
+            onClick={onExport} 
+            disabled={isExporting}
+            className={`px-6 py-3 font-label-caps text-xs transition-colors flex items-center gap-2 shadow-lg border ${
+              isSuccess ? 'bg-success/20 text-success border-success/30' :
+              isExporting ? 'bg-surface-container/50 text-on-surface/50 border-outline-variant/50 cursor-not-allowed' :
+              'bg-surface-container border-outline-variant text-on-surface hover:bg-surface-container-highest'
+            }`}
+          >
+            {isSuccess ? (
+              <>
+                <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                {exportState.message || 'INTELLIGENCE DOSSIER EXPORTED'}
+              </>
+            ) : isExporting ? (
+              <>
+                <span className="material-symbols-outlined animate-spin text-[14px]">sync</span>
+                {exportState.message?.toUpperCase() || 'EXPORTING...'}
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-sm">download</span> EXPORT INTELLIGENCE DOSSIER
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
     </div>

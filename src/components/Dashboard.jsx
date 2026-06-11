@@ -250,6 +250,8 @@ function Dashboard({ profileData = {}, scores: initialScores = { github: null, r
   ]);
   const [isSimulating, setIsSimulating] = useState(false);
 
+  // Export Tracking State
+  const [exportState, setExportState] = useState({ status: 'idle', message: '' });
 
   const messagesEndRef = useRef(null);
 
@@ -1291,12 +1293,68 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       alert('Error reaching analysis server: ' + err.message);
     } finally {
       setIsGeneratingReport(false);
+    };
+  };
+
+  const handleExportReport = async () => {
+    const canAnalyze = resume || github || linkedin || (scores && scores.overall > 0);
+    if (!canAnalyze) {
+      setExportState({ status: 'error', message: 'Complete at least one analysis before generating a report.' });
+      setTimeout(() => setExportState({ status: 'idle', message: '' }), 4000);
+      return;
+    }
+
+    try {
+      setExportState({ status: 'loading', message: 'Preparing Intelligence Summary...' });
+      const { generateFullReport, generateExecutiveSummary } = await import('../utils/exportReport.js');
+      
+      await new Promise(r => setTimeout(r, 800));
+      setExportState({ status: 'loading', message: 'Generating Executive Summary PDF...' });
+      
+      generateExecutiveSummary({ scores, candidateReport }, 'Executive_Summary.pdf');
+
+      await new Promise(r => setTimeout(r, 800));
+      setExportState({ status: 'loading', message: 'Capturing Full Report UI...' });
+
+      let reportElement = document.getElementById('candidate-report-content');
+      let switchedTab = false;
+      const originalPath = location.pathname;
+      
+      if (!reportElement) {
+        navigate('/report');
+        switchedTab = true;
+        await new Promise(r => setTimeout(r, 1000));
+        reportElement = document.getElementById('candidate-report-content');
+      }
+
+      if (reportElement) {
+        await new Promise(r => setTimeout(r, 500));
+        await generateFullReport(reportElement, 'Candidate_Intelligence_Report.pdf');
+      } else {
+        console.warn('Could not find full report DOM element.');
+      }
+      
+      if (switchedTab) {
+        navigate(originalPath);
+      }
+
+      setExportState({ status: 'success', message: 'Report Generated Successfully' });
+      setTimeout(() => setExportState({ status: 'idle', message: '' }), 4000);
+    } catch (error) {
+      console.error('Export failed:', error);
+      setExportState({ status: 'error', message: 'Failed to generate report.' });
+      setTimeout(() => setExportState({ status: 'idle', message: '' }), 4000);
     }
   };
 
   return (
-
-    <DashboardLayout onSignOut={onHome} userName={user ? user.username : (github?.name || null)} user={user}>
+    <DashboardLayout 
+      onSignOut={onHome} 
+      userName={user ? user.username : (github?.name || null)} 
+      user={user}
+      onExport={handleExportReport}
+      exportState={exportState}
+    >
       <div className="tab-panels animate-fade-in">
         {aiStatus && aiStatus.usingFallback && (
           <div className="mx-6 mt-6 mb-0 bg-warning/10 border border-warning/30 rounded-lg p-4 flex items-start gap-3">
@@ -1705,6 +1763,8 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                 github={github}
                 linkedin={linkedin}
                 scores={scores}
+                onExport={handleExportReport}
+                exportState={exportState}
               />
             )}
 

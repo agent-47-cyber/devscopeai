@@ -3,7 +3,7 @@ import Sidebar from './Sidebar.jsx';
 import TopNavBar from './TopNavBar.jsx';
 import AmbientBackground from './AmbientBackground.jsx';
 
-export default function DashboardLayout({ children, onSignOut, userName, user }) {
+export default function DashboardLayout({ children, onSignOut, userName, user, onExport, exportState }) {
   return (
     <div className="bg-background text-on-surface min-h-screen" style={{ position: 'relative' }}>
       {/* Enterprise ambient motion layer — fixed, behind all content */}
@@ -12,7 +12,7 @@ export default function DashboardLayout({ children, onSignOut, userName, user })
       {/* All UI sits above the canvas */}
       <div style={{ position: 'relative', zIndex: 1 }}>
         <Sidebar onSignOut={onSignOut} userName={userName} />
-        <TopNavBar user={user} />
+        <TopNavBar user={user} onExport={onExport} exportState={exportState} />
         <main className="ml-sidebar-width pt-16 min-h-screen">
           <div className="p-gutter max-w-7xl mx-auto">
             {children}

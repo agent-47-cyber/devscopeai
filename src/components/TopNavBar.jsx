@@ -1,6 +1,9 @@
 import React from 'react';
 
-export default function TopNavBar({ user }) {
+export default function TopNavBar({ user, onExport, exportState = { status: 'idle', message: '' } }) {
+  const isExporting = exportState.status === 'loading';
+  const isSuccess = exportState.status === 'success';
+
   return (
     <header className="fixed top-0 right-0 left-0 ml-sidebar-width h-16 px-gutter flex justify-between items-center bg-background border-b border-outline-variant z-40">
       <div className="flex items-center gap-4 flex-1">
@@ -14,9 +17,39 @@ export default function TopNavBar({ user }) {
         </div>
       </div>
       <div className="flex items-center gap-6">
-        <button className="bg-primary text-on-primary px-4 py-1.5 font-label-caps text-label-caps hover:brightness-110 active:opacity-80 transition-all border border-primary/20">
-          Export Report
-        </button>
+        <div className="relative flex items-center">
+          {exportState.status === 'error' && (
+            <span className="absolute right-full mr-4 whitespace-nowrap text-error font-body-sm text-[12px] animate-fade-in">
+              {exportState.message}
+            </span>
+          )}
+          <button 
+            onClick={onExport}
+            disabled={isExporting}
+            className={`px-4 py-1.5 font-label-caps text-label-caps transition-all border flex items-center gap-2 ${
+              isSuccess ? 'bg-success/20 text-success border-success/30' :
+              isExporting ? 'bg-primary/50 text-on-primary/70 border-primary/20 opacity-70 cursor-not-allowed' :
+              'bg-primary text-on-primary hover:brightness-110 active:opacity-80 border-primary/20'
+            }`}
+          >
+            {isSuccess ? (
+              <>
+                <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                {exportState.message || 'Report Generated'}
+              </>
+            ) : isExporting ? (
+              <>
+                <span className="material-symbols-outlined animate-spin text-[14px]">sync</span>
+                {exportState.message || 'Exporting...'}
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-[14px]">picture_as_pdf</span>
+                Export Report
+              </>
+            )}
+          </button>
+        </div>
         <div className="flex items-center gap-4">
           <button className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
           <div className="flex items-center gap-3">
