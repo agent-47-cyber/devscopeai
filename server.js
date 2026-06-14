@@ -301,6 +301,28 @@ global.logAiUsage = async (isCacheHit, durationMs, errorMsg) => {
     console.error('Failed to log AI usage:', e.message);
   }
 };
+// ==========================================
+// AUTHENTICATION MIDDLEWARE
+// ==========================================
+const authenticateToken = (req, res, next) => {
+  // Accept token from: Authorization header, request body, or query param
+  const authHeader = req.headers['authorization'];
+  const token =
+    (authHeader && authHeader.split(' ')[1]) ||
+    req.body?.token ||
+    req.query?.token;
+
+  if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
+
+  try {
+    const verified = jwt.verify(token, JWT_SECRET);
+    req.user = verified;
+    next();
+  } catch (err) {
+    res.status(403).json({ error: 'Invalid token.' });
+  }
+};
+// [authenticateToken moved above usage route]
 
 // AI Usage Analytics Endpoint
 app.get('/api/ai/usage', authenticateToken, async (req, res) => {
@@ -340,23 +362,7 @@ const writeLocalDb = (data) => {
   }
 };
 
-// ==========================================
-// AUTHENTICATION MIDDLEWARE
-// ==========================================
-const authenticateToken = (req, res, next) => {
-  // Accept token from: Authorization header, request body, or query param
-  const authHeader = req.headers['authorization'];
-  const token =
-    (authHeader && authHeader.split(' ')[1]) ||
-    req.body?.token ||
-    req.query?.token;
-  if (!token) return res.status(401).json({ error: 'Access token required.' });
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(403).json({ error: 'Invalid or expired token.' });
-    req.user = decoded;
-    next();
-  });
-};
+// [authenticateToken moved above usage route]
 
 // ==========================================
 // AUTHENTICATION CONTROLLERS
@@ -1007,25 +1013,31 @@ app.get('/api/health', async (req, res) => {
     }
   });
 });
-// AI Engine Status endpoint - checks if key is configured without wasting quota
+// AI Engine Status endpoint
 app.get('/api/ai-status', async (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  
-  if (!apiKey || apiKey.includes('your_')) {
+  try {
+    const result = await testGeminiConnection();
+    
+    if (!result.geminiInitialized || !result.testCallSucceeded) {
+      return res.json({ 
+        status: 'not_configured', 
+        message: result.error || 'Gemini API key not configured or invalid',
+        usingFallback: true
+      });
+    }
+
+    return res.json({ status: 'online', message: 'Gemini AI is active', usingFallback: false });
+  } catch (e) {
     return res.json({ 
-      status: 'not_configured', 
-      message: 'Gemini API key not configured',
+      status: 'error', 
+      message: 'Error checking Gemini status',
       usingFallback: true
     });
   }
-
-  // Always return online if key exists to prevent quota exhaustion from page loads.
-  // The actual API calls will handle their own 429 errors and retries gracefully.
-  return res.json({ status: 'online', message: 'Gemini AI is active', usingFallback: false });
 });
 
   // NEW AI Status Endpoint with detailed telemetry
@@ -1034,71 +1046,20 @@ app.get('/api/ai-status', async (req, res) => {
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    const configured = !!apiKey && !apiKey.includes('your_');
-    
-    if (!configured) {
-      return res.json({
-        configured: false,
-        connected: false,
-        model: "gemini-2.0-flash",
-        quotaAvailable: false,
-        lastError: "API Key missing or invalid",
-        rawResponse: null
-      });
-    }
-
     try {
-      const testRes = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ role: 'user', parts: [{ text: 'Reply only with:\nDEVSCOPE_GEMINI_OK' }] }],
-            generationConfig: { maxOutputTokens: 10 }
-          })
-        }
-      );
-
-      if (testRes.status === 429) {
-        return res.json({
-          configured: true,
-          connected: true,
-          model: "gemini-2.0-flash",
-          quotaAvailable: false,
-          lastError: "Quota Exceeded (429)",
-          rawResponse: null
-        });
-      }
-
-      if (!testRes.ok) {
-        const errText = await testRes.text();
-        return res.json({
-          configured: true,
-          connected: false,
-          model: "gemini-2.0-flash",
-          quotaAvailable: false,
-          lastError: `HTTP ${testRes.status}: ${errText.substring(0, 100)}`,
-          rawResponse: null
-        });
-      }
-
-      const data = await testRes.json();
-      const rawResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
+      const result = await testGeminiConnection();
+      
       return res.json({
-        configured: true,
-        connected: true,
-        model: "gemini-2.0-flash",
-        quotaAvailable: true,
-        lastError: null,
-        rawResponse: rawResponse.trim()
+        configured: result.envDetected,
+        connected: result.testCallSucceeded,
+        model: result.model,
+        quotaAvailable: result.testCallSucceeded, // If it succeeded, we have quota
+        lastError: result.error,
+        rawResponse: result.rawResponse
       });
-
     } catch (e) {
       return res.json({
-        configured: true,
+        configured: !!process.env.GEMINI_API_KEY,
         connected: false,
         model: "gemini-2.0-flash",
         quotaAvailable: false,

@@ -169,15 +169,16 @@ function InputForm({ onSubmit, onBack, isLoading }) {
         // Don't set Content-Type header — browser sets it with boundary automatically
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
         setFileParseStatus('error');
-        const message = data.error || 'Failed to parse file. Please try copy-pasting your resume text.';
+        const data = await response.json().catch(() => ({}));
+        const message = data.error || 'Failed to parse file. Please ensure the backend server is running.';
         setFileParseError(message);
         alert(message);
         return;
       }
+
+      const data = await response.json();
 
       if (!data.text || data.text.trim().length < 20) {
         setFileParseStatus('error');

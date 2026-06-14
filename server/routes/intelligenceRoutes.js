@@ -83,7 +83,7 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
       // Add meta
       intelligenceResult._hash = inputHash;
       intelligenceResult._timestamp = new Date().toISOString();
-      intelligenceResult._meta = { source: 'Gemini ✅', timestamp: new Date().toISOString() };
+      intelligenceResult._meta = { source: intelligenceResult._aiSource === 'FALLBACK' ? 'Fallback ⚠️' : 'Gemini ✅', timestamp: new Date().toISOString() };
 
       // 5. Store in DB
       if (checkDbConnected()) {

@@ -593,8 +593,15 @@ What aspect of your portfolio or profile would you like to improve today? You ca
         body: formData,
       });
 
+      if (!response.ok) {
+        setResumeFileParseStatus('error');
+        const data = await response.json().catch(() => ({}));
+        setResumeFileParseError(data.error || 'Error parsing file. Please ensure the backend server is running.');
+        return;
+      }
+
       const data = await response.json();
-      if (!response.ok || !data.text || data.text.trim().length < 20) {
+      if (!data.text || data.text.trim().length < 20) {
         setResumeFileParseStatus('error');
         setResumeFileParseError(data.error || 'Could not extract text. Ensure it is a valid document.');
         return;
@@ -604,7 +611,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       setResumeTextInput(data.text);
     } catch (err) {
       setResumeFileParseStatus('error');
-      setResumeFileParseError('Error parsing file. Please ensure the backend server is running.');
+      setResumeFileParseError('Network error parsing file. Please ensure the backend server is running.');
     }
   };
 
@@ -629,8 +636,15 @@ What aspect of your portfolio or profile would you like to improve today? You ca
         body: formData,
       });
 
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setLiFileParseError(data.error || 'Error parsing PDF file. Please ensure the backend server is running.');
+        setIsAnalyzingLinkedin(false);
+        return;
+      }
+
       const data = await response.json();
-      if (!response.ok || !data.text || data.text.trim().length < 20) {
+      if (!data.text || data.text.trim().length < 20) {
         setLiFileParseError(data.error || 'Could not extract text from the LinkedIn PDF. Ensure it is a valid export.');
         setIsAnalyzingLinkedin(false);
         return;
@@ -639,7 +653,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       setLinkedinTextInput(data.text);
       await handleLinkLinkedin(data.text);
     } catch (err) {
-      setLiFileParseError('Error parsing PDF file. Please ensure the backend server is running.');
+      setLiFileParseError('Network error parsing PDF file. Please ensure the backend server is running.');
       setIsAnalyzingLinkedin(false);
     }
   };
@@ -738,6 +752,13 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           forceRefresh: forceRefresh
         })
       });
+      
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        alert(result.error || "Failed to analyze LinkedIn profile. Please verify the link and try again.");
+        return;
+      }
+      
       const result = await response.json();
       if (response.ok) {
         // Backend wraps response in { success, data } — unwrap it

@@ -50,7 +50,7 @@ function AppRoutes() {
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json().catch(() => null);
         if (data) {
           setProfileData({
             githubUsername: data.githubUsername || '',

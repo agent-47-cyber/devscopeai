@@ -104,11 +104,14 @@ Analyze this candidate holistically and generate the final Intelligence Report J
       useCache: false // Handled by our route layer
     });
 
+    result._aiSource = 'GEMINI';
     return result;
   } catch (error) {
     console.error('[intelligenceEngine] Failed to generate report:', error.message);
     
     // Return a structured fallback if it completely fails
-    return fallbackIntelligence;
+    const fallback = { ...fallbackIntelligence };
+    fallback._aiSource = 'FALLBACK';
+    return fallback;
   }
 }

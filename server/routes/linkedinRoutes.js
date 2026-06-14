@@ -80,14 +80,23 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
 
       if (rapidApiKey && rapidApiHost && !rapidApiKey.includes('your_')) {
         try {
-          if (checkDbConnected() && !forceRefresh) {
-            const rapidApiCache = await pool.query(
-              `SELECT raw_data FROM linkedin_rapidapi_cache WHERE username = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
-              [slug]
-            );
-            if (rapidApiCache.rows.length > 0) {
-              rawProfileData = rapidApiCache.rows[0].raw_data;
-              console.log('[linkedinRoutes] Using 24h cached RapidAPI response for:', slug);
+          if (!forceRefresh) {
+            if (checkDbConnected()) {
+              const rapidApiCache = await pool.query(
+                `SELECT raw_data FROM linkedin_rapidapi_cache WHERE username = $1 AND created_at > NOW() - INTERVAL '24 hours'`,
+                [slug]
+              );
+              if (rapidApiCache.rows.length > 0) {
+                rawProfileData = rapidApiCache.rows[0].raw_data;
+                console.log('[linkedinRoutes] Using 24h cached RapidAPI response for (DB):', slug);
+              }
+            } else {
+              const db = readLocalDb();
+              const cached = db.rapidApiCache && db.rapidApiCache[slug];
+              if (cached && (Date.now() - cached.timestamp < 24 * 60 * 60 * 1000)) {
+                rawProfileData = cached.data;
+                console.log('[linkedinRoutes] Using 24h cached RapidAPI response for (Local):', slug);
+              }
             }
           }
 
@@ -117,6 +126,14 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
                    ON CONFLICT (username) DO UPDATE SET raw_data = EXCLUDED.raw_data, created_at = NOW()`,
                   [slug, JSON.stringify(rawProfileData)]
                 ).catch(e => console.error('[linkedinRoutes] Failed to cache RapidAPI response:', e.message));
+              } else {
+                const db = readLocalDb();
+                if (!db.rapidApiCache) db.rapidApiCache = {};
+                db.rapidApiCache[slug] = {
+                  timestamp: Date.now(),
+                  data: rawProfileData
+                };
+                writeLocalDb(db);
               }
             } else {
               console.warn('[linkedinRoutes] RapidAPI failed with status:', apiRes.status);

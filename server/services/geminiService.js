@@ -115,7 +115,10 @@ export async function generateWithGemini(prompt, options = {}) {
     throw new Error(`GEMINI_API_KEY appears invalid. Check your Vercel env vars.`);
   }
 
-  console.log('[geminiService] GEMINI CLIENT INITIALIZED — key length:', GEMINI_API_KEY.length  const cacheKey = Buffer.from(`${prompt.substring(0, 500)}_${systemInstruction || ''}`).toString('base64');
+  console.log('[geminiService] GEMINI CLIENT INITIALIZED — key length:', GEMINI_API_KEY.length);
+  const cacheKey = Buffer.from(`${prompt.substring(0, 500)}_${systemInstruction || ''}`).toString('base64');
+  const startTimeMs = Date.now();
+  console.log(`[AI-TRACE] START - Prompt Size: ${prompt.length} chars, Timestamp: ${new Date().toISOString()}`);
 
   if (useCache && geminiCache.has(cacheKey)) {
     console.log('[geminiService] Returning cached response');
@@ -211,6 +214,8 @@ export async function generateWithGemini(prompt, options = {}) {
           }
 
           if (global.logAiUsage) global.logAiUsage(false, duration, null);
+          
+          console.log(`[AI-TRACE] SUCCESS - Model: ${modelName}, Duration: ${duration}ms, Tokens: ${responseText.length}`);
 
           if (parseJson) {
             const parsedData = extractJson(responseText);
@@ -238,6 +243,7 @@ export async function generateWithGemini(prompt, options = {}) {
 
     console.error('[geminiService] FALLBACK ACTIVATED — all Gemini models exhausted. Last error:', lastError?.message);
     if (global.logAiUsage && lastError) global.logAiUsage(false, 0, lastError.message);
+    console.log(`[AI-TRACE] FAIL - Error: ${lastError?.message || 'All models exhausted'}`);
     throw lastError || new Error('All Gemini models returned quota errors. Analysis running on fallback engine.');
   };
 

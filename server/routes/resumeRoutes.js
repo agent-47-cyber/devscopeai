@@ -149,7 +149,8 @@ export default function (pool, authenticateToken, checkDbConnected, readLocalDb,
         wordCount: extractedText.trim().split(/\s+/).filter(Boolean).length,
         _hash: inputHash,
         _timestamp: new Date().toISOString(),
-        _meta: { source: 'Gemini ✅', timestamp: new Date().toISOString() }
+        _aiSource: analysisResult._aiSource || 'GEMINI',
+        _meta: { source: analysisResult._aiSource === 'FALLBACK' ? 'Fallback ⚠️' : 'Gemini ✅', timestamp: new Date().toISOString() }
       };
 
       // 3. Store in DB
