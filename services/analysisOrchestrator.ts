@@ -95,6 +95,7 @@ export async function runAnalysisOrchestration(
   // 3. Parallel fetch of profile data
   let githubProfile: any = null;
   let linkedinProfile: any = linkedinText ? parseLinkedinText(linkedinText, targetRole) : null;
+  let linkedinFetchError: any = null;
   const jobProfile = parseJobDescription(jobDescription || '', targetRole);
 
   const fetchPromises: Promise<any>[] = [];
@@ -114,12 +115,20 @@ export async function runAnalysisOrchestration(
       fetchLinkedinRawProfile(linkedinUsername, targetRole, supabase, requestId)
         .then(raw => { linkedinProfile = normalizeLinkedInProfile(raw); })
         .catch(err => {
+          linkedinFetchError = err;
           logger.warn({ requestId, userId, action: 'orchestrator.linkedin', message: `LinkedIn fetch failed: ${err.message}` });
         })
     );
   }
 
   await Promise.allSettled(fetchPromises);
+
+  if (linkedinUsername && !linkedinText && !linkedinProfile) {
+    throw new ExternalAPIError(
+      'LINKEDIN_PROFILE_UNAVAILABLE',
+      linkedinFetchError?.message || 'LinkedIn profile data could not be fetched. Upload a LinkedIn profile PDF export instead.'
+    );
+  }
 
   // 4. Build single consolidated candidate profile
   const candidate = buildCandidateProfile(resumeText || null, githubProfile, linkedinProfile, targetRole, jobProfile);

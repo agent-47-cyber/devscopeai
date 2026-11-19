@@ -17,6 +17,7 @@ export async function fetchLinkedinRawProfile(
   const linkedinUrl = `https://www.linkedin.com/in/${slug}`;
 
   let rawProfileData = null;
+  let providerFailure = '';
 
   // Check for force live request flag (could be passed in params, defaulting to false for safety)
   const forceLive = process.env.RAPIDAPI_FORCE_LIVE === 'true';
@@ -64,7 +65,8 @@ export async function fetchLinkedinRawProfile(
         if (apiRes.ok) {
           const apiData = await apiRes.json();
           if (apiData && apiData.success === false) {
-            logger.warn({ requestId, action: 'linkedin.fetchRaw', message: `RapidAPI returned unsuccessful payload: ${apiData.message || 'unknown error'}` });
+            providerFailure = apiData.message || 'The LinkedIn profile provider rejected the request.';
+            logger.warn({ requestId, action: 'linkedin.fetchRaw', message: `RapidAPI returned unsuccessful payload: ${providerFailure}` });
           } else {
             rawProfileData = apiData;
           }
@@ -86,24 +88,21 @@ export async function fetchLinkedinRawProfile(
             }, { onConflict: 'username' });
           }
         } else {
+          providerFailure = `LinkedIn profile provider returned HTTP ${apiRes.status}.`;
           logger.warn({ requestId, action: 'linkedin.fetchRaw', message: `RapidAPI failed with status: ${apiRes.status}` });
         }
       }
     } catch (e: any) {
+      providerFailure = e.message || 'The LinkedIn profile provider request failed.';
       logger.warn({ requestId, action: 'linkedin.fetchRaw', message: `RapidAPI exception: ${e.message}` });
     }
   }
 
   if (!rawProfileData) {
-    rawProfileData = {
-      name: slug.replace(/-/g, ' '),
-      headline: `${targetRole} Professional`,
-      summary: `Extrapolated profile for ${slug}`,
-      skills: [],
-      experience: [],
-      education: [],
-      url: linkedinUrl
-    };
+    const detail = providerFailure || (!rapidApiKey || !rapidApiHost
+      ? 'LinkedIn profile lookup is not configured on the server.'
+      : 'No LinkedIn profile data was returned.');
+    throw new Error(`${detail} Upload a LinkedIn profile PDF export to analyze its actual contents.`);
   }
 
   return rawProfileData;

@@ -81,6 +81,74 @@ const parseLinkedInProfileInput = (value = '') => {
   return raw.includes('/') || raw.includes('@') || raw.includes('.') || !slugPattern.test(raw) ? null : raw;
 };
 
+const getApiHeaders = (token, json = true) => ({
+  ...(json ? { 'Content-Type': 'application/json' } : {}),
+  ...(token ? { Authorization: `Bearer ${token}` } : {})
+});
+
+const mapResumeAnalysis = (record, sourceText = '') => {
+  const resume = record?.resume_data;
+  if (!resume) return null;
+  const sectionsChecklist = resume.sectionsChecklist || {
+    contact: /@|linkedin\.com|github\.com|\+?\d[\d\s().-]{7,}/i.test(sourceText),
+    experience: /\b(experience|employment|work history|internship)\b/i.test(sourceText),
+    projects: /\b(projects?|portfolio|open source)\b/i.test(sourceText),
+    education: /\b(education|degree|university|college|bachelor|master)\b/i.test(sourceText)
+  };
+  const sectionCount = Object.values(sectionsChecklist).filter(Boolean).length;
+  const foundKeywords = resume.foundKeywords || resume.keywordAnalysis?.found ||
+    ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'Java', 'SQL', 'AWS', 'Docker', 'Git']
+      .filter((skill) => new RegExp(`\\b${skill.replace('.', '\\.')}\\b`, 'i').test(sourceText));
+  const missingKeywords = resume.missingKeywords || resume.keywordAnalysis?.missing || [];
+  const actionVerbCount = resume.actionVerbCount ||
+    ['built', 'developed', 'implemented', 'designed', 'led', 'optimized', 'deployed', 'improved']
+      .filter((verb) => new RegExp(`\\b${verb}\\b`, 'i').test(sourceText)).length;
+  const scoreBreakdown = resume.scoreBreakdown || {};
+
+  return {
+    ...resume,
+    atsScore: record.scores?.ats ?? resume.atsScore ?? resume.score ?? 0,
+    foundKeywords,
+    missingKeywords,
+    suggestions: resume.suggestions || resume.improvementOpportunities || [],
+    sectionsChecklist,
+    actionVerbCount,
+    scoreBreakdown: {
+      ...scoreBreakdown,
+      sectionScore: scoreBreakdown.sectionScore ?? Math.round((sectionCount / 4) * 25),
+      keywordScore: scoreBreakdown.keywordScore ?? Math.round((resume.matchRate ?? Math.min(100, foundKeywords.length * 10)) * 0.35),
+      verbScore: scoreBreakdown.verbScore ?? Math.min(20, Math.round((actionVerbCount / 8) * 20)),
+      contactScore: scoreBreakdown.contactScore ?? (sectionsChecklist.contact ? 5 : 0)
+    }
+  };
+};
+
+const mapLinkedinAnalysis = (record, handle, isPdfParsed = false) => {
+  const linkedin = record?.linkedin_data;
+  if (!linkedin) return null;
+  const skills = linkedin.skills || [];
+  const scoreBreakdown = linkedin.scoreBreakdown || {};
+
+  return {
+    ...linkedin,
+    score: record.scores?.careerReady ?? linkedin.score ?? 0,
+    profileHandle: handle || linkedin.username || '',
+    profileUrl: handle ? `https://www.linkedin.com/in/${handle}` : (linkedin.url || ''),
+    slugQuality: handle ? (handle.length >= 3 ? 'good' : 'poor') : 'poor',
+    isPdfParsed,
+    scoreBreakdown: {
+      ...scoreBreakdown,
+      urlScore: scoreBreakdown.urlScore ?? (handle ? 20 : 0),
+      photoScore: scoreBreakdown.photoScore ?? (linkedin.photoUrl || linkedin.profilePicture ? 9 : 0),
+      headlineScore: scoreBreakdown.headlineScore ?? (linkedin.headline ? 10 : 0),
+      connectionsScore: scoreBreakdown.connectionsScore ?? Math.min(10, linkedin.connections ? 10 : 0),
+      summaryScore: scoreBreakdown.summaryScore ?? (linkedin.summary || linkedin.about ? 8 : 0),
+      skillsScore: scoreBreakdown.skillsScore ?? Math.min(8, skills.length),
+      recommendationsScore: scoreBreakdown.recommendationsScore ?? (linkedin.recommendations?.length ? 7 : 0)
+    }
+  };
+};
+
 function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeAnalysis, linkedinAnalysis, onHome, user }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [scores, setScores] = useState(initialScores);
@@ -97,6 +165,7 @@ function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeA
   const [resumeFileName, setResumeFileName] = useState('');
   const [resumeFileParseStatus, setResumeFileParseStatus] = useState(null); // null | 'parsing' | 'success' | 'error'
   const [resumeFileParseError, setResumeFileParseError] = useState('');
+  const [resumeFilePath, setResumeFilePath] = useState('');
   const [resumeDragActive, setResumeDragActive] = useState(false);
 
   // LinkedIn PDF state
@@ -224,21 +293,25 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     setIsAnalyzingGithub(true);
     try {
       const token = localStorage.getItem('devscope_token');
-      const response = await fetch(`${API_BASE_URL}/api/analyze/github`, {
+      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getApiHeaders(token),
         body: JSON.stringify({
-          username: gh,
+          githubUsername: gh,
           targetRole: selectedRole,
-          token
+          forceRefresh: true,
+          ...(resumeTextInput.trim() ? { resumeText: resumeTextInput.trim() } : {}),
+          ...(linkedin?.isPdfParsed && linkedinTextInput.trim() ? { linkedinText: linkedinTextInput.trim() } : {})
         })
       });
-      const result = await response.json();
+      const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        setGithub(result);
+        const analyzedGithub = result.github_data;
+        if (!analyzedGithub) throw new Error('The analysis response did not include GitHub results.');
+        setGithub(analyzedGithub);
 
         setScores(prev => {
-          const newScores = { ...prev, github: result.score };
+          const newScores = { ...prev, github: result.scores?.github ?? analyzedGithub.score };
           const activeScores = [];
           if (newScores.github !== null) activeScores.push(newScores.github);
           if (newScores.ats !== null) activeScores.push(newScores.ats);
@@ -291,21 +364,27 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     setIsAnalyzingResume(true);
     try {
       const token = localStorage.getItem('devscope_token');
-      const response = await fetch(`${API_BASE_URL}/api/analyze/resume`, {
+      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getApiHeaders(token),
         body: JSON.stringify({
           resumeText: text,
           targetRole: selectedRole,
-          token
+          forceRefresh: true,
+          ...(github?.username ? { githubUsername: github.username } : {}),
+          ...(linkedin?.isPdfParsed && linkedinTextInput.trim() ? { linkedinText: linkedinTextInput.trim() } : {}),
+          ...(resumeFilePath ? { resumeFilePath } : {})
         })
       });
       const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        setResume(result);
+        const analyzedResume = mapResumeAnalysis(result, text);
+        if (!analyzedResume) throw new Error('The analysis response did not include resume results.');
+        setResume(analyzedResume);
+        setResumeFilePath('');
 
         setScores(prev => {
-          const newScores = { ...prev, ats: result.atsScore };
+          const newScores = { ...prev, ats: analyzedResume.atsScore };
           const activeScores = [];
           if (newScores.github !== null) activeScores.push(newScores.github);
           if (newScores.ats !== null) activeScores.push(newScores.ats);
@@ -340,6 +419,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
 
   const handleLiFileChange = async (e) => {
     const file = e.target.files[0];
+    e.target.value = '';
     if (!file) return;
 
     if (file.type !== 'application/pdf') {
@@ -356,10 +436,11 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     try {
       const response = await fetch(`${API_UPLOAD_URL}/api/parse/resume`, {
         method: 'POST',
+        headers: getApiHeaders(localStorage.getItem('devscope_token'), false),
         body: formData,
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.text || data.text.trim().length < 20) {
         setLiFileParseError(data.error || 'Could not extract text from the LinkedIn PDF. Ensure it is a valid export.');
         setIsAnalyzingLinkedin(false);
@@ -367,14 +448,14 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       }
 
       setLinkedinTextInput(data.text);
-      await handleLinkLinkedin(data.text);
+      await handleLinkLinkedin(data.text, data.filePath || '');
     } catch (err) {
       setLiFileParseError('Error parsing PDF file. Please ensure the backend server is running.');
       setIsAnalyzingLinkedin(false);
     }
   };
 
-  const handleLinkLinkedin = async (text) => {
+  const handleLinkLinkedin = async (text, filePath = '') => {
     if (!text) {
       alert("Please upload your LinkedIn PDF export first.");
       return;
@@ -382,21 +463,26 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     setIsAnalyzingLinkedin(true);
     try {
       const token = localStorage.getItem('devscope_token');
-      const response = await fetch(`${API_BASE_URL}/api/analyze/linkedin-pdf`, {
+      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getApiHeaders(token),
         body: JSON.stringify({
           linkedinText: text,
           targetRole: selectedRole,
-          token
+          forceRefresh: true,
+          ...(resumeTextInput.trim() ? { resumeText: resumeTextInput.trim() } : {}),
+          ...(github?.username ? { githubUsername: github.username } : {}),
+          ...(filePath ? { resumeFilePath: filePath } : {})
         })
       });
-      const result = await response.json();
+      const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        setLinkedin(result);
+        const analyzedLinkedin = mapLinkedinAnalysis(result, '', true);
+        if (!analyzedLinkedin) throw new Error('The analysis response did not include LinkedIn results.');
+        setLinkedin(analyzedLinkedin);
 
         setScores(prev => {
-          const newScores = { ...prev, careerReady: result.score };
+          const newScores = { ...prev, careerReady: analyzedLinkedin.score };
           const activeScores = [];
           if (newScores.github !== null) activeScores.push(newScores.github);
           if (newScores.ats !== null) activeScores.push(newScores.ats);
@@ -409,7 +495,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           return newScores;
         });
       } else {
-        alert(result.error || "Failed to analyze LinkedIn profile. Please verify the link and try again.");
+        alert(result.error || "Failed to analyze LinkedIn profile. Please verify the export and try again.");
       }
     } catch (err) {
       console.error(err);
@@ -419,7 +505,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     }
   };
 
-  const handleLinkLinkedinUrl = async (urlOrUsername, currentSelfReport = null) => {
+  const handleLinkLinkedinUrl = async (urlOrUsername) => {
     let cleanVal = urlOrUsername.trim();
     if (!cleanVal) {
       alert("Please enter a valid LinkedIn URL or username.");
@@ -438,23 +524,26 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     setIsAnalyzingLinkedin(true);
     try {
       const token = localStorage.getItem('devscope_token');
-      const response = await fetch(`${API_BASE_URL}/api/analyze/linkedin`, {
+      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getApiHeaders(token),
         body: JSON.stringify({
-          username: cleanVal,
+          linkedinUsername: cleanVal,
           targetRole: selectedRole,
-          token,
-          ...(currentSelfReport ? { selfReport: currentSelfReport } : {})
+          forceRefresh: true,
+          ...(resumeTextInput.trim() ? { resumeText: resumeTextInput.trim() } : {}),
+          ...(github?.username ? { githubUsername: github.username } : {})
         })
       });
-      const result = await response.json();
+      const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        setLinkedin(result);
+        const analyzedLinkedin = mapLinkedinAnalysis(result, cleanVal, false);
+        if (!analyzedLinkedin) throw new Error('The analysis response did not include LinkedIn results.');
+        setLinkedin(analyzedLinkedin);
         setLinkedinTextInput(''); // Clear PDF input text since we analyzed by URL
 
         setScores(prev => {
-          const newScores = { ...prev, careerReady: result.score };
+          const newScores = { ...prev, careerReady: analyzedLinkedin.score };
           const activeScores = [];
           if (newScores.github !== null) activeScores.push(newScores.github);
           if (newScores.ats !== null) activeScores.push(newScores.ats);
@@ -512,6 +601,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
   };
 
   const handleResumeFile = async (file) => {
+    setResumeFilePath('');
     const ext = file.name.split('.').pop().toLowerCase();
     const allowedExts = ['pdf', 'docx', 'txt', 'md'];
 
@@ -538,6 +628,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           return;
         }
         setResumeFileName(file.name);
+        setResumeFilePath('');
         setResumeTextInput(content);
         setResumeFileParseStatus('success');
         setResumeFileParseError('');
@@ -552,6 +643,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
 
     // PDF / DOCX: send to server for real extraction
     setResumeFileName(file.name);
+    setResumeFilePath('');
     setResumeFileParseStatus('parsing');
     setResumeFileParseError('');
     setResumeTextInput('');
@@ -561,9 +653,10 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       formData.append('file', file);
       const response = await fetch(`${API_UPLOAD_URL}/api/parse/resume`, {
         method: 'POST',
+        headers: getApiHeaders(localStorage.getItem('devscope_token'), false),
         body: formData
       });
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.text || data.text.trim().length < 20) {
         const message = data.error || 'Could not extract text from this file. Please paste your resume text instead.';
         showAlertAfterClearing(message, () => {
@@ -575,6 +668,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
         return;
       }
       setResumeTextInput(data.text);
+      setResumeFilePath(data.filePath || '');
       setResumeFileParseStatus('success');
       setResumeFileParseError('');
     } catch (err) {
@@ -959,7 +1053,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           if (linkedin.isPdfParsed && linkedinTextInput) {
             await handleLinkLinkedin(linkedinTextInput);
           } else if (!linkedin.isPdfParsed && (linkedin.profileUrl || linkedin.profileHandle)) {
-            await handleLinkLinkedinUrl(linkedin.profileUrl || linkedin.profileHandle, linkedin.selfReport);
+            await handleLinkLinkedinUrl(linkedin.profileUrl || linkedin.profileHandle);
           }
         }
         if (github && github.username) {
@@ -1603,6 +1697,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                       setResume(null);
                       setResumeTextInput('');
                       setResumeFileName('');
+                      setResumeFilePath('');
                       setResumeFileParseStatus(null);
                       setResumeFileParseError('');
                     }}
@@ -1733,6 +1828,31 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                     </button>
                   </div>
 
+                  <p style={{ maxWidth: '480px', margin: '12px auto', color: 'var(--text-secondary)', fontSize: '12px', lineHeight: 1.6 }}>
+                    LinkedIn URL lookup is currently unavailable from its profile-data provider. For analysis of real profile content, export your profile as a PDF and upload it here.
+                  </p>
+                  <input
+                    ref={liFileInputRef}
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    style={{ display: 'none' }}
+                    onChange={handleLiFileChange}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{ display: 'block', margin: '0 auto' }}
+                    disabled={isAnalyzingLinkedin}
+                    onClick={() => liFileInputRef.current?.click()}
+                  >
+                    {isAnalyzingLinkedin ? 'Parsing and analyzing PDF…' : 'Upload LinkedIn PDF export'}
+                  </button>
+                  {liFileParseError && (
+                    <div role="alert" style={{ maxWidth: '480px', margin: '12px auto 0', color: '#fca5a5', fontSize: '13px' }}>
+                      {liFileParseError}
+                    </div>
+                  )}
+
                   <div className="connect-benefits-grid">
                     <div className="benefit-badge">✓ URL structure & SEO audit</div>
                     <div className="benefit-badge">✓ Headline keyword scoring</div>
@@ -1760,7 +1880,23 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                   >
                     {isAnalyzingLinkedin ? 'Analyzing...' : 'Re-Analyze'}
                   </button>
+                  <input
+                    ref={liFileInputRef}
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    style={{ display: 'none' }}
+                    onChange={handleLiFileChange}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    disabled={isAnalyzingLinkedin}
+                    onClick={() => liFileInputRef.current?.click()}
+                  >
+                    Upload PDF
+                  </button>
                 </div>
+                {liFileParseError && <div role="alert" style={{ marginBottom: '16px', color: '#fca5a5' }}>{liFileParseError}</div>}
 
                 {/* Circular Gauges Row */}
                 <div className="card gauges-row-card" style={{ padding: '24px', marginBottom: '24px' }}>
