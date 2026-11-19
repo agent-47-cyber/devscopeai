@@ -134,7 +134,7 @@ async function testProviderDirectCalls() {
     contents: [{ role: 'user', parts: [{ text: 'Return exactly this JSON object: {"ok":true}' }] }],
     generationConfig: { temperature: 0, maxOutputTokens: 64 }
   };
-  const gemini = await jsonFetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+  const gemini = await jsonFetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(geminiPayload)
@@ -143,7 +143,7 @@ async function testProviderDirectCalls() {
   assert(gemini.body?.candidates?.[0]?.content?.parts?.[0]?.text, 'Gemini returned no text');
   record('Gemini successful generation', 'pass');
 
-  const geminiBad = await jsonFetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=invalid-key', {
+  const geminiBad = await jsonFetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=invalid-key', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(geminiPayload)
@@ -160,7 +160,7 @@ async function testProviderDirectCalls() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${groqKey}` },
     body: JSON.stringify({
-      model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+      model: process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
       messages: [{ role: 'user', content: 'Return exactly this JSON object: {"ok":true}' }],
       response_format: { type: 'json_object' },
       temperature: 0
