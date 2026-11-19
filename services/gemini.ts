@@ -154,7 +154,7 @@ export async function generateWithGemini(
           logger.error({
             requestId,
             action: 'gemini.json_parse_failed',
-            rawText: text.substring(0, 1000),
+            meta: { rawText: text.substring(0, 1000) },
             error: jsonErr.message
           });
           throw jsonErr;
