@@ -28,6 +28,8 @@ export default function DashboardClient() {
   const [resumeAnalysis, setResumeAnalysis] = useState(null);
   const [linkedinAnalysis, setLinkedinAnalysis] = useState(null);
   const [intelligenceData, setIntelligenceData] = useState(null);
+  const [analysisProvider, setAnalysisProvider] = useState(null);
+  const [analysisExecutionMs, setAnalysisExecutionMs] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -63,11 +65,19 @@ export default function DashboardClient() {
             jobDescription: data.jobDescription || '',
             targetRole: data.targetRole || 'frontend'
           });
-          setScores(data.scores || { portfolio: null, ats: null, github: null, careerReady: null });
+          setScores({
+            ...(data.scores || {}),
+            portfolio: data.scores?.overall ?? data.scores?.portfolio ?? null,
+            ats: data.scores?.ats ?? null,
+            github: data.scores?.github ?? null,
+            careerReady: data.scores?.careerReady ?? data.scores?.linkedin ?? null
+          });
           setGithubAnalysis(data.githubData || null);
           setResumeAnalysis(data.resumeData || null);
           setLinkedinAnalysis(data.linkedinData || null);
           setIntelligenceData(data.intelligenceData || null);
+          setAnalysisProvider(data.provider || data.resumeData?._aiSource || data.githubData?._aiSource || data.linkedinData?._aiSource || null);
+          setAnalysisExecutionMs(data.executionTimeMs ?? null);
         }
       }
     } catch (err) {
@@ -104,11 +114,19 @@ export default function DashboardClient() {
         jobDescription: analysis.job_description || '',
         targetRole: analysis.target_role || 'frontend'
       });
-      setScores(analysis.scores || { portfolio: null, ats: null, github: null, careerReady: null });
+      setScores({
+        ...(analysis.scores || {}),
+        portfolio: analysis.scores?.overall ?? analysis.scores?.portfolio ?? null,
+        ats: analysis.scores?.ats ?? null,
+        github: analysis.scores?.github ?? null,
+        careerReady: analysis.scores?.careerReady ?? analysis.scores?.linkedin ?? null
+      });
       setGithubAnalysis(analysis.github_data || null);
       setResumeAnalysis(analysis.resume_data || null);
       setLinkedinAnalysis(analysis.linkedin_data || null);
       setIntelligenceData(analysis.intelligence_data || null);
+      setAnalysisProvider(analysis.provider || analysis.gemini_analysis?._aiSource || analysis.resume_data?._aiSource || analysis.github_data?._aiSource || analysis.linkedin_data?._aiSource || null);
+      setAnalysisExecutionMs(analysis.execution_time_ms ?? null);
     } catch (err) {
       console.error('Unified analysis failed:', err);
       alert(err.message || 'Unified analysis failed.');
@@ -152,6 +170,8 @@ export default function DashboardClient() {
     resumeAnalysis,
     linkedinAnalysis,
     intelligenceData,
+    analysisProvider,
+    analysisExecutionMs,
     onHome: handleLogout, // map Sign Out button to handleLogout
     user,
     setIsAuthenticated

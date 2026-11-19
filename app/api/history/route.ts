@@ -8,7 +8,7 @@ export const GET = withAuth(async (req, { user, supabase }) => {
 
   const { data: analysis, error } = await supabase
     .from('analyses')
-    .select('github_username, scores, github_data, resume_data, linkedin_data, linkedin_url, target_role, job_description, intelligence_data, created_at, updated_at')
+    .select('github_username, scores, github_data, resume_data, linkedin_data, linkedin_url, target_role, job_description, intelligence_data, provider, execution_time_ms, created_at, updated_at')
     .eq('user_id', user.id)
     .maybeSingle();
 
@@ -29,6 +29,8 @@ export const GET = withAuth(async (req, { user, supabase }) => {
     resumeData: analysis.resume_data,
     linkedinData: analysis.linkedin_data,
     intelligenceData: analysis.intelligence_data,
+    provider: analysis.provider,
+    executionTimeMs: analysis.execution_time_ms,
     linkedinUsername: analysis.linkedin_url,
     targetRole: analysis.target_role,
     jobDescription: analysis.job_description || '',

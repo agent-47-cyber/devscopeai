@@ -65,36 +65,40 @@ const getApiHeaders = (token, json = true) => ({
 const mapResumeAnalysis = (record, sourceText = '') => {
   const resume = record?.resume_data;
   if (!resume) return null;
-  const sectionsChecklist = resume.sectionsChecklist || {
+  const hasSourceText = Boolean(sourceText.trim());
+  const sectionsChecklist = resume.sectionsChecklist || (hasSourceText ? {
     contact: /@|linkedin\.com|github\.com|\+?\d[\d\s().-]{7,}/i.test(sourceText),
     experience: /\b(experience|employment|work history|internship)\b/i.test(sourceText),
     projects: /\b(projects?|portfolio|open source)\b/i.test(sourceText),
     education: /\b(education|degree|university|college|bachelor|master)\b/i.test(sourceText)
-  };
-  const sectionCount = Object.values(sectionsChecklist).filter(Boolean).length;
+  } : null);
+  const sectionCount = sectionsChecklist ? Object.values(sectionsChecklist).filter(Boolean).length : 0;
   const foundKeywords = resume.foundKeywords || resume.keywordAnalysis?.found ||
-    ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'Java', 'SQL', 'AWS', 'Docker', 'Git']
-      .filter((skill) => new RegExp(`\\b${skill.replace('.', '\\.')}\\b`, 'i').test(sourceText));
+    (hasSourceText ? ['JavaScript', 'TypeScript', 'React', 'Node.js', 'Python', 'Java', 'SQL', 'AWS', 'Docker', 'Git']
+      .filter((skill) => new RegExp(`\\b${skill.replace('.', '\\.')}\\b`, 'i').test(sourceText))
+      : []);
   const missingKeywords = resume.missingKeywords || resume.keywordAnalysis?.missing || [];
-  const actionVerbCount = resume.actionVerbCount ||
-    ['built', 'developed', 'implemented', 'designed', 'led', 'optimized', 'deployed', 'improved']
-      .filter((verb) => new RegExp(`\\b${verb}\\b`, 'i').test(sourceText)).length;
+  const actionVerbCount = resume.actionVerbCount ?? (hasSourceText
+    ? ['built', 'developed', 'implemented', 'designed', 'led', 'optimized', 'deployed', 'improved']
+      .filter((verb) => new RegExp(`\\b${verb}\\b`, 'i').test(sourceText)).length
+    : null);
   const scoreBreakdown = resume.scoreBreakdown || {};
+  const hasKeywordData = foundKeywords.length + missingKeywords.length > 0;
 
   return {
     ...resume,
     atsScore: record.scores?.ats ?? resume.atsScore ?? resume.score ?? 0,
     foundKeywords,
     missingKeywords,
-    suggestions: resume.suggestions || resume.improvementOpportunities || [],
+    suggestions: resume.suggestions || resume.improvementOpportunities || resume.recommendations || [],
     sectionsChecklist,
     actionVerbCount,
     scoreBreakdown: {
       ...scoreBreakdown,
-      sectionScore: scoreBreakdown.sectionScore ?? Math.round((sectionCount / 4) * 25),
-      keywordScore: scoreBreakdown.keywordScore ?? Math.round((resume.matchRate ?? Math.min(100, foundKeywords.length * 10)) * 0.35),
-      verbScore: scoreBreakdown.verbScore ?? Math.min(20, Math.round((actionVerbCount / 8) * 20)),
-      contactScore: scoreBreakdown.contactScore ?? (sectionsChecklist.contact ? 5 : 0)
+      ...(scoreBreakdown.sectionScore == null && sectionsChecklist ? { sectionScore: Math.round((sectionCount / Object.keys(sectionsChecklist).length) * 25) } : {}),
+      ...(scoreBreakdown.keywordScore == null && hasKeywordData ? { keywordScore: Math.round((foundKeywords.length / (foundKeywords.length + missingKeywords.length)) * 35) } : {}),
+      ...(scoreBreakdown.verbScore == null && actionVerbCount != null ? { verbScore: Math.min(20, Math.round((actionVerbCount / 8) * 20)) } : {}),
+      ...(scoreBreakdown.contactScore == null && sectionsChecklist ? { contactScore: sectionsChecklist.contact ? 5 : 0 } : {})
     }
   };
 };
@@ -125,12 +129,23 @@ const mapLinkedinAnalysis = (record, handle, isPdfParsed = false) => {
   };
 };
 
-function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeAnalysis, linkedinAnalysis, onHome, user }) {
+function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeAnalysis, linkedinAnalysis, intelligenceData, analysisProvider, analysisExecutionMs, onHome, user }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [scores, setScores] = useState(initialScores);
   const [github, setGithub] = useState(githubAnalysis);
-  const [resume, setResume] = useState(resumeAnalysis);
-  const [linkedin, setLinkedin] = useState(linkedinAnalysis);
+  const [resume, setResume] = useState(() => resumeAnalysis
+    ? mapResumeAnalysis({ resume_data: resumeAnalysis, scores: initialScores })
+    : null);
+  const [linkedin, setLinkedin] = useState(() => linkedinAnalysis
+    ? mapLinkedinAnalysis(
+      { linkedin_data: linkedinAnalysis, scores: initialScores },
+      linkedinAnalysis.username || '',
+      Boolean(linkedinAnalysis.isPdfParsed)
+    )
+    : null);
+  const [currentIntelligenceData, setCurrentIntelligenceData] = useState(intelligenceData);
+  const [currentAnalysisProvider, setCurrentAnalysisProvider] = useState(analysisProvider);
+  const [currentAnalysisExecutionMs, setCurrentAnalysisExecutionMs] = useState(analysisExecutionMs);
   const [selectedRole, setSelectedRole] = useState(profileData.targetRole || 'frontend');
   const [roadmap, setRoadmap] = useState(null);
 
@@ -253,6 +268,13 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     alert(message);
   };
 
+  const syncAnalysisResponse = (result) => {
+    if (result?.intelligence_data) setCurrentIntelligenceData(result.intelligence_data);
+    const provider = result?.provider || result?.gemini_analysis?._aiSource || result?.resume_data?._aiSource || result?.github_data?._aiSource || result?.linkedin_data?._aiSource;
+    if (provider) setCurrentAnalysisProvider(provider);
+    if (result?.execution_time_ms != null) setCurrentAnalysisExecutionMs(result.execution_time_ms);
+  };
+
   const handleLinkGithub = async (username) => {
     let gh = username.trim();
     if (gh) {
@@ -281,6 +303,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       });
       const result = await response.json().catch(() => ({}));
       if (response.ok) {
+        syncAnalysisResponse(result);
         const analyzedGithub = result.github_data;
         if (!analyzedGithub) throw new Error('The analysis response did not include GitHub results.');
         setGithub(analyzedGithub);
@@ -353,6 +376,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       });
       const result = await response.json().catch(() => ({}));
       if (response.ok) {
+        syncAnalysisResponse(result);
         const analyzedResume = mapResumeAnalysis(result, text);
         if (!analyzedResume) throw new Error('The analysis response did not include resume results.');
         setResume(analyzedResume);
@@ -452,6 +476,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       });
       const result = await response.json().catch(() => ({}));
       if (response.ok) {
+        syncAnalysisResponse(result);
         const analyzedLinkedin = mapLinkedinAnalysis(result, '', true);
         if (!analyzedLinkedin) throw new Error('The analysis response did not include LinkedIn results.');
         setLinkedin(analyzedLinkedin);
@@ -1003,6 +1028,15 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     recommendations.push({ item: 'Build a new full-stack project', channel: 'Portfolio', increase: '+10 pts', color: 'var(--color-tertiary)' });
   }
 
+  const aiCandidateReport = currentIntelligenceData?.candidateReport || {};
+  const aiStrengths = aiCandidateReport.topStrengths || aiCandidateReport.verifiedStrengths || [];
+  const aiHiringRisks = aiCandidateReport.hiringRisks || aiCandidateReport.hiringReadinessDetails?.interviewRisks || [];
+  const aiPortfolioGaps = aiCandidateReport.portfolioGaps || [];
+  const aiJobMatch = currentIntelligenceData?.jobMatch || {};
+  const aiProjectGap = currentIntelligenceData?.projectGap || {};
+  const aiTechnicalCompetency = aiCandidateReport.technicalCompetency || {};
+  const aiProviderLabel = currentAnalysisProvider ? String(currentAnalysisProvider).toUpperCase() : 'UNKNOWN';
+
   return (
     <div className="dashboard-container">
       {/* Sidebar - 10 tabs */}
@@ -1124,6 +1158,12 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                 <option value="fullstack">Full-Stack Developer</option>
                 <option value="ml-engineer">Machine Learning Engineer</option>
               </select>
+              <span
+                title="Provider returned by the latest analysis API response"
+                style={{ fontSize: '11px', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '999px', padding: '4px 9px', whiteSpace: 'nowrap' }}
+              >
+                AI: {aiProviderLabel}{Number.isFinite(currentAnalysisExecutionMs) ? ` · ${(currentAnalysisExecutionMs / 1000).toFixed(1)}s` : ''}
+              </span>
             </div>
           </div>
         </div>
@@ -1179,14 +1219,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                     </div>
                   </div>
                   <p style={{ fontSize: '14.5px', color: 'var(--text-primary)', lineHeight: '1.6' }}>
-                    {github || resume ? (
-                      `"Based on technical signals, the candidate showcases a competent grasp of ${github ? github.languages[0]?.name : 'modern web'} ecosystems. 
-                      ${github ? 'GitHub indicators point to stable repo creations.' : 'Connect GitHub to audit folder structures.'} 
-                      ${resume ? 'The resume keyword parsing indicates solid technical alignment.' : 'Upload a resume to analyze ATS keyword match.'} 
-                      Recommendation: Proceed to initial screening interview."`
-                    ) : (
-                      `"No active profile metrics detected. Please connect your GitHub account, upload your ATS resume, or supply your LinkedIn URL to start generating recruiter recommendations."`
-                    )}
+                    {aiCandidateReport.executiveSummary || 'The API did not return an AI executive summary for this analysis. Run the analysis again to refresh the report.'}
                   </p>
 
                   <div className="pros-cons-grid">
@@ -1195,9 +1228,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         <CheckCircle size={14} /> Green Flags
                       </h5>
                       <p style={{ fontSize: '12.5px', color: '#a7f3d0', lineHeight: '1.4' }}>
-                        {github ? '• Clean repository structures found\n' : ''}
-                        {resume && scores.ats > 70 ? '• ATS resume score matches threshold\n' : ''}
-                        • Key technologies aligned with target role
+                        {aiStrengths.length ? aiStrengths.slice(0, 3).map((strength) => `• ${strength}`).join('\n') : 'No AI strengths were returned for this analysis.'}
                       </p>
                     </div>
                     <div className="con-item">
@@ -1205,9 +1236,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         <AlertCircle size={14} /> Gaps Found
                       </h5>
                       <p style={{ fontSize: '12.5px', color: '#fde68a', lineHeight: '1.4' }}>
-                        {!github ? '• GitHub repository profile not connected\n' : ''}
-                        {!resume ? '• Resume scanner data missing\n' : ''}
-                        • Low cloud/infrastructure visibility detected
+                        {[...aiHiringRisks, ...aiPortfolioGaps].slice(0, 4).map((gap) => `• ${gap}`).join('\n') || 'No AI risks or portfolio gaps were returned.'}
                       </p>
                     </div>
                   </div>
@@ -1607,16 +1636,27 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                   </button>
                 </div>
 
+                {(resume.executiveSummary || resume.strengths?.length || resume.weaknesses?.length) && (
+                  <div className="card" style={{ marginBottom: '24px' }}>
+                    <h3 style={{ fontSize: '18px', marginBottom: '10px' }}>AI Resume Review</h3>
+                    {resume.executiveSummary && <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '16px' }}>{resume.executiveSummary}</p>}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '18px' }}>
+                      {resume.strengths?.length > 0 && <div><strong>Strengths</strong><ul style={{ paddingLeft: '18px', marginTop: '7px', color: 'var(--text-secondary)' }}>{resume.strengths.slice(0, 5).map((item, index) => <li key={`resume-strength-${index}`}>{item}</li>)}</ul></div>}
+                      {resume.weaknesses?.length > 0 && <div><strong>Gaps</strong><ul style={{ paddingLeft: '18px', marginTop: '7px', color: 'var(--text-secondary)' }}>{resume.weaknesses.slice(0, 5).map((item, index) => <li key={`resume-weakness-${index}`}>{item}</li>)}</ul></div>}
+                    </div>
+                  </div>
+                )}
+
                 {/* 6 sub-gauges row */}
                 <div className="card gauges-row-card" style={{ padding: '24px', marginBottom: '24px' }}>
                   <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Resume Sub-scores</h3>
                   <div className="sub-gauges-horizontal-grid">
                     {renderSubGauge('Overall ATS', resume.atsScore || 0, 'var(--color-primary)')}
-                    {renderSubGauge('Sections', Math.round(((resume.scoreBreakdown?.sectionScore || 0) / 25) * 100), 'var(--color-secondary)')}
-                    {renderSubGauge('Keywords', Math.round(((resume.scoreBreakdown?.keywordScore || 0) / 35) * 100), 'var(--color-tertiary)')}
-                    {renderSubGauge('Action Verbs', Math.round(((resume.scoreBreakdown?.verbScore || 0) / 20) * 100), 'var(--color-warning)')}
-                    {renderSubGauge('Impact', resume.hasQuantification ? 80 : 15, 'var(--color-primary)')}
-                    {renderSubGauge('Contact', ((resume.scoreBreakdown?.contactScore || 0) / 5) * 100, 'var(--color-secondary)')}
+                    {renderSubGauge('Sections', resume.scoreBreakdown?.sectionScore != null ? Math.round((resume.scoreBreakdown.sectionScore / 25) * 100) : null, 'var(--color-secondary)')}
+                    {renderSubGauge('Keywords', resume.scoreBreakdown?.keywordScore != null ? Math.round((resume.scoreBreakdown.keywordScore / 35) * 100) : null, 'var(--color-tertiary)')}
+                    {renderSubGauge('Action Verbs', resume.scoreBreakdown?.verbScore != null ? Math.round((resume.scoreBreakdown.verbScore / 20) * 100) : null, 'var(--color-warning)')}
+                    {renderSubGauge('Impact', resume.hasQuantification == null ? null : resume.hasQuantification ? 80 : 15, 'var(--color-primary)')}
+                    {renderSubGauge('Contact', resume.scoreBreakdown?.contactScore != null ? (resume.scoreBreakdown.contactScore / 5) * 100 : null, 'var(--color-secondary)')}
                   </div>
                 </div>
 
@@ -1644,7 +1684,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                       <h3 style={{ fontSize: '16px', marginBottom: '12px' }}>Action Verbs Density</h3>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
                         <span>Active verbs found:</span>
-                        <span>{resume.actionVerbCount || 0} / 8</span>
+                        <span>{resume.actionVerbCount == null ? 'N/A' : `${resume.actionVerbCount} / 8`}</span>
                       </div>
                       <div className="lang-bar-bg">
                         <div className="lang-bar-fg" style={{ width: `${Math.min(((resume.actionVerbCount || 0) / 8) * 100, 100)}%`, background: 'var(--color-primary)' }}></div>
@@ -2117,6 +2157,82 @@ What aspect of your portfolio or profile would you like to improve today? You ca
           {activeTab === 'analytics' && (
             <div className="card">
               <h3 style={{ fontSize: '18px', marginBottom: '24px' }}>Advanced Skill & Score Analytics</h3>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                <section className="card" style={{ background: 'rgba(255, 255, 255, 0.01)' }}>
+                  <h4 style={{ fontSize: '15px', marginBottom: '10px' }}>AI Candidate Assessment</h4>
+                  {aiCandidateReport.executiveSummary ? (
+                    <>
+                      <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '13px' }}>{aiCandidateReport.executiveSummary}</p>
+                      {Object.keys(aiTechnicalCompetency).length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px', marginTop: '12px' }}>
+                          {Object.entries(aiTechnicalCompetency).map(([skillArea, score]) => (
+                            <span key={skillArea} className="kw-badge kw-found">{skillArea}: {score}%</span>
+                          ))}
+                        </div>
+                      )}
+                      {aiCandidateReport.recruiterConfidence && <p style={{ marginTop: '12px', fontSize: '12px' }}><strong>Recruiter confidence:</strong> {aiCandidateReport.recruiterConfidence}</p>}
+                      {aiCandidateReport.recruiterNotes && <p style={{ marginTop: '8px', color: 'var(--text-secondary)', fontSize: '12px' }}>{aiCandidateReport.recruiterNotes}</p>}
+                      {Array.isArray(aiCandidateReport.skillsVerificationMatrix) && aiCandidateReport.skillsVerificationMatrix.length > 0 && (
+                        <div style={{ overflowX: 'auto', marginTop: '14px' }}>
+                          <strong style={{ fontSize: '12px' }}>Skill Evidence Verification</strong>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', marginTop: '6px' }}>
+                            <thead><tr>{['Skill', 'Resume evidence', 'GitHub evidence', 'LinkedIn evidence', 'Confidence'].map((title) => <th key={title} style={{ padding: '6px', textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>{title}</th>)}</tr></thead>
+                            <tbody>{aiCandidateReport.skillsVerificationMatrix.slice(0, 8).map((row, index) => <tr key={`evidence-${index}`}>
+                              <td style={{ padding: '6px' }}>{row.skill}</td><td style={{ padding: '6px', color: 'var(--text-secondary)' }}>{row.resumeEvidence}</td><td style={{ padding: '6px', color: 'var(--text-secondary)' }}>{row.githubEvidence}</td><td style={{ padding: '6px', color: 'var(--text-secondary)' }}>{row.linkedinEvidence}</td><td style={{ padding: '6px' }}>{row.confidenceScore}%</td>
+                            </tr>)}</tbody>
+                          </table>
+                        </div>
+                      )}
+                    </>
+                  ) : <p style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>No AI candidate assessment was returned.</p>}
+                </section>
+
+                <section className="card" style={{ background: 'rgba(255, 255, 255, 0.01)' }}>
+                  <h4 style={{ fontSize: '15px', marginBottom: '10px' }}>AI Job Match</h4>
+                  {aiJobMatch.recruiterPerspective && <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '13px' }}>{aiJobMatch.recruiterPerspective}</p>}
+                  {aiJobMatch.fastestImprovementPath && <p style={{ fontSize: '12px' }}><strong>Fastest improvement:</strong> {aiJobMatch.fastestImprovementPath}</p>}
+                  {[['Skills matched', aiJobMatch.matchingSkills], ['Skills to add', aiJobMatch.missingSkills || aiJobMatch.keywordGaps], ['Technologies to add', aiJobMatch.missingTechnologies], ['Hiring risks', aiJobMatch.hiringRisks], ['Action plan', aiJobMatch.improvementPlan]].map(([label, items]) => Array.isArray(items) && items.length > 0 && (
+                    <div key={label} style={{ marginTop: '10px' }}>
+                      <strong style={{ fontSize: '12px' }}>{label}</strong>
+                      <ul style={{ color: 'var(--text-secondary)', paddingLeft: '18px', marginTop: '5px', fontSize: '12px' }}>
+                        {items.slice(0, 5).map((item, index) => <li key={`${label}-${index}`}>{item}</li>)}
+                      </ul>
+                    </div>
+                  ))}
+                  {!aiJobMatch.recruiterPerspective && !aiJobMatch.fastestImprovementPath && !aiJobMatch.improvementPlan?.length && <p style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>No AI job match details were returned.</p>}
+                </section>
+
+                <section className="card" style={{ background: 'rgba(255, 255, 255, 0.01)' }}>
+                  <h4 style={{ fontSize: '15px', marginBottom: '10px' }}>AI Project Gap Plan</h4>
+                  {aiProjectGap.currentPortfolioAssessment && <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '13px' }}>{aiProjectGap.currentPortfolioAssessment}</p>}
+                  {Array.isArray(aiProjectGap.recommendedProjects) && aiProjectGap.recommendedProjects.length > 0 ? (
+                    <ul style={{ paddingLeft: '18px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                      {aiProjectGap.recommendedProjects.slice(0, 4).map((project, index) => (
+                        <li key={`project-${index}`} style={{ marginBottom: '8px' }}>
+                          <strong>{typeof project === 'string' ? project : project.name}</strong>
+                          {typeof project === 'object' && project.description ? ` — ${project.description}` : ''}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : <p style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>No AI project recommendations were returned.</p>}
+                  {[
+                    ['AI/ML', aiProjectGap.missingAiProjects],
+                    ['Cloud', aiProjectGap.missingCloudProjects],
+                    ['SaaS', aiProjectGap.missingSaasProjects],
+                    ['Teamwork', aiProjectGap.missingTeamProjects],
+                    ['Open source', aiProjectGap.missingOpenSourceContributions],
+                    ['DevOps', aiProjectGap.missingDevopsExperience],
+                    ['Architecture', aiProjectGap.missingArchitectureExperience]
+                  ].filter(([, value]) => typeof value === 'string' && value.trim()).map(([label, value]) => <p key={label} style={{ fontSize: '12px', color: 'var(--text-secondary)' }}><strong>{label} gap:</strong> {value}</p>)}
+                  {Array.isArray(aiProjectGap.impactVsEffortMatrix) && aiProjectGap.impactVsEffortMatrix.length > 0 && (
+                    <ul style={{ paddingLeft: '18px', fontSize: '12px', color: 'var(--text-secondary)' }}>
+                      {aiProjectGap.impactVsEffortMatrix.slice(0, 5).map((item, index) => <li key={`impact-${index}`}><strong>{item.action}:</strong> impact {item.impact}, effort {item.effort}</li>)}
+                    </ul>
+                  )}
+                  {aiProjectGap.hiringImpactRoadmap && <p style={{ fontSize: '12px' }}><strong>Hiring impact roadmap:</strong> {aiProjectGap.hiringImpactRoadmap}</p>}
+                </section>
+              </div>
 
               <div className="analytics-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.5fr', gap: '24px' }}>
                 <div className="card" style={{ background: 'rgba(255, 255, 255, 0.01)' }}>

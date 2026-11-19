@@ -203,15 +203,44 @@ Evaluate the candidate's unified profile data. Provide your evaluation in strict
   };
 
   // 7. Format output blocks to match frontend expectations
+  const sourceResumeText = resumeText || '';
+  const resumeSectionsChecklist = {
+    contact: /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}|\+?\d[\d\s().-]{7,}|linkedin\.com|github\.com/i.test(sourceResumeText),
+    summary: /\b(summary|profile|objective)\b/i.test(sourceResumeText),
+    experience: /\b(experience|employment|work history|internship)\b/i.test(sourceResumeText),
+    projects: /\b(projects?|portfolio|open source)\b/i.test(sourceResumeText),
+    education: /\b(education|degree|university|college|bachelor|master|phd)\b/i.test(sourceResumeText),
+    skills: /\b(skills?|technologies|tools|frameworks|technical proficiency)\b/i.test(sourceResumeText)
+  };
+  const resumeFoundKeywords = geminiResult.resume?.keywordAnalysis?.found || [];
+  const resumeMissingKeywords = geminiResult.resume?.keywordAnalysis?.missing || [];
+  const actionVerbCount = new Set(
+    ['built', 'created', 'developed', 'implemented', 'designed', 'led', 'optimized', 'deployed', 'improved', 'managed', 'analyzed', 'collaborated']
+      .filter((verb) => new RegExp(`\\b${verb}\\b`, 'i').test(sourceResumeText))
+  ).size;
+  const sectionCount = Object.values(resumeSectionsChecklist).filter(Boolean).length;
+  const resumeUiBreakdown = {
+    sectionScore: Math.round((sectionCount / Object.keys(resumeSectionsChecklist).length) * 25),
+    keywordScore: resumeFoundKeywords.length + resumeMissingKeywords.length > 0
+      ? Math.round((resumeFoundKeywords.length / (resumeFoundKeywords.length + resumeMissingKeywords.length)) * 35)
+      : 0,
+    verbScore: Math.min(20, Math.round((actionVerbCount / 8) * 20)),
+    contactScore: resumeSectionsChecklist.contact ? 5 : 0
+  };
   const formattedResumeData = geminiResult.resume ? {
     ...geminiResult.resume,
     atsScore: resumeScoreInfo.finalScore,
     score: resumeScoreInfo.finalScore,
     strengths: geminiResult.resume.strengths || [],
     weaknesses: geminiResult.resume.weaknesses || [],
-    foundKeywords: geminiResult.resume.keywordAnalysis?.found || [],
-    missingKeywords: geminiResult.resume.keywordAnalysis?.missing || [],
+    foundKeywords: resumeFoundKeywords,
+    missingKeywords: resumeMissingKeywords,
+    sectionsChecklist: resumeSectionsChecklist,
+    scoreBreakdown: { ...geminiResult.resume.scoreBreakdown, ...resumeUiBreakdown },
+    actionVerbCount,
+    hasQuantification: /(?:\d+\s?%|\$\s?\d|\b\d{2,}\+?\s?(?:users|customers|clients|requests|records|employees|projects|hours|days|weeks|months)\b)/i.test(sourceResumeText),
     recommendations: geminiResult.resume.improvementOpportunities || [],
+    suggestions: geminiResult.resume.improvementOpportunities || [],
     jobReadiness: geminiResult.resume.jobReadiness || 'Junior',
     recruiterNotes: geminiResult.resume.recruiterNotes || '',
     wordCount: resumeText?.trim().split(/\s+/).filter(Boolean).length || 0,
