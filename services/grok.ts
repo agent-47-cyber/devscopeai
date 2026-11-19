@@ -39,11 +39,14 @@ export async function generateWithGrok(
   const { systemInstruction = '', parseJson = true, requestId = 'grok-call' } = options;
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
   const XAI_API_KEY = process.env.XAI_API_KEY;
-  const useGroq = Boolean(GROQ_API_KEY);
-  const apiKey = useGroq ? GROQ_API_KEY : XAI_API_KEY;
+  // Some local setups historically stored a Groq `gsk_` key under XAI_API_KEY.
+  // Route by the key's provider when the dedicated Groq variable is absent.
+  const legacyKeyIsGroq = Boolean(XAI_API_KEY?.startsWith('gsk_'));
+  const useGroq = Boolean(GROQ_API_KEY) || legacyKeyIsGroq;
+  const apiKey = GROQ_API_KEY || XAI_API_KEY;
   const apiUrl = useGroq ? GROQ_API_URL : XAI_API_URL;
   const model = useGroq
-    ? (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile')
+    ? (process.env.GROQ_MODEL || 'openai/gpt-oss-20b')
     : (process.env.XAI_MODEL || 'latest');
 
   if (!apiKey || !isValidGrokKey(apiKey)) {
@@ -64,7 +67,7 @@ export async function generateWithGrok(
   };
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 12000); // 12-second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
 
   try {
     const startTime = Date.now();

@@ -1,8 +1,8 @@
 import { logger } from '@/lib/logger';
 import { ExternalAPIError } from '@/lib/errors';
 
-const GEMINI_API_URL_PRIMARY = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
-const GEMINI_API_URL_FALLBACK = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent';
+const GEMINI_API_URL_PRIMARY = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent';
+const GEMINI_API_URL_FALLBACK = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent';
 
 function isValidGeminiKey(key: string | undefined): boolean {
   if (!key || typeof key !== 'string') return false;
@@ -87,7 +87,7 @@ export async function generateWithGemini(
       temperature: 0.4,
       topK: 40,
       topP: 0.95,
-      maxOutputTokens: 4096,
+      maxOutputTokens: 8192,
       ...(parseJson ? { responseMimeType: 'application/json' } : {})
     },
     safetySettings: [

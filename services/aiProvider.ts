@@ -14,7 +14,7 @@ export async function generateAIContent(
   const { requestId = 'ai-orchestrator', parseJson = true } = options;
 
   let result: any = null;
-  let usedFallback = false;
+  let primaryError: any = null;
 
   // 1. Try Gemini
   try {
@@ -36,12 +36,12 @@ export async function generateAIContent(
 
     return result;
   } catch (err: any) {
+    primaryError = err;
     logger.warn({
       requestId,
       action: 'aiProvider.gemini.failure',
       message: `Primary AI provider (Gemini) failed: ${err.message}. Switching to fallback.`
     });
-    usedFallback = true;
   }
 
   // 2. Try Grok (Fallback)
@@ -69,6 +69,8 @@ export async function generateAIContent(
       action: 'aiProvider.groq.failure',
       message: `Fallback AI provider (Groq) failed: ${err.message}. No providers left.`
     });
-    throw new Error('Both Gemini and Groq providers failed to generate content.');
+    throw new Error(
+      `Both AI providers failed. Gemini: ${primaryError?.message || 'unknown error'}. Groq: ${err.message || 'unknown error'}.`
+    );
   }
 }
