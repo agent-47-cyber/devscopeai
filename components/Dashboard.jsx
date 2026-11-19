@@ -1035,7 +1035,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
   const aiJobMatch = currentIntelligenceData?.jobMatch || {};
   const aiProjectGap = currentIntelligenceData?.projectGap || {};
   const aiTechnicalCompetency = aiCandidateReport.technicalCompetency || {};
-  const aiProviderLabel = currentAnalysisProvider ? String(currentAnalysisProvider).toUpperCase() : 'UNKNOWN';
+  const aiProviderLabel = ({ GEMINI: 'Gemini', GROQ: 'Groq', XAI: 'xAI (Grok)' })[String(currentAnalysisProvider || '').toUpperCase()] || 'Unknown';
 
   return (
     <div className="dashboard-container">
@@ -1162,7 +1162,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                 title="Provider returned by the latest analysis API response"
                 style={{ fontSize: '11px', color: 'var(--text-secondary)', border: '1px solid var(--border-color)', borderRadius: '999px', padding: '4px 9px', whiteSpace: 'nowrap' }}
               >
-                AI: {aiProviderLabel}{Number.isFinite(currentAnalysisExecutionMs) ? ` · ${(currentAnalysisExecutionMs / 1000).toFixed(1)}s` : ''}
+                AI provider: {aiProviderLabel}{Number.isFinite(currentAnalysisExecutionMs) ? ` · ${(currentAnalysisExecutionMs / 1000).toFixed(1)}s` : ''}
               </span>
             </div>
           </div>

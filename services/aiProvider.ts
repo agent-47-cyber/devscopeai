@@ -3,7 +3,7 @@ import { generateWithGrok } from './grok';
 import { logger } from '@/lib/logger';
 
 export interface AIResponse {
-  _aiSource: 'GEMINI' | 'GROQ' | 'FALLBACK';
+  _aiSource: 'GEMINI' | 'GROQ' | 'XAI' | 'FALLBACK';
   [key: string]: any;
 }
 
@@ -44,33 +44,36 @@ export async function generateAIContent(
     });
   }
 
-  // 2. Try Grok (Fallback)
+  // 2. Try the configured Groq or xAI fallback
   try {
     const startTime = Date.now();
     result = await generateWithGrok(prompt, options);
+    const fallbackProvider = process.env.GROQ_API_KEY || process.env.XAI_API_KEY?.startsWith('gsk_')
+      ? 'GROQ'
+      : 'XAI';
     
     if (typeof result === 'object' && result !== null) {
-      result._aiSource = 'GROQ';
+      result._aiSource = fallbackProvider;
     } else {
-      result = { _rawText: result, _aiSource: 'GROQ' };
+      result = { _rawText: result, _aiSource: fallbackProvider };
     }
 
     logger.info({
       requestId,
-      action: 'aiProvider.groq.success',
+      action: `aiProvider.${fallbackProvider.toLowerCase()}.success`,
       duration: Date.now() - startTime,
-      message: 'Successfully generated content with fallback provider (Groq).'
+      message: `Successfully generated content with fallback provider (${fallbackProvider}).`
     });
 
     return result;
   } catch (err: any) {
     logger.error({
       requestId,
-      action: 'aiProvider.groq.failure',
-      message: `Fallback AI provider (Groq) failed: ${err.message}. No providers left.`
+      action: 'aiProvider.fallback.failure',
+      message: `Fallback AI provider failed: ${err.message}. No providers left.`
     });
     throw new Error(
-      `Both AI providers failed. Gemini: ${primaryError?.message || 'unknown error'}. Groq: ${err.message || 'unknown error'}.`
+      `Both AI providers failed. Gemini: ${primaryError?.message || 'unknown error'}. Fallback: ${err.message || 'unknown error'}.`
     );
   }
 }
