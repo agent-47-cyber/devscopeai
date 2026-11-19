@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { API_BASE_URL, API_UPLOAD_URL } from '../config.js';
 import {
@@ -1015,7 +1015,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
       {/* Sidebar - 10 tabs */}
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <span className="logo-icon" style={{ width: '28px', height: '28px', fontSize: '15px' }}>ΓÜí</span>
+          <span className="logo-icon" style={{ width: '28px', height: '28px', fontSize: '15px' }}>◇</span>
           DevScope AI
         </div>
 
@@ -1202,9 +1202,9 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         <CheckCircle size={14} /> Green Flags
                       </h5>
                       <p style={{ fontSize: '12.5px', color: '#a7f3d0', lineHeight: '1.4' }}>
-                        {github ? 'ΓÇó Clean repository structures found\n' : ''}
-                        {resume && scores.ats > 70 ? 'ΓÇó ATS resume score matches threshold\n' : ''}
-                        ΓÇó Key technologies aligned with target role
+                        {github ? '• Clean repository structures found\n' : ''}
+                        {resume && scores.ats > 70 ? '• ATS resume score matches threshold\n' : ''}
+                        • Key technologies aligned with target role
                       </p>
                     </div>
                     <div className="con-item">
@@ -1212,9 +1212,9 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         <AlertCircle size={14} /> Gaps Found
                       </h5>
                       <p style={{ fontSize: '12.5px', color: '#fde68a', lineHeight: '1.4' }}>
-                        {!github ? 'ΓÇó GitHub repository profile not connected\n' : ''}
-                        {!resume ? 'ΓÇó Resume scanner data missing\n' : ''}
-                        ΓÇó Low cloud/infrastructure visibility detected
+                        {!github ? '• GitHub repository profile not connected\n' : ''}
+                        {!resume ? '• Resume scanner data missing\n' : ''}
+                        • Low cloud/infrastructure visibility detected
                       </p>
                     </div>
                   </div>
@@ -1278,7 +1278,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                             <span key={i} className="kw-badge kw-missing" style={{ fontSize: '10.5px' }}>{g}</span>
                           ))
                         ) : (
-                          <span style={{ fontSize: '12px', color: 'var(--color-tertiary)' }}>Γ£ô No skill gaps detected!</span>
+                          <span style={{ fontSize: '12px', color: 'var(--color-tertiary)' }}>✓ No skill gaps detected!</span>
                         )}
                       </div>
                     </>
@@ -1320,10 +1320,10 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                   </div>
 
                   <div className="connect-benefits-grid">
-                    <div className="benefit-badge">Γ£ô Audit documentation depth</div>
-                    <div className="benefit-badge">Γ£ô 7 Sub-score circular meters</div>
-                    <div className="benefit-badge">Γ£ô Core tech stack extraction</div>
-                    <div className="benefit-badge">Γ£ô Flags missing READMEs</div>
+                    <div className="benefit-badge">✓ Audit documentation depth</div>
+                    <div className="benefit-badge">✓ 7 Sub-score circular meters</div>
+                    <div className="benefit-badge">✓ Core tech stack extraction</div>
+                    <div className="benefit-badge">✓ Flags missing READMEs</div>
                   </div>
                 </div>
               </div>
@@ -1395,7 +1395,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                         Core technologies extracted dynamically from repository language hashes:
                       </p>
                       <div className="keyword-matrix" style={{ marginTop: '0' }}>
-                        {github.languages.map((l, i) => (
+                        {(github.languages || []).map((l, i) => (
                           <span className="kw-badge kw-found animate-fade-in" key={i} style={{ padding: '6px 12px' }}>
                             {l.name} ({l.percentage}%)
                           </span>
@@ -1409,7 +1409,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                     <div className="card">
                       <h3 style={{ fontSize: '18px', marginBottom: '16px' }}>Languages Distribution</h3>
                       <div className="languages-list">
-                        {github.languages.map((lang, index) => (
+                        {(github.languages || []).map((lang, index) => (
                           <div className="lang-row" key={index}>
                             <div className="lang-info">
                               <span>{lang.name}</span>
@@ -1482,7 +1482,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                                 </div>
                               </div>
                               <div className="repo-details">
-                                <span>Γ¡É {repo.stars}</span>
+                                <span>⭐ {repo.stars}</span>
                                 <span>≡ƒì┤ {repo.forks}</span>
                               </div>
                             </div>
@@ -1526,7 +1526,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                     {resumeFileParseStatus === 'parsing' ? (
                       <><p>Extracting text from <strong>{resumeFileName}</strong>...</p><span>Please wait</span></>
                     ) : resumeFileParseStatus === 'success' ? (
-                      <><p style={{ color: '#10b981' }}>Γ£à Parsed: <strong>{resumeFileName}</strong></p><span>Click to replace</span></>
+                      <><p style={{ color: '#10b981' }}>✅ Parsed: <strong>{resumeFileName}</strong></p><span>Click to replace</span></>
                     ) : resumeFileParseStatus === 'error' ? (
                       <><p style={{ color: '#ef4444' }}>Upload failed</p><span>Click to try again</span></>
                     ) : (
@@ -1547,12 +1547,12 @@ What aspect of your portfolio or profile would you like to improve today? You ca
 
                   {resumeFileParseStatus === 'error' && resumeFileParseError && (
                     <div style={{ marginTop: '8px', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', fontSize: '13px', color: '#fca5a5' }}>
-                      ΓÜá∩╕Å {resumeFileParseError}
+                      ⚠️ {resumeFileParseError}
                     </div>
                   )}
 
                   <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', margin: '8px 0' }}>
-                    ΓÇö OR COPY PASTE TEXT ΓÇö
+                    — OR COPY PASTE TEXT —
                   </div>
 
                   <textarea
@@ -1581,10 +1581,10 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                   </button>
 
                   <div className="connect-benefits-grid" style={{ marginTop: '24px' }}>
-                    <div className="benefit-badge">Γ£ô Real keyword matching</div>
-                    <div className="benefit-badge">Γ£ô Section existence checklist</div>
-                    <div className="benefit-badge">Γ£ô Action verb count</div>
-                    <div className="benefit-badge">Γ£ô Contact info detection</div>
+                    <div className="benefit-badge">✓ Real keyword matching</div>
+                    <div className="benefit-badge">✓ Section existence checklist</div>
+                    <div className="benefit-badge">✓ Action verb count</div>
+                    <div className="benefit-badge">✓ Contact info detection</div>
                   </div>
                 </div>
               </div>
@@ -1660,9 +1660,9 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                     <div className="card" style={{ marginBottom: '24px' }}>
                       <h3 style={{ fontSize: '16px', marginBottom: '12px' }}>Keywords Present</h3>
                       <div className="keyword-matrix">
-                        {resume.foundKeywords.map((kw, i) => (
+                        {(resume.foundKeywords || []).map((kw, i) => (
                           <span className="kw-badge kw-found" key={i}>
-                            Γ£ô {kw}
+                            ✓ {kw}
                           </span>
                         ))}
                       </div>
@@ -1671,7 +1671,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                     <div className="card">
                       <h3 style={{ fontSize: '16px', marginBottom: '12px' }}>Keywords Missing</h3>
                       <div className="keyword-matrix">
-                        {resume.missingKeywords.map((kw, i) => (
+                        {(resume.missingKeywords || []).map((kw, i) => (
                           <span className="kw-badge kw-missing" key={i}>
                             + {kw}
                           </span>
@@ -1688,9 +1688,9 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                       </p>
 
                       <ul className="suggestions-list">
-                        {resume.suggestions.map((s, i) => (
+                        {(resume.suggestions || []).map((s, i) => (
                           <li className="suggestion-item" key={i}>
-                            <span className="suggestion-bullet">Γ£ª</span>
+                            <span className="suggestion-bullet">✦</span>
                             <span>{s}</span>
                           </li>
                         ))}
@@ -1734,16 +1734,16 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                   </div>
 
                   <div className="connect-benefits-grid">
-                    <div className="benefit-badge">Γ£ô URL structure & SEO audit</div>
-                    <div className="benefit-badge">Γ£ô Headline keyword scoring</div>
-                    <div className="benefit-badge">Γ£ô Role-targeted optimization</div>
-                    <div className="benefit-badge">Γ£ô Recruiter visibility tips</div>
+                    <div className="benefit-badge">✓ URL structure & SEO audit</div>
+                    <div className="benefit-badge">✓ Headline keyword scoring</div>
+                    <div className="benefit-badge">✓ Role-targeted optimization</div>
+                    <div className="benefit-badge">✓ Recruiter visibility tips</div>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="linkedin-layout-wrapper animate-fade-in">
-                {/* Search Bar at Top ΓÇö matches GitHub style */}
+                {/* Search Bar at Top — matches GitHub style */}
                 <div className="card search-reanalyze-bar" style={{ display: 'flex', gap: '16px', marginBottom: '24px', padding: '16px' }}>
                   <input
                     type="text"
@@ -1782,7 +1782,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                       <div className="github-stats-row">
                         <div className="stat-box">
                           <div className="stat-value" style={{ color: linkedin.slugQuality === 'excellent' ? 'var(--color-tertiary)' : linkedin.slugQuality === 'good' ? 'var(--color-warning)' : '#ef4444' }}>
-                            {linkedin.slugQuality === 'excellent' ? 'Γ£ô Excellent' : linkedin.slugQuality === 'good' ? '~ Good' : 'Γ£ù Default'}
+                            {linkedin.slugQuality === 'excellent' ? '✓ Excellent' : linkedin.slugQuality === 'good' ? '~ Good' : '✗ Default'}
                           </div>
                           <div className="stat-label">URL Quality</div>
                         </div>
@@ -1880,7 +1880,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                       <ul className="suggestions-list">
                         {(linkedin.tips || []).map((tip, i) => (
                           <li className="suggestion-item" key={i}>
-                            <span className="suggestion-bullet">Γ£ª</span>
+                            <span className="suggestion-bullet">✦</span>
                             <span style={{ fontSize: '13px', lineHeight: '1.5' }}>{tip}</span>
                           </li>
                         ))}
@@ -1919,7 +1919,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                   <div className="roadmap-step" key={`comp-${index}`}>
                     <div className="roadmap-dot completed"></div>
                     <div className="roadmap-body">
-                      <h4 style={{ color: '#ffffff' }}>Γ£ô {skill}</h4>
+                      <h4 style={{ color: '#ffffff' }}>✓ {skill}</h4>
                       <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>Detected in your portfolios & documents.</p>
                     </div>
                   </div>
