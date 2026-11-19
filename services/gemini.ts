@@ -102,7 +102,7 @@ export async function generateWithGemini(
     payload.systemInstruction = { parts: [{ text: systemInstruction }] };
   }
 
-  const urls = [GEMINI_API_URL_PRIMARY, GEMINI_API_URL_PRIMARY];
+  const urls = [GEMINI_API_URL_PRIMARY, GEMINI_API_URL_FALLBACK];
   let lastError: any = null;
 
   for (const url of urls) {

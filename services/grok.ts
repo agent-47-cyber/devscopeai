@@ -2,6 +2,7 @@ import { logger } from '@/lib/logger';
 import { ExternalAPIError } from '@/lib/errors';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const XAI_API_URL = 'https://api.x.ai/v1/chat/completions';
 
 function isValidGrokKey(key: string | undefined): boolean {
   if (!key || typeof key !== 'string') return false;
@@ -36,11 +37,17 @@ export async function generateWithGrok(
   options: { systemInstruction?: string; parseJson?: boolean; requestId?: string } = {}
 ): Promise<any> {
   const { systemInstruction = '', parseJson = true, requestId = 'grok-call' } = options;
-  const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.XAI_API_KEY;
-  const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+  const GROQ_API_KEY = process.env.GROQ_API_KEY;
+  const XAI_API_KEY = process.env.XAI_API_KEY;
+  const useGroq = Boolean(GROQ_API_KEY);
+  const apiKey = useGroq ? GROQ_API_KEY : XAI_API_KEY;
+  const apiUrl = useGroq ? GROQ_API_URL : XAI_API_URL;
+  const model = useGroq
+    ? (process.env.GROQ_MODEL || 'llama-3.3-70b-versatile')
+    : (process.env.XAI_MODEL || 'latest');
 
-  if (!GROQ_API_KEY || !isValidGrokKey(GROQ_API_KEY)) {
-    throw new ExternalAPIError('GROQ_KEY_ERROR', 'Groq API key is not configured or is invalid.');
+  if (!apiKey || !isValidGrokKey(apiKey)) {
+    throw new ExternalAPIError('GROK_KEY_ERROR', 'Neither a valid GROQ_API_KEY nor XAI_API_KEY is configured.');
   }
 
   const messages = [];
@@ -50,7 +57,7 @@ export async function generateWithGrok(
   messages.push({ role: 'user', content: prompt });
 
   const payload = {
-    model: GROQ_MODEL,
+    model,
     messages,
     temperature: 0.4,
     response_format: parseJson ? { type: 'json_object' } : undefined,
@@ -61,11 +68,11 @@ export async function generateWithGrok(
 
   try {
     const startTime = Date.now();
-    const response = await fetch(GROQ_API_URL, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify(payload),
       signal: controller.signal
@@ -90,8 +97,8 @@ export async function generateWithGrok(
       requestId,
       action: 'groq.call',
       duration,
-      message: 'Groq request succeeded',
-      meta: { model: GROQ_MODEL }
+      message: `${useGroq ? 'Groq' : 'xAI'} request succeeded`,
+      meta: { model }
     });
 
     if (parseJson) {
@@ -104,8 +111,8 @@ export async function generateWithGrok(
     logger.warn({
       requestId,
       action: 'groq.call',
-      message: `Groq call failed or timed out: ${err.message}`
+      message: `${useGroq ? 'Groq' : 'xAI'} call failed or timed out: ${err.message}`
     });
-    throw new ExternalAPIError('GROQ_ERROR', `Groq failed: ${err.message}`);
+    throw new ExternalAPIError(useGroq ? 'GROQ_ERROR' : 'XAI_ERROR', `${useGroq ? 'Groq' : 'xAI'} failed: ${err.message}`);
   }
 }
