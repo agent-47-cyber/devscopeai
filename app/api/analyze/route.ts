@@ -10,11 +10,19 @@ export const POST = withAuth(async (req, { user, supabase, requestId }) => {
   // 1. Zod input validation
   const input = UnifiedAnalyzeSchema.parse(body);
 
-  if (!input.resumeText && !input.githubUsername && !input.linkedinUsername && !input.linkedinText) {
+  if (input.linkedinUsername) {
+    return responseBuilder.error(
+      400,
+      'LINKEDIN_URL_LOOKUP_RETIRED',
+      'LinkedIn URL lookup is no longer available. Upload a LinkedIn profile PDF export to analyze actual profile content.'
+    );
+  }
+
+  if (!input.resumeText && !input.githubUsername && !input.linkedinText) {
     return responseBuilder.error(
       400,
       'MISSING_ANALYSIS_INPUT',
-      'Provide a resume, GitHub username, LinkedIn URL/username, or LinkedIn PDF text before starting analysis.'
+      'Provide a resume, GitHub username, or LinkedIn PDF text before starting analysis.'
     );
   }
 

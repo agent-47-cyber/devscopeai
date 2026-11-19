@@ -31,7 +31,6 @@ import {
 import './Dashboard.css';
 
 const RESUME_REJECTION_MESSAGE = 'This file is not a resume. Please upload a resume file or paste your resume text.';
-const LINKEDIN_REJECTION_MESSAGE = 'This is not a LinkedIn URL or username.';
 
 const looksLikeResume = (text = '') => {
   const normalized = text.replace(/\s+/g, ' ').trim();
@@ -56,29 +55,6 @@ const looksLikeResume = (text = '') => {
   ].filter(Boolean).length;
 
   return sectionCount >= 2 || (sectionCount >= 1 && indicators >= 2);
-};
-
-const parseLinkedInProfileInput = (value = '') => {
-  const raw = value.trim();
-  if (!raw) return null;
-
-  const isUrlLike = /^https?:\/\//i.test(raw) || /^www\./i.test(raw) || /\.[a-z]{2,}(\/|$)/i.test(raw);
-  const slugPattern = /^[a-z0-9](?:[a-z0-9-]{1,98}[a-z0-9])?$/i;
-
-  if (isUrlLike) {
-    try {
-      const parsed = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
-      const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
-      const parts = parsed.pathname.split('/').filter(Boolean);
-      return host === 'linkedin.com' && parts[0]?.toLowerCase() === 'in' && parts[1] && slugPattern.test(parts[1])
-        ? parts[1]
-        : null;
-    } catch (err) {
-      return null;
-    }
-  }
-
-  return raw.includes('/') || raw.includes('@') || raw.includes('.') || !slugPattern.test(raw) ? null : raw;
 };
 
 const getApiHeaders = (token, json = true) => ({
@@ -160,7 +136,6 @@ function Dashboard({ profileData, scores: initialScores, githubAnalysis, resumeA
 
   // Local Search Inputs for Unlinked channels
   const [ghInput, setGhInput] = useState('');
-  const [liInput, setLiInput] = useState('');
   const [resumeTextInput, setResumeTextInput] = useState('');
   const [resumeFileName, setResumeFileName] = useState('');
   const [resumeFileParseStatus, setResumeFileParseStatus] = useState(null); // null | 'parsing' | 'success' | 'error'
@@ -500,80 +475,6 @@ What aspect of your portfolio or profile would you like to improve today? You ca
     } catch (err) {
       console.error(err);
       alert("Error reaching the analysis server: " + err.message);
-    } finally {
-      setIsAnalyzingLinkedin(false);
-    }
-  };
-
-  const handleLinkLinkedinUrl = async (urlOrUsername) => {
-    let cleanVal = urlOrUsername.trim();
-    if (!cleanVal) {
-      alert("Please enter a valid LinkedIn URL or username.");
-      return;
-    }
-    cleanVal = parseLinkedInProfileInput(cleanVal);
-    if (!cleanVal) {
-      showAlertAfterClearing(LINKEDIN_REJECTION_MESSAGE, () => {
-        setLinkedin(null);
-        updateChannelScore('careerReady', null);
-        setIsAnalyzingLinkedin(false);
-      });
-      return;
-    }
-    setLiInput(cleanVal);
-    setIsAnalyzingLinkedin(true);
-    try {
-      const token = localStorage.getItem('devscope_token');
-      const response = await fetch(`${API_BASE_URL}/api/analyze`, {
-        method: 'POST',
-        headers: getApiHeaders(token),
-        body: JSON.stringify({
-          linkedinUsername: cleanVal,
-          targetRole: selectedRole,
-          forceRefresh: true,
-          ...(resumeTextInput.trim() ? { resumeText: resumeTextInput.trim() } : {}),
-          ...(github?.username ? { githubUsername: github.username } : {})
-        })
-      });
-      const result = await response.json().catch(() => ({}));
-      if (response.ok) {
-        const analyzedLinkedin = mapLinkedinAnalysis(result, cleanVal, false);
-        if (!analyzedLinkedin) throw new Error('The analysis response did not include LinkedIn results.');
-        setLinkedin(analyzedLinkedin);
-        setLinkedinTextInput(''); // Clear PDF input text since we analyzed by URL
-
-        setScores(prev => {
-          const newScores = { ...prev, careerReady: analyzedLinkedin.score };
-          const activeScores = [];
-          if (newScores.github !== null) activeScores.push(newScores.github);
-          if (newScores.ats !== null) activeScores.push(newScores.ats);
-          if (newScores.careerReady !== null) activeScores.push(newScores.careerReady);
-
-          newScores.portfolio = activeScores.length > 0
-            ? Math.round(activeScores.reduce((a, b) => a + b, 0) / activeScores.length)
-            : null;
-
-          return newScores;
-        });
-      } else {
-        showAlertAfterClearing(
-          result.error || "Failed to analyze LinkedIn profile. Please verify the URL and try again.",
-          () => {
-            setLinkedin(null);
-            updateChannelScore('careerReady', null);
-            setIsAnalyzingLinkedin(false);
-          }
-        );
-        return;
-      }
-    } catch (err) {
-      console.error(err);
-      showAlertAfterClearing("Error reaching the analysis server: " + err.message, () => {
-        setLinkedin(null);
-        updateChannelScore('careerReady', null);
-        setIsAnalyzingLinkedin(false);
-      });
-      return;
     } finally {
       setIsAnalyzingLinkedin(false);
     }
@@ -1052,8 +953,6 @@ What aspect of your portfolio or profile would you like to improve today? You ca
         if (linkedin) {
           if (linkedin.isPdfParsed && linkedinTextInput) {
             await handleLinkLinkedin(linkedinTextInput);
-          } else if (!linkedin.isPdfParsed && (linkedin.profileUrl || linkedin.profileHandle)) {
-            await handleLinkLinkedinUrl(linkedin.profileUrl || linkedin.profileHandle);
           }
         }
         if (github && github.username) {
@@ -1808,29 +1707,9 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                   </div>
                   <h3>Connect LinkedIn Profile</h3>
                   <p>
-                    Audits profile URL structure, headline keyword optimization, search visibility scoring, and generates role-targeted headline recommendations.
+                    Upload a PDF exported from your LinkedIn profile. The analyzer reads the profile content directly and generates role-targeted recommendations.
                   </p>
 
-                  <div className="connect-input-group">
-                    <input
-                      type="text"
-                      placeholder="Paste LinkedIn URL (e.g. linkedin.com/in/username)"
-                      value={liInput}
-                      onChange={(e) => setLiInput(e.target.value)}
-                      className="form-input"
-                    />
-                    <button
-                      onClick={() => handleLinkLinkedinUrl(liInput)}
-                      className="btn btn-primary"
-                      disabled={isAnalyzingLinkedin}
-                    >
-                      {isAnalyzingLinkedin ? 'Analyzing profile...' : 'Analyze LinkedIn'}
-                    </button>
-                  </div>
-
-                  <p style={{ maxWidth: '480px', margin: '12px auto', color: 'var(--text-secondary)', fontSize: '12px', lineHeight: 1.6 }}>
-                    LinkedIn URL lookup is currently unavailable from its profile-data provider. For analysis of real profile content, export your profile as a PDF and upload it here.
-                  </p>
                   <input
                     ref={liFileInputRef}
                     type="file"
@@ -1854,7 +1733,7 @@ What aspect of your portfolio or profile would you like to improve today? You ca
                   )}
 
                   <div className="connect-benefits-grid">
-                    <div className="benefit-badge">✓ URL structure & SEO audit</div>
+                    <div className="benefit-badge">✓ Profile sections and headline</div>
                     <div className="benefit-badge">✓ Headline keyword scoring</div>
                     <div className="benefit-badge">✓ Role-targeted optimization</div>
                     <div className="benefit-badge">✓ Recruiter visibility tips</div>
@@ -1864,22 +1743,10 @@ What aspect of your portfolio or profile would you like to improve today? You ca
             ) : (
               <div className="linkedin-layout-wrapper animate-fade-in">
                 {/* Search Bar at Top — matches GitHub style */}
-                <div className="card search-reanalyze-bar" style={{ display: 'flex', gap: '16px', marginBottom: '24px', padding: '16px' }}>
-                  <input
-                    type="text"
-                    placeholder="Analyze different LinkedIn profile..."
-                    value={liInput}
-                    onChange={(e) => setLiInput(e.target.value)}
-                    className="form-input"
-                    style={{ flexGrow: 1 }}
-                  />
-                  <button
-                    onClick={() => handleLinkLinkedinUrl(liInput)}
-                    className="btn btn-primary"
-                    disabled={isAnalyzingLinkedin}
-                  >
-                    {isAnalyzingLinkedin ? 'Analyzing...' : 'Re-Analyze'}
-                  </button>
+                <div className="card search-reanalyze-bar" style={{ display: 'flex', gap: '16px', marginBottom: '24px', padding: '16px', alignItems: 'center' }}>
+                  <span style={{ flexGrow: 1, color: 'var(--text-secondary)', fontSize: '13px' }}>
+                    Re-analyze using an updated LinkedIn PDF export.
+                  </span>
                   <input
                     ref={liFileInputRef}
                     type="file"

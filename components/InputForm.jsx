@@ -4,7 +4,6 @@ import { API_UPLOAD_URL } from '../config.js';
 import './InputForm.css';
 
 const RESUME_REJECTION_MESSAGE = 'This file is not a resume. Please upload a resume file or paste your resume text.';
-const LINKEDIN_REJECTION_MESSAGE = 'This is not a LinkedIn URL or username.';
 
 const looksLikeResume = (text = '') => {
   const normalized = text.replace(/\s+/g, ' ').trim();
@@ -31,32 +30,12 @@ const looksLikeResume = (text = '') => {
   return sectionCount >= 2 || (sectionCount >= 1 && indicators >= 2);
 };
 
-const parseLinkedInProfileInput = (value = '') => {
-  const raw = value.trim();
-  if (!raw) return null;
-
-  const isUrlLike = /^https?:\/\//i.test(raw) || /^www\./i.test(raw) || /\.[a-z]{2,}(\/|$)/i.test(raw);
-  const slugPattern = /^[a-z0-9](?:[a-z0-9-]{1,98}[a-z0-9])?$/i;
-
-  if (isUrlLike) {
-    try {
-      const parsed = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
-      const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
-      const parts = parsed.pathname.split('/').filter(Boolean);
-      return host === 'linkedin.com' && parts[0]?.toLowerCase() === 'in' && parts[1] && slugPattern.test(parts[1])
-        ? parts[1]
-        : null;
-    } catch (err) {
-      return null;
-    }
-  }
-
-  return raw.includes('/') || raw.includes('@') || raw.includes('.') || !slugPattern.test(raw) ? null : raw;
-};
-
 function InputForm({ onSubmit, onBack, isLoading }) {
   const [githubUsername, setGithubUsername] = useState('');
-  const [linkedinUsername, setLinkedinUsername] = useState('');
+  const [linkedinText, setLinkedinText] = useState('');
+  const [linkedinFileName, setLinkedinFileName] = useState('');
+  const [linkedinFileStatus, setLinkedinFileStatus] = useState(null);
+  const [linkedinFileError, setLinkedinFileError] = useState('');
   const [resumeText, setResumeText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [resumeFilePath, setResumeFilePath] = useState('');
@@ -203,6 +182,38 @@ function InputForm({ onSubmit, onBack, isLoading }) {
     }
   };
 
+  const handleLinkedinFile = async (file) => {
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      setLinkedinFileStatus('error');
+      setLinkedinFileError('Please upload a LinkedIn profile PDF export.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setLinkedinFileStatus('error');
+      setLinkedinFileError('File is too large (max 10MB).');
+      return;
+    }
+
+    setLinkedinFileName(file.name);
+    setLinkedinFileStatus('parsing');
+    setLinkedinFileError('');
+    setLinkedinText('');
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`${API_UPLOAD_URL}/api/parse/resume`, { method: 'POST', body: formData });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.text || data.text.trim().length < 20) {
+        throw new Error(data.error?.message || data.error || 'Could not extract text from this LinkedIn PDF.');
+      }
+      setLinkedinText(data.text.trim());
+      setLinkedinFileStatus('success');
+    } catch (error) {
+      setLinkedinFileStatus('error');
+      setLinkedinFileError(error.message || 'Could not parse the LinkedIn PDF. Please try again.');
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -213,22 +224,17 @@ function InputForm({ onSubmit, onBack, isLoading }) {
       gh = gh.split('/')[0].split('?')[0].split('#')[0];
       setGithubUsername(gh);
     }
-    let li = linkedinUsername.trim();
-    if (li) {
-      const cleanLinkedin = parseLinkedInProfileInput(li);
-      if (!cleanLinkedin) {
-        alert(LINKEDIN_REJECTION_MESSAGE);
-        return;
-      }
-      li = cleanLinkedin;
-      setLinkedinUsername(li);
-    }
     const rt = resumeText.trim();
 
     const jd = jobDescription.trim();
 
-    if (!gh && !li && !rt) {
-      alert('Please enter at least one channel to analyze (GitHub Username, LinkedIn Username, or Resume Text).');
+    if (linkedinFileStatus === 'parsing') {
+      alert('Please wait — your LinkedIn PDF is still being parsed.');
+      return;
+    }
+
+    if (!gh && !linkedinText && !rt) {
+      alert('Please enter a GitHub username, upload a resume or LinkedIn PDF, or paste your resume text.');
       return;
     }
 
@@ -243,7 +249,7 @@ function InputForm({ onSubmit, onBack, isLoading }) {
       return;
     }
 
-    onSubmit({ githubUsername: gh, linkedinUsername: li, resumeText: rt, jobDescription: jd, targetRole, resumeFilePath });
+    onSubmit({ githubUsername: gh, linkedinText, resumeText: rt, jobDescription: jd, targetRole, resumeFilePath });
   };
 
   return (
@@ -301,17 +307,25 @@ function InputForm({ onSubmit, onBack, isLoading }) {
             />
           </div>
 
-          {/* LinkedIn Username */}
+          {/* LinkedIn PDF export (URL scraping provider is retired) */}
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-mono tracking-[0.2em] text-[#FAFAFA] opacity-70 uppercase" htmlFor="linkedin">LinkedIn Username</label>
+            <label className="text-[10px] font-mono tracking-[0.2em] text-[#FAFAFA] opacity-70 uppercase" htmlFor="linkedin-pdf">LinkedIn Profile PDF (Optional)</label>
             <input
-              type="text"
-              id="linkedin"
-              className="w-full bg-[#090909] border border-[rgba(255,255,255,0.06)] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] text-[#FAFAFA] text-xs font-mono px-4 py-3 rounded-md outline-none focus:border-[#F47A1F] focus:shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),0_0_8px_rgba(244,122,31,0.2)] transition-all"
-              placeholder="e.g. your-name"
-              value={linkedinUsername}
-              onChange={(e) => setLinkedinUsername(e.target.value)}
+              type="file"
+              id="linkedin-pdf"
+              accept=".pdf,application/pdf"
+              disabled={linkedinFileStatus === 'parsing' || isLoading}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                if (file) handleLinkedinFile(file);
+              }}
+              className="w-full bg-[#090909] border border-[rgba(255,255,255,0.06)] text-[#FAFAFA] text-xs font-mono px-4 py-3 rounded-md"
             />
+            <p className="text-[10px] font-mono text-[#FAFAFA] opacity-50 m-0">Upload a PDF export from LinkedIn. Profile URL lookup is no longer available.</p>
+            {linkedinFileStatus === 'parsing' && <p role="status" className="text-xs font-mono text-[#F47A1F] m-0">Extracting {linkedinFileName}…</p>}
+            {linkedinFileStatus === 'success' && <p role="status" className="text-xs font-mono text-[#3DE273] m-0">LinkedIn profile ready: {linkedinFileName}</p>}
+            {linkedinFileError && <p role="alert" className="text-xs font-mono text-[#fca5a5] m-0">{linkedinFileError}</p>}
           </div>
 
           {/* Target Role */}
